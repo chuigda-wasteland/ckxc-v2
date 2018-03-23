@@ -1,0 +1,16 @@
+                                 ckxc contributing guide
+
+Code style:
+    0. Always use FOUR SPACES except in makefiles.
+    1. Use C/C++ as a development language, but don't be too C.
+    2. STL and STL algorithms are preferred. If you can't find some kinds of
+  wheels, add them to library sona.
+    3. Identifiers for ckxc:
+        classes/functions: Parser, Sema, ActOnReturnStmt
+        variables/paramaters: value, currentContext, varName, i/j/k
+        data members: mParser, mSema, mCurrentContext
+        constants/enumerators: MaxDeclsAllowed
+        macroes: SUM_AND_SQUARE
+
+       Identifiers for sona (important): please do as what STL does.
+
