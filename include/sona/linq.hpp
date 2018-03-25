@@ -4,7 +4,8 @@
 #include "optional.hpp"
 #include "util.hpp"
 #include "range.hpp"
-#include "log.hpp"
+#include "iterator_plus.hpp"
+
 #include <type_traits>
 
 /// @attention Sona is for ckx, always for ckx and only for ckx.
@@ -227,7 +228,7 @@ public:
         begin2(begin2), end2(end2), curr2(curr2) {}
 
     reference operator* () noexcept {
-        return curr1 == end1 ? (*curr2) : (*curr1);
+        return (curr1 == end1) ? (*curr2) : (*curr1);
     }
 
     self_type& operator++ () noexcept {
@@ -257,11 +258,11 @@ public:
     self_type operator++(int) noexcept { self_type t; ++(*this); return t; }
 
     self_type operator+ (difference_type diff) const noexcept {
-        self_type t; t += diff; return t;
+        self_type t = *this; t += diff; return t;
     }
 
     self_type operator- (difference_type diff) const noexcept {
-        self_type t; t -= diff; return t;
+        self_type t = *this; t -= diff; return t;
     }
 
     bool operator== (self_type const& that) const noexcept {
@@ -488,12 +489,25 @@ public:
 
 class linq {
 public:
+    template <typename Number>
+    static auto numeric_range(Number start, Number end, Number step = 1) {
+        using iterator = numeric_iterator<Number>;
+        return linq_enumerable<iterator>(
+            iterator(start, end, step, start),
+            iterator(start, end, step, end));
+    }
+
     template <typename Container>
     static auto from_container(Container&& container) {
         using iterator = decltype(std::forward<Container>(container).begin());
         return linq_enumerable<iterator>(
             std::forward<Container>(container).begin(),
             std::forward<Container>(container).end());
+    }
+
+    template <typename Iterator>
+    static auto from_iterator(Iterator begin, Iterator end) {
+        return linq_enumerable<Iterator>(begin, end);
     }
 };
 
