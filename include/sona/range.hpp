@@ -8,29 +8,26 @@ namespace sona {
 template <typename Iterator>
 class iterator_range {
 public:
-    using size_type        =  std::size_t;
-    using difference_type  =  std::ptrdiff_t;
+    using iterator = Iterator;
+    using reverse_iterator = std::reverse_iterator<Iterator>;
 
-    using iterator         =  Iterator;
-    using reverse_iterator =  std::reverse_iterator<Iterator>;
-    using value_type       =  typename
-                              std::iterator_traits<Iterator>::value_type;
-    using reference        =  value_type&;
-    using const_refernece  =  value_type const&;
+    using difference_type = typename
+                            std::iterator_traits<Iterator>::difference_type;
+    using value_type = typename std::iterator_traits<Iterator>::value_type;
+    using size_type = typename std::iterator_traits<Iterator>::size_type;
+    using reference = typename std::iterator_traits<Iterator>::reference;
+    using pointer = typename std::iterator_traits<Iterator>::pointer;
 
-    using pointe           =  value_type*;
-    using const_pointer    =  value_type const*;
-
-    iterator_range(Iterator first, Iterator last) :
+    iterator_range(Iterator first, Iterator last) noexcept :
         first(first), last(last) {}
-    iterator_range(iterator_range const& that) :
+    iterator_range(iterator_range const& that) noexcept :
         iterator_range(that.first, that.last) {}
 
-    iterator begin() const { return first; }
-    iterator end() const { return last; }
+    iterator begin() const noexcept { return first; }
+    iterator end() const noexcept { return last; }
 
-    iterator rbegin() const { return reverse_iterator(last); }
-    iterator rend() const { return reverse_iterator(first); }
+    iterator rbegin() const noexcept { return reverse_iterator(last); }
+    iterator rend() const noexcept { return reverse_iterator(first); }
 
 private:
     Iterator const first;
