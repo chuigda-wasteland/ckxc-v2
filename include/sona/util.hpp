@@ -30,14 +30,19 @@ void assert_impl(bool cond, char const* file, int line,
 #define sona_panic(desc) { sona::impl_74hc183::panic_impl(\
                            __FILE__, __LINE__, __func__, desc); }
 
-#define sona_assert(cond, desc) { sona::impl_74hc183::assert_impl(\
-                                  cond, __FILE__, __LINE__, __func__,\
-                                  #cond, desc); }
+#define sona_assert(cond) {sona::impl_74hc183::assert_impl(\
+                           cond, __FILE__, __LINE__, __func__,\
+                           #cond, "no descrption given");}
+
+#define sona_assert1(cond, desc) { sona::impl_74hc183::assert_impl(\
+                                   cond, __FILE__, __LINE__, __func__,\
+                                   #cond, desc); }
 
 #else
 
 #define sona_panic(desc) {;}
-#define sona_assert(cond, desc) {;}
+#define sona_assert(cond) {;}
+#define sona_assert1(cond, desc) {;}
 
 #endif
 

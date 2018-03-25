@@ -2,6 +2,7 @@
 #define LINQ_HPP
 
 #include "optional.hpp"
+#include "util.hpp"
 #include <type_traits>
 
 namespace sona {
@@ -112,9 +113,10 @@ public:
         while (iter != end && !filter(*iter)) ++iter;
     }
 
-    reference operator* () noexcept { return *iter; }
+    reference operator* () noexcept { sona_assert(iter != end); return *iter; }
 
     bool operator== (self_type const& other) const noexcept {
+        sona_assert(end == other.end);
         return iter == other.iter;
     }
 
@@ -156,6 +158,8 @@ public:
     reference operator* () noexcept { return *iter; }
 
     bool operator== (self_type const& other) const noexcept {
+        sona_assert(begin == other.begin);
+        sona_assert(end == other.end);
         return iter == other.iter;
     }
 
@@ -255,6 +259,10 @@ public:
     }
 
     bool operator== (self_type const& that) noexcept {
+        sona_assert(begin1 == that.begin1);
+        sona_assert(end1 == that.end1);
+        sona_assert(begin1 == that.begin2);
+        sona_assert(end1 == that.end2);
         return (curr1 == that.curr1) && (curr2 == that.curr2);
     }
 
@@ -263,6 +271,10 @@ public:
     }
 
     bool operator< (self_type const& that) noexcept {
+        sona_assert(begin1 == that.begin1);
+        sona_assert(end1 == that.end1);
+        sona_assert(begin1 == that.begin2);
+        sona_assert(end1 == that.end2);
         if (curr1 == end1) {
             if (that.curr1 == that.end1) return curr2 < that.curr2;
             else return false;
@@ -285,6 +297,10 @@ public:
     }
 
     difference_type operator- (self_type const& that) noexcept {
+        sona_assert(begin1 == that.begin1);
+        sona_assert(end1 == that.end1);
+        sona_assert(begin1 == that.begin2);
+        sona_assert(end1 == that.end2);
         return curr1 == end1 ? curr2 - that.curr2 : curr1 - that.curr1;
     }
 
@@ -360,6 +376,8 @@ public:
     }
 
     bool operator== (self_type const& that) const noexcept {
+        sona_assert ((iter1 == that.iter1 && iter2 == that.iter2) || \
+                     !(iter1 == that.iter1 && iter2 == that.iter2));
         return iter1 == that.iter1;
     }
 
@@ -368,6 +386,8 @@ public:
     }
 
     bool operator< (self_type const& that) const noexcept {
+        sona_assert ((iter1 < that.iter1 && iter2 < that.iter2) || \
+                     !(iter1 < that.iter1 && iter2 < that.iter2));
         return iter1 < that.iter1;
     }
 
@@ -384,6 +404,7 @@ public:
     }
 
     difference_type operator- (self_type const& that) const noexcept {
+        sona_assert ((iter1 - that.iter1) == (iter2 - that.iter2));
         return iter1 - that.iter1;
     }
 
