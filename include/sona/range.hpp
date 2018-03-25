@@ -14,7 +14,6 @@ public:
     using difference_type = typename
                             std::iterator_traits<Iterator>::difference_type;
     using value_type = typename std::iterator_traits<Iterator>::value_type;
-    using size_type = typename std::iterator_traits<Iterator>::size_type;
     using reference = typename std::iterator_traits<Iterator>::reference;
     using pointer = typename std::iterator_traits<Iterator>::pointer;
 
@@ -26,8 +25,8 @@ public:
     iterator begin() const noexcept { return first; }
     iterator end() const noexcept { return last; }
 
-    iterator rbegin() const noexcept { return reverse_iterator(last); }
-    iterator rend() const noexcept { return reverse_iterator(first); }
+    reverse_iterator rbegin() const noexcept { return reverse_iterator(last); }
+    reverse_iterator rend() const noexcept { return reverse_iterator(first); }
 
 private:
     Iterator const first;

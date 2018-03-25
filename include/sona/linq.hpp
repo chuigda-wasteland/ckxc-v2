@@ -3,8 +3,11 @@
 
 #include "optional.hpp"
 #include "util.hpp"
+#include "range.hpp"
+#include "log.hpp"
 #include <type_traits>
 
+/// @attention Sona is for ckx, always for ckx and only for ckx.
 namespace sona {
 
 namespace linq_impl {
@@ -68,7 +71,7 @@ public:
     }
 
     bool operator!= (self_type const& that) const noexcept {
-        return *this != that;
+        return !(*this == that);
     }
 
     bool operator< (self_type const& that) const noexcept {
@@ -108,8 +111,8 @@ public:
     using reference = typename std::iterator_traits<Iter>::reference;
     using pointer = typename std::iterator_traits<Iter>::pointer;
 
-    filter_iterator(Iter iter, Iter end, Filter filter) noexcept :
-        iter(iter), end(end), filter(std::move(filter)) {
+    filter_iterator(Iter iter_, Iter end_, Filter filter) noexcept :
+        iter(iter_), end(end_), filter(std::move(filter)) {
         while (iter != end && !filter(*iter)) ++iter;
     }
 
@@ -125,6 +128,7 @@ public:
     }
 
     self_type& operator++ () noexcept {
+        if (iter != end) ++iter;
         while (iter != end && !filter(*iter)) ++iter; return *this;
     }
 
@@ -148,9 +152,9 @@ public:
     using reference = typename std::iterator_traits<Iter>::reference;
     using pointer = typename std::iterator_traits<Iter>::pointer;
 
-    bidirectional_filter_iterator(Iter iter, Iter begin,
-                                  Iter end, Filter filter) noexcept :
-        iter(iter), begin(begin), end(end), filter(std::move(filter)) {
+    bidirectional_filter_iterator(Iter iter_, Iter begin_,
+                                  Iter end_, Filter filter) noexcept :
+        iter(iter_), begin(begin_), end(end_), filter(std::move(filter)) {
         while (begin != end && !filter(*begin)) ++begin;
         while (iter != end && !filter(*iter)) ++iter;
     }
@@ -168,10 +172,12 @@ public:
     }
 
     self_type& operator++ () noexcept {
+        if (iter != end) ++iter;
         while (iter != end && !filter(*iter)) ++iter; return *this;
     }
 
     self_type& operator-- () noexcept {
+        if (iter != begin) --iter;
         while (iter != begin && !filter(*iter)) --iter; return *this;
     }
 
@@ -225,11 +231,11 @@ public:
     }
 
     self_type& operator++ () noexcept {
-        ++ (curr1 == end1 ? curr2 : curr1); return *this;
+        if (curr1 == end1) ++curr2; else ++curr1; return *this;
     }
 
     self_type& operator-- () noexcept {
-        -- (curr2 == begin2 ? curr1 : curr2); return *this;
+        if (curr2 == begin2) --curr1; else --curr2; return *this;
     }
 
     self_type& operator+= (difference_type diff) noexcept {
@@ -258,19 +264,19 @@ public:
         self_type t; t -= diff; return t;
     }
 
-    bool operator== (self_type const& that) noexcept {
+    bool operator== (self_type const& that) const noexcept {
         sona_assert(begin1 == that.begin1);
         sona_assert(end1 == that.end1);
-        sona_assert(begin1 == that.begin2);
-        sona_assert(end1 == that.end2);
+        sona_assert(begin2 == that.begin2);
+        sona_assert(end2 == that.end2);
         return (curr1 == that.curr1) && (curr2 == that.curr2);
     }
 
-    bool operator!= (self_type const& that) noexcept {
+    bool operator!= (self_type const& that) const noexcept {
         return !(*this == that);
     }
 
-    bool operator< (self_type const& that) noexcept {
+    bool operator< (self_type const& that) const noexcept {
         sona_assert(begin1 == that.begin1);
         sona_assert(end1 == that.end1);
         sona_assert(begin1 == that.begin2);
@@ -284,19 +290,19 @@ public:
         }
     }
 
-    bool operator> (self_type const& that) noexcept {
+    bool operator> (self_type const& that) const noexcept {
         return that < *this;
     }
 
-    bool operator<= (self_type const& that) noexcept {
+    bool operator<= (self_type const& that) const noexcept {
         return !(*this > that);
     }
 
-    bool operator>= (self_type const& that) noexcept {
+    bool operator>= (self_type const& that) const noexcept {
         return !(*this < that);
     }
 
-    difference_type operator- (self_type const& that) noexcept {
+    difference_type operator- (self_type const& that) const noexcept {
         sona_assert(begin1 == that.begin1);
         sona_assert(end1 == that.end1);
         sona_assert(begin1 == that.begin2);
@@ -414,6 +420,82 @@ private:
 };
 
 } // namespace linq_impl
+
+template <typename Iterator>
+class linq_enumerable : public iterator_range<Iterator> {
+    using base_type = iterator_range<Iterator>;
+    friend class linq;
+
+public:
+    template <typename Transform>
+    auto transform(Transform transform) noexcept {
+        using transform_iterator =
+              linq_impl::transform_iterator<Iterator, Transform>;
+        return linq_enumerable<transform_iterator>(
+            transform_iterator(base_type::begin(), transform),
+            transform_iterator(base_type::end(), transform));
+    }
+
+    template <typename Filter>
+    auto filter(Filter filter) noexcept {
+        using filter_iterator =
+              linq_impl::filter_iterator<Iterator, Filter>;
+        return linq_enumerable<filter_iterator>(
+            filter_iterator(base_type::begin(), base_type::end(), filter),
+            filter_iterator(base_type::end(), base_type::end(), filter));
+    }
+
+    template <typename Filter>
+    auto filter1(Filter filter) noexcept {
+        using filter_iterator =
+              linq_impl::bidirectional_filter_iterator<Iterator, Filter>;
+        return linq_enumerable<filter_iterator>(
+            filter_iterator(
+                base_type::begin(),base_type::begin(),base_type::end(),filter),
+            filter_iterator(
+                base_type::end(),base_type::begin(),base_type::end(),filter));
+    }
+
+    template <typename Iterator1>
+    auto concat_with(linq_enumerable<Iterator1> const& that) noexcept {
+        using concat_iterator =
+              linq_impl::concat_iterator<Iterator, Iterator1>;
+        return linq_enumerable<concat_iterator>(
+            concat_iterator(
+                base_type::begin(), base_type::end(), base_type::begin(),
+                that.begin(), that.end(), that.begin()),
+            concat_iterator(
+                base_type::begin(), base_type::end(), base_type::end(),
+                that.begin(), that.end(), that.end()));
+    }
+
+    template <typename Iterator1>
+    auto zip_with(linq_enumerable<Iterator1> const& that) noexcept {
+        using zip_iterator =
+              linq_impl::zip_iterator<Iterator, Iterator1>;
+        return linq_enumerable<zip_iterator>(
+            zip_iterator(base_type::begin(), that.begin()),
+            zip_iterator(base_type::end(), that.end()));
+    }
+
+    auto reverse() noexcept {
+        return linq_enumerable<typename base_type::reverse_iterator>(
+            base_type::rbegin(), base_type::rend());
+    }
+
+    linq_enumerable(Iterator begin, Iterator end) : base_type(begin, end) {}
+};
+
+class linq {
+public:
+    template <typename Container>
+    static auto from_container(Container&& container) {
+        using iterator = decltype(std::forward<Container>(container).begin());
+        return linq_enumerable<iterator>(
+            std::forward<Container>(container).begin(),
+            std::forward<Container>(container).end());
+    }
+};
 
 } // namespace sona
 

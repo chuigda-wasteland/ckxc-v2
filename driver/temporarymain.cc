@@ -1,28 +1,22 @@
 #include "sona/log.hpp"
 #include "sona/backtrace.hpp"
-
-#include "sona/util.hpp"
-#include "sona/optional.hpp"
 #include "sona/linq.hpp"
+
+#include <vector>
 #include <iostream>
 
 int main() {
-    int a;
-    sona::construct(&a, 5);
-
-    sona::log(2333);
-
-    sona_mark_stack1();
-    {
-        sona_mark_stack1();
-        sona_backtrace();
-    }
-
     using namespace std;
-    cout << a << endl;
+    using namespace sona;
 
-    sona::destroy_at(&a);
+    vector<int> vec {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    sona::optional<int> b(19);
-    cout << b.value() << endl;
+    for (int x : linq::from_container(vec).
+                     filter1([](int x) -> bool { return x % 2 == 0; }).
+                     reverse().
+                     transform([](int x) -> int { return x * x; }).
+                     concat_with(linq::from_container(vec)).
+                     transform([](int x) -> int { return x * 3 + 1; })) {
+        cout << x << ' ';
+    }
 }

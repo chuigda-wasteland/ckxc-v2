@@ -9,6 +9,12 @@ namespace log_impl {
 
 void log(std::string const& str);
 
+/*
+std::string to_string(char const* str) {
+    return std::string(str);
+}
+*/
+
 template <typename T, typename ...Args>
 void log(std::string&& str, T&& t, Args&& ...args) {
     using namespace std;
