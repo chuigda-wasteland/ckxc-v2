@@ -5,8 +5,7 @@
 #include "util.hpp"
 #include "range.hpp"
 #include "iterator_plus.hpp"
-
-#include <type_traits>
+#include "traits_plus.hpp"
 
 /// @attention Sona is for ckx, always for ckx and only for ckx.
 namespace sona {
@@ -28,9 +27,10 @@ public:
           typename std::iterator_traits<Iter>::iterator_category;
     using difference_type =
           typename std::iterator_traits<Iter>::difference_type;
-    using value_type = typename std::iterator_traits<Iter>::value_type;
-    using reference = typename std::iterator_traits<Iter>::reference;
-    using pointer = typename std::iterator_traits<Iter>::pointer;
+    using value_type = invoke_result_t<
+        Transform, typename std::iterator_traits<Iter>::value_type>;
+    using reference = value_type;
+    using pointer = std::add_pointer_t<value_type>;
 
     transform_iterator(Iter iter, Transform transform) noexcept :
         iter(iter), transform(std::move(transform)) {}
@@ -112,8 +112,8 @@ public:
     using reference = typename std::iterator_traits<Iter>::reference;
     using pointer = typename std::iterator_traits<Iter>::pointer;
 
-    filter_iterator(Iter iter_, Iter end_, Filter filter) noexcept :
-        iter(iter_), end(end_), filter(std::move(filter)) {
+    filter_iterator(Iter iter_, Iter end_, Filter filter_) noexcept :
+        iter(iter_), end(end_), filter(std::move(filter_)) {
         while (iter != end && !filter(*iter)) ++iter;
     }
 
