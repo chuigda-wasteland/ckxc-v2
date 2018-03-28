@@ -424,6 +424,7 @@ private:
 
 template <typename Iterator>
 class linq_enumerable : public iterator_range<Iterator> {
+    using self_type = linq_enumerable<Iterator>;
     using base_type = iterator_range<Iterator>;
     friend class linq;
 
@@ -482,6 +483,17 @@ public:
     auto reverse() noexcept {
         return linq_enumerable<typename base_type::reverse_iterator>(
             base_type::rbegin(), base_type::rend());
+    }
+
+    auto slice(typename base_type::difference_type from,
+               typename base_type::difference_type to = 0) {
+        sona_assert1(from >= 0, "slicing from negative index");
+        if (to <= 0)
+            return self_type(base_type::begin() + from,
+                             base_type::end() + to);
+        else
+            return self_type(base_type::begin() + from,
+                             base_type::begin() + to);
     }
 
     linq_enumerable(Iterator begin, Iterator end) : base_type(begin, end) {}

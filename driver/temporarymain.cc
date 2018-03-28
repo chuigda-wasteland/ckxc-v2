@@ -17,13 +17,9 @@ int main() {
                      filter1([](int x) -> bool { return x % 2 == 0; }).
                      reverse().
                      transform([](int x) -> int { return x * x; }).
-                     concat_with(linq::from_iterator(vec1.cbegin(), vec1.cend())).
+                     concat_with(linq::from_container(vec1)).
+                     concat_with(linq::from_container(vec2).slice(2)).
                      transform([](int x) -> int { return x * 3 + 1; })) {
         cout << x << ' ';
     }
-
-    auto rng = linq::from_container(vec1)
-                   .concat_with(linq::from_container(vec2));
-
-    // std::sort(rng.begin(), rng.end());
 }
