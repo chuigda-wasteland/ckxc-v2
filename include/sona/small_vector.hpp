@@ -60,7 +60,7 @@ public:
             return reinterpret_cast<T*>(&(u.s.storage));
         else if (u_status == onheap)
             return u.heap.dyn_mem_start;
-        else sona_unreachable();
+        else { sona_unreachable(); return nullptr; }
     }
 
     iterator end() {
@@ -68,7 +68,7 @@ public:
             return reinterpret_cast<T*>(&(u.s.storage)) + u.s.usage;
         else if (u_status == onheap)
             return u.heap.dyn_mem_usage;
-        else sona_unreachable();
+        else { sona_unreachable(); return nullptr; }
     }
 
     const_iterator cbegin() const {
@@ -76,7 +76,7 @@ public:
             return reinterpret_cast<T const*>(&(u.s.storage));
         else if (u_status == onheap)
             return u.heap.dyn_mem_start;
-        else sona_unreachable();
+        else { sona_unreachable(); return nullptr; }
     }
 
     const_iterator cend() const {
@@ -84,7 +84,7 @@ public:
             return reinterpret_cast<T const*>(&(u.s.storage)) + u.s.usage;
         else if (u_status == onheap)
             return u.heap.dyn_mem_usage;
-        else sona_unreachable();
+        else { sona_unreachable(); return nullptr; }
     }
 
     value_type& operator[](size_type n) { return *(begin() + n); }
@@ -144,6 +144,10 @@ public:
 
                 for (auto iter = begin(); iter != end(); ++iter)
                     destroy_at<T>(&(*iter));
+
+                u.heap.dyn_mem_start = dyn_mem_start;
+                u.heap.dyn_mem_end = dyn_mem_end;
+                u.heap.dyn_mem_usage = dyn_mem_usage;
             }
             /// @attention fallthrough
 
