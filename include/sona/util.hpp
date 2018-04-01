@@ -46,4 +46,6 @@ void assert_impl(bool cond, char const* file, int line,
 
 #endif
 
+#define sona_unreachable() sona_assert1(false, "Should be unreachable!")
+
 #endif // UTIL_HPP
