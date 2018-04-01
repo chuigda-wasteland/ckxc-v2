@@ -1,20 +1,34 @@
 #ifndef SOURCERANGE_HPP
 #define SOURCERANGE_HPP
 
+#include <cstddef>
+#include <cstdint>
+
+#include "sona/small_vector.hpp"
+
 namespace ckx {
 
-class SourceRange {
+using Coord = std::uint16_t;
+
+class SingleSourceRange {
 public:
-    /// @note multiple-line source-range will be solved in other ways
-    SourceRange(int startLine, int startCol, int endCol) :
+    SingleSourceRange(Coord startLine, Coord startCol, Coord endCol) :
         m_StartLine(startLine), m_StartCol(startCol), m_EndCol(endCol) {}
 
-    int GetStartLine() const { return m_StartLine; }
-    int GetStartCol() const { return m_StartCol; }
-    int GetEndCol() const { return m_EndCol; }
+    Coord GetStartLine() const { return m_StartLine; }
+    Coord GetStartCol() const { return m_StartCol; }
+    Coord GetEndCol() const { return m_EndCol; }
 
 private:
-    int m_StartLine, m_StartCol, m_EndCol;
+    Coord m_StartLine, m_StartCol, m_EndCol;
+};
+
+using MultipleSourceRange = sona::small_vector<SingleSourceRange, 2>;
+
+class SourceRange {
+private:
+    /// sona::either<SingleSourceRange, MultipleSourceRange> e;
+    /// @todo finish sona::either then.
 };
 
 } // namespace ckx
