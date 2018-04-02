@@ -235,7 +235,8 @@ public:
 private:
     union {
         struct {
-            std::aligned_storage_t<4*sizeof(T), alignof(T)> storage;
+            std::aligned_storage_t<PossibleSize*sizeof(T), alignof(T)>
+                storage;
             size_type usage;
         } s;
         struct {
