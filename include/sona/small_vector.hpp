@@ -48,6 +48,54 @@ public:
         }
     }
 
+    small_vector(small_vector const& that) {
+        if (that.u_status == uninitialized) u_status = uninitialized;
+        else if (that.u_status == locally) {
+            std::uninitialized_copy(that.cbegin(), that.cend(),
+                                    reinterpret_cast<T*>(&(u.s.storage)));
+            u.s.usage = that.u.s.usage;
+            u_status = locally;
+        }
+        else if (that.u_status == onheap) {
+            T* dyn_mem_start = reinterpret_cast<T*>(
+                ::operator new(that.size() * sizeof(T)));
+            T* dyn_mem_end = dyn_mem_start + that.size();
+            T* dyn_mem_usage = dyn_mem_end;
+
+            std::uninitialized_copy(that.cbegin(), that.cend(), dyn_mem_start);
+            u.heap.dyn_mem_start = dyn_mem_start;
+            u.heap.dyn_mem_end = dyn_mem_end;
+            u.heap.dyn_mem_usage = dyn_mem_usage;
+            u_status = onheap;
+        }
+        else {
+            sona_unreachable();
+        }
+    }
+
+    small_vector(std::initializer_list<T> init_list) {
+        if (init_list.size() <= PossibleSize) {
+            std::uninitialized_copy(init_list.begin(), init_list.end(),
+                                    reinterpret_cast<T*>(&(u.s.storage)));
+            u.s.usage = init_list.size();
+            u_status = locally;
+        }
+        else {
+            /// @todo Reuse previous codes
+            T* dyn_mem_start = reinterpret_cast<T*>(
+                ::operator new(init_list.size() * sizeof(T)));
+            T* dyn_mem_end = dyn_mem_start + init_list.size();
+            T* dyn_mem_usage = dyn_mem_end;
+
+            std::uninitialized_copy(init_list.begin(), init_list.end(),
+                                    dyn_mem_start);
+            u.heap.dyn_mem_start = dyn_mem_start;
+            u.heap.dyn_mem_end = dyn_mem_end;
+            u.heap.dyn_mem_usage = dyn_mem_usage;
+            u_status = onheap;
+        }
+    }
+
     ~small_vector() {
         // erase(begin(), end());
         if (u_status == onheap) {
@@ -159,6 +207,7 @@ public:
         sona_unreachable();
     }
 
+    /// @todo reuse codes
     /// And then how to reuse?
     /// Any suggestions?
     /*
@@ -169,11 +218,19 @@ public:
     template <typename ...Args>
     void emplace_back(Args&& ...args) {
 
-    }
+    }*/
 
     void pop_back() {
+        sona_assert1(size() != 0, "Empty small vector!");
+
+        destroy_at<T>(end()-1);
+        if (u_status == locally) {
+            u.s.usage--;
+        }
+        else if (u_status == onheap) {
+            u.heap.dyn_mem_usage--;
+        }
     }
-    */
 
 private:
     union {

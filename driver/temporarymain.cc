@@ -11,15 +11,18 @@ int main() {
     using namespace std;
     using namespace sona;
 
-    small_vector<int, 4> vec;
-    vec.push_back(4);
-    vec.push_back(3);
-    vec.push_back(2);
-    vec.push_back(1);
-    vec.push_back(9);
+    small_vector<int, 4> vec {1, 2, 3, 4};
+    small_vector<int, 4> vec1 {1, 2, 3, 4, 5};
 
     for (int x : linq::from_container(vec).
                      transform([](int v) { return v*3 + 1; })) {
         cout << x << ' ';
     }
+    cout << endl;
+
+    for (int x : linq::from_container(vec1).
+                     transform([](int v) { return v*3 + 1; })) {
+        cout << x << ' ';
+    }
+    cout << endl;
 }

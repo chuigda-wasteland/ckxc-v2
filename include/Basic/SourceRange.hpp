@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "sona/small_vector.hpp"
+#include "sona/either.hpp"
 
 namespace ckx {
 
@@ -26,9 +27,14 @@ private:
 using MultipleSourceRange = sona::small_vector<SingleSourceRange, 2>;
 
 class SourceRange {
+public:
+    SourceRange(SingleSourceRange const& rng) :
+        m_SourceRange(rng) {}
+    SourceRange(std::initializer_list<SingleSourceRange> rngs) :
+        m_SourceRange(rngs) {}
+
 private:
-    /// sona::either<SingleSourceRange, MultipleSourceRange> e;
-    /// @todo finish sona::either then.
+    sona::either<SingleSourceRange, MultipleSourceRange> m_SourceRange;
 };
 
 } // namespace ckx

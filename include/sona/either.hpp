@@ -10,6 +10,9 @@ namespace sona {
 template <typename T1, typename T2>
 class either {
 public:
+    struct t1_tag{};
+    struct t2_tag{};
+
     either(T1 const& value) {
         construct<T1>(reinterpret_cast<T1*>(&storage), value);
         status = has_t1;
@@ -30,10 +33,39 @@ public:
         status = has_t2;
     }
 
-    T1& as_t1() { return *reinterpret_cast<T1*>(&storage); }
-    T2& as_t2() { return *reinterpret_cast<T2*>(&storage); }
-    T1 const& as_t1() const { return *reinterpret_cast<T1 const*>(&storage); }
-    T2 const& as_t2() const { return *reinterpret_cast<T2 const*>(&storage); }
+    template <typename ...Args>
+    either(t1_tag, Args&& ...args) {
+        construct<T1>(reinterpret_cast<T1*>(&storage),
+                      std::forward<Args>(args)...);
+        status = has_t1;
+    }
+
+    template <typename ...Args>
+    either(t2_tag, Args&& ...args) {
+        construct<T2>(reinterpret_cast<T2*>(&storage),
+                      std::forward<Args>(args)...);
+        status = has_t2;
+    }
+
+    T1& as_t1() {
+        sona_assert1(status == has_t1, "this either does not contains T1");
+        return *reinterpret_cast<T1*>(&storage);
+    }
+
+    T2& as_t2() {
+        sona_assert1(status == has_t2, "this either does not contains T2");
+        return *reinterpret_cast<T2*>(&storage);
+    }
+
+    T1 const& as_t1() const {
+        sona_assert1(status == has_t1, "this either does not contains T1");
+        return *reinterpret_cast<T1 const*>(&storage);
+    }
+
+    T2 const& as_t2() const {
+        sona_assert1(status == has_t2, "this either does not contains T2");
+        return *reinterpret_cast<T2 const*>(&storage);
+    }
 
     either(either const&) = delete;
     either(either&& that) : status(that.status) {
