@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <initializer_list>
 
 namespace sona {
 
@@ -57,6 +58,8 @@ public:
     using value_type = T;
     using reference = T&;
     using pointer = T*;
+    using const_reference = T const&;
+    using const_pointer = T const*;
 
     class iterator {
     public:
@@ -85,9 +88,20 @@ public:
             return *this;
         }
 
+        iterator& operator-- () noexcept {
+            --raw_data_iter;
+            return *this;
+        }
+
         iterator operator++ (int) noexcept {
             iterator iter = *this;
             ++(*this);
+            return iter;
+        }
+
+        iterator operator-- (int) noexcept {
+            iterator iter = *this;
+            --(*this);
             return iter;
         }
 
@@ -143,13 +157,99 @@ public:
         raw_data_iterator raw_data_iter;
     };
 
-    class const_iterator { /** @todo finish const_iterator */ };
+    class const_iterator {
+        using self_type = const_iterator;
+
+    public:
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = q_list::value_type;
+        using reference = const_reference;
+        using pointer = const_pointer;
+
+        const_iterator(const_raw_data_iterator raw_data_iter) noexcept
+            : raw_data_iter(raw_data_iter) {}
+
+        const_iterator(self_type const& that) noexcept
+            : raw_data_iter(that.raw_data_iter) {}
+
+        value_type operator* () const noexcept {
+            return reinterpret_cast<value_type*>(*raw_data_iter);
+        }
+
+        self_type& operator= (iterator const& that) noexcept {
+            raw_data_iter = that.raw_data_iter;
+        }
+
+        self_type& operator++ () noexcept {
+            ++raw_data_iter; return *this;
+        }
+
+        self_type& operator-- () noexcept {
+            --raw_data_iter; return *this;
+        }
+
+        self_type operator++ (int) noexcept {
+            self_type iter = *this;
+            ++(*this);
+            return iter;
+        }
+
+        self_type operator-- (int) noexcept {
+            self_type iter = *this;
+            --(*this);
+            return iter;
+        }
+
+        self_type& operator+= (difference_type diff) noexcept {
+            raw_data_iter += diff;
+        }
+
+        self_type& operator-= (difference_type diff) noexcept {
+            raw_data_iter -= diff;
+        }
+
+        difference_type operator- (self_type const& that) const noexcept {
+            return raw_data_iter - that.raw_data_iter;
+        }
+
+        bool operator== (self_type const& that) const noexcept {
+            return raw_data_iter == that.raw_data_iter;
+        }
+
+        bool operator!= (self_type const& that) const noexcept {
+            return !(*this == that);
+        }
+
+        bool operator< (self_type const& that) const noexcept {
+            return raw_data_iter < that.raw_data_iter;
+        }
+
+        bool operator> (self_type const& that) const noexcept {
+            return raw_data_iter > that.raw_data_iter;
+        }
+
+        bool operator<= (self_type const& that) const noexcept {
+            return !(*this > that);
+        }
+
+        bool operator>= (self_type const& that) const noexcept {
+            return !(*this < that);
+        }
+
+    private:
+        const_raw_data_iterator raw_data_iter;
+    };
 
     q_list() : impl() {}
 
     q_list(value_type const& value, size_type count) : impl(count) {
         for (size_type i = 0; i < count; ++i)
             impl.push_back((void*)(new value_type(value)));
+    }
+
+    q_list(std::initializer_list<value_type> ilist) : impl(ilist.size()) {
+        for (auto& x : ilist) impl.push_back(new value_type(std::move(x)));
     }
 
     ~q_list() {
@@ -171,7 +271,7 @@ public:
     }
 
     void pop_back() {
-        value_type *casted_data = reinterpret_cast<value_type*>(impl.end());
+        value_type *casted_data = reinterpret_cast<value_type*>(impl.back());
         delete casted_data;
         impl.pop_back();
     }
