@@ -16,8 +16,11 @@ endif()
 include_directories (include)
 
 aux_source_directory (lib/sona SONA_SRC)
+aux_source_directory (lib/AST AST_SRC)
 
 add_library (sona ${SONA_SRC})
+add_library (AST ${AST_SRC})
 
 add_executable (temporary driver/temporarymain.cc)
 target_link_libraries (temporary sona)
+target_link_libraries (temporary AST)
