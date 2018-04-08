@@ -11,6 +11,16 @@ namespace ckx {
 
 using Coord = std::uint16_t;
 
+class SourceLocation {
+public:
+    SourceLocation(Coord line, Coord col) : m_Line(line), m_Col(col) {}
+    Coord GetLine() const { return m_Line; }
+    Coord GetCol() const { return m_Col; }
+
+private:
+    Coord m_Line, m_Col;
+};
+
 class SingleSourceRange {
 public:
     SingleSourceRange(Coord startLine, Coord startCol, Coord endCol) :
@@ -24,18 +34,7 @@ private:
     Coord m_StartLine, m_StartCol, m_EndCol;
 };
 
-using MultipleSourceRange = sona::small_vector<SingleSourceRange, 2>;
-
-class SourceRange {
-public:
-    SourceRange(SingleSourceRange const& rng) :
-        m_SourceRange(rng) {}
-    SourceRange(std::initializer_list<SingleSourceRange> rngs) :
-        m_SourceRange(rngs) {}
-
-private:
-    sona::either<SingleSourceRange, MultipleSourceRange> m_SourceRange;
-};
+using SourceRange = sona::small_vector<SingleSourceRange, 2>;
 
 } // namespace ckx
 
