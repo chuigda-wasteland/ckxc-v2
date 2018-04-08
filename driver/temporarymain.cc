@@ -13,12 +13,7 @@ int main() {
     using namespace sona;
 
     small_vector<int, 4> vec { 1, 2, 3, 4 };
-    q_list<int> list { 1, 2, 3, 4 };
-    list.pop_back();
-    list.push_back(3);
-    list.push_back(4);
-    list.push_back(5);
-    list.push_back(9);
+    q_list<int> list { 9, 9, 3, 4, 1, 7, 2 };
 
     for (int x : linq::from_container(vec).
                      transform([](int v) { return v*3 + 1; })) {
@@ -26,6 +21,7 @@ int main() {
     }
     cout << endl;
 
+    std::sort(list.begin(), list.end());
     for (int x : linq::from_container(list).
                      transform([](int v) { return v*3 + 1; })) {
         cout << x << ' ';

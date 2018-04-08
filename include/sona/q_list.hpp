@@ -75,12 +75,13 @@ public:
         iterator(iterator const& that) noexcept
             : raw_data_iter(that.raw_data_iter) {}
 
-        value_type operator* () const noexcept {
+        reference operator* () const noexcept {
             return *(reinterpret_cast<value_type*>(*raw_data_iter));
         }
 
         iterator& operator= (iterator const& that) noexcept {
             raw_data_iter = that.raw_data_iter;
+            return *this;
         }
 
         iterator& operator++ () noexcept {
@@ -107,10 +108,12 @@ public:
 
         iterator& operator+= (difference_type diff) noexcept {
             raw_data_iter += diff;
+            return *this;
         }
 
         iterator& operator-= (difference_type diff) noexcept {
             (*this) += (-diff);
+            return *this;
         }
 
         iterator operator+ (difference_type diff) const noexcept {
@@ -173,12 +176,13 @@ public:
         const_iterator(self_type const& that) noexcept
             : raw_data_iter(that.raw_data_iter) {}
 
-        value_type operator* () const noexcept {
+        reference operator* () const noexcept {
             return reinterpret_cast<value_type*>(*raw_data_iter);
         }
 
         self_type& operator= (iterator const& that) noexcept {
             raw_data_iter = that.raw_data_iter;
+            return *this;
         }
 
         self_type& operator++ () noexcept {
@@ -203,10 +207,12 @@ public:
 
         self_type& operator+= (difference_type diff) noexcept {
             raw_data_iter += diff;
+            return *this;
         }
 
         self_type& operator-= (difference_type diff) noexcept {
             raw_data_iter -= diff;
+            return *this;
         }
 
         difference_type operator- (self_type const& that) const noexcept {
