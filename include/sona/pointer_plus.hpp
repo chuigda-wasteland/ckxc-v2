@@ -14,6 +14,10 @@ public:
     ref_ptr(ref_ptr const&) = default;
     ref_ptr& operator= (ref_ptr const&) = default;
 
+    operator ref_ptr<T const> () const noexcept {
+        return ref_ptr<T const>(*ptr);
+    }
+
     operator T& () const noexcept { return *ptr; }
     T& get() const noexcept { return *ptr; }
 
@@ -31,6 +35,7 @@ public:
     owner(owner&& that) : ptr(that.ptr) { that.ptr = nullptr; }
 
     ref_ptr<T> borrow() noexcept { return ref_ptr<T>(*ptr); }
+    ref_ptr<T const> borrow() const noexcept { return ref_ptr<T>(*ptr); }
 
 private:
     T *ptr;

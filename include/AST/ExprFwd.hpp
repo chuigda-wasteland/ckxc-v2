@@ -3,7 +3,7 @@
 
 namespace ckx {
 
-class Expr;
+class Expr {};
 
 } // namespace ckx
 

@@ -3,7 +3,7 @@
 
 #include "StmtBase.hpp"
 #include "ExprFwd.hpp"
-#include "DeclFwd.hpp"
+#include "DeclBase.hpp"
 
 #include "Basic/SourceRange.hpp"
 #include "sona/pointer_plus.hpp"
@@ -28,7 +28,9 @@ public:
         : Stmt(StmtId::SI_Decl),
           m_Decl(std::move(decl)) {}
 
-    sona::ref_ptr<Decl> GetDecl() const noexcept { return m_Decl.borrow(); }
+    sona::ref_ptr<Decl const> GetDecl() const noexcept {
+        return m_Decl.borrow();
+    }
 
 private:
     sona::owner<Decl> m_Decl;
@@ -40,7 +42,9 @@ public:
         Stmt(StmtId::SI_Expr),
         m_Expr(std::move(expr)) {}
 
-    sona::ref_ptr<Stmt> GetExpr() const noexcept { return m_Expr.borrow(); }
+    sona::ref_ptr<Expr const> GetExpr() const noexcept {
+        return m_Expr.borrow();
+    }
 
 private:
     sona::owner<Expr> m_Expr;
@@ -92,7 +96,8 @@ public:
           m_RightParenLocation(rightParenLocation),
           m_ElseLocation(sona::empty_optional()) {}
 
-    IfStmt(Expr *thenExpr, Expr *elseExpr,
+    IfStmt(sona::owner<Expr> thenExpr,
+           sona::owner<Expr> elseExpr,
            SourceLocation ifLocation,
            SourceLocation leftParenLocation,
            SourceLocation rightParenLocation,
@@ -105,7 +110,7 @@ public:
           m_RightParenLocation(rightParenLocation),
           m_ElseLocation(elseLocation) {}
 
-    sona::ref_ptr<Expr> GetThenExpr() const noexcept {
+    sona::ref_ptr<Expr const> GetThenExpr() const noexcept {
         return m_ThenExpr.borrow();
     }
 
@@ -113,7 +118,7 @@ public:
         return m_ElseExpr.has_value();
     }
 
-    sona::ref_ptr<Expr> GetElseExpr() const noexcept {
+    sona::ref_ptr<Expr const> GetElseExpr() const noexcept {
         sona_assert(HasElse());
         return m_ElseExpr.value().borrow();
     }
@@ -170,22 +175,22 @@ public:
     bool HasCondExpr() const noexcept { return m_CondExpr.has_value(); }
     bool HasIncrExpr() const noexcept { return m_IncrExpr.has_value(); }
 
-    sona::ref_ptr<Expr> GetInitExpr() const noexcept {
+    sona::ref_ptr<Expr const> GetInitExpr() const noexcept {
         sona_assert(HasInitExpr());
         return m_InitExpr.value().borrow();
     }
 
-    sona::ref_ptr<Expr> GetCondExpr() const noexcept {
+    sona::ref_ptr<Expr const> GetCondExpr() const noexcept {
         sona_assert(HasCondExpr());
         return m_CondExpr.value().borrow();
     }
 
-    sona::ref_ptr<Expr> GetIncrExpr() const noexcept {
+    sona::ref_ptr<Expr const> GetIncrExpr() const noexcept {
         sona_assert(HasIncrExpr());
         return m_IncrExpr.value().borrow();
     }
 
-    sona::ref_ptr<Stmt> GetStmt() const noexcept {
+    sona::ref_ptr<Stmt const> GetStmt() const noexcept {
         return m_Stmt.borrow();
     }
 
@@ -240,20 +245,20 @@ private:
 class BreakStmt : public Stmt {
 private:
     SourceLocation m_Location;
-}
+};
 
 class ContinueStmt : public Stmt {
 public:
 private:
     SourceLocation m_Location;
-}
+};
 
 class ReturnStmt : public Stmt {
 public:
 private:
     SourceLocation m_ReturnLocation;
     sona::optional<sona::owner<Expr>> m_ReturnedExpr;
-}
+};
 
 } // namespace ckx
 

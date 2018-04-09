@@ -21,13 +21,15 @@ public:
 
     template <typename... Args>
     optional(Args&& ...args) : is_value(true) {
-        construct(&t, std::forward<Args>(args)...);
+        construct<T>(reinterpret_cast<T*>(&t),
+                     std::forward<Args>(args)...);
     }
 
     optional(empty_optional) : is_value(false) {}
 
     bool has_value() const { return is_value; }
     T& value() { return reinterpret_cast<T&>(t); }
+    T const& value() const { return reinterpret_cast<T const&>(t); }
 
 private:
     std::aligned_storage_t<sizeof(T), alignof(T)> t;
