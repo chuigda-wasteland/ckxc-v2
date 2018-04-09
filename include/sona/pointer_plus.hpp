@@ -21,6 +21,21 @@ private:
     T* ptr;
 };
 
+template <typename T>
+class owner {
+public:
+    owner(T* ptr) : ptr(ptr) {}
+    ~owner() { delete ptr; }
+
+    owner(owner const&) = delete;
+    owner(owner&& that) : ptr(that.ptr) { that.ptr = nullptr; }
+
+    ref_ptr<T> borrow() noexcept { return ref_ptr<T>(*ptr); }
+
+private:
+    T *ptr;
+};
+
 } // namespace sona
 
 #endif // POINTER_PLUS_HPP

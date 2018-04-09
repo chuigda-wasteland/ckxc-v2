@@ -1,27 +1,15 @@
 #ifndef DECLBASE_HPP
 #define DECLBASE_HPP
 
+#include "DeclFwd.hpp"
 #include <vector>
 #include "sona/small_vector.hpp"
 #include "sona/pointer_plus.hpp"
 #include "sona/util.hpp"
 #include "sona/linq.hpp"
 
+
 namespace ckx {
-
-class Decl;
-    class LabelDecl;
-    class ClassDecl;
-    class EnumDecl;
-    class EnumeratorDecl;
-    class FunctionDecl;
-    class VarDecl;
-        class ParamDecl;
-        class FieldDecl;
-    class ImportDecl;
-    class ModuleDecl;
-
-class DeclContext;
 
 class Decl {
 public:
