@@ -2,7 +2,7 @@
 #define STMT_HPP
 
 #include "StmtBase.hpp"
-#include "ExprFwd.hpp"
+#include "ExprBase.hpp"
 #include "DeclBase.hpp"
 
 #include "Basic/SourceRange.hpp"

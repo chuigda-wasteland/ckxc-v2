@@ -30,7 +30,7 @@ public:
     using TupleElements_t = sona::small_vector<Type*, 3>;
 
     TupleType(TupleElements_t&& elemTypes)
-        : Type(TypeId::ty_tuple),
+        : Type(TypeId::TI_tuple),
           m_ElemTypes(std::move(elemTypes)) {}
 
     TupleElements_t const& GetTupleElemTypes() const { return m_ElemTypes; }
@@ -43,7 +43,7 @@ private:
 class ArrayType : public Type {
 public:
     ArrayType(Type *base, std::size_t size)
-        : Type(TypeId::ty_array), m_Base(base), m_Size(size) {}
+        : Type(TypeId::TI_array), m_Base(base), m_Size(size) {}
 
     Type* GetBase() const { return m_Base; }
     std::size_t GetSize() const { return m_Size; }
@@ -55,7 +55,7 @@ private:
 
 class PointerType : public Type {
 public:
-    PointerType(Type* pointee) : Type(TypeId::ty_pointer), m_Pointee(pointee) {}
+    PointerType(Type* pointee) : Type(TypeId::TI_pointer), m_Pointee(pointee) {}
 
     Type* GetPointee() const { return m_Pointee; }
 
@@ -66,7 +66,7 @@ private:
 class FunctionType : public Type {
 public:
     FunctionType(std::vector<Type*> &&paramTypes, Type *returnType) :
-        Type(TypeId::ty_function),
+        Type(TypeId::TI_function),
         m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(returnType) {}
 
