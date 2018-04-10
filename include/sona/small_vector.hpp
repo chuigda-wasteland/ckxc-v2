@@ -9,6 +9,9 @@
 
 namespace sona {
 
+/// Now we must provide move constructor for small_vector<>
+/// So letme think think...
+
 template <typename T, std::size_t PossibleSize>
 class small_vector {
 public:
@@ -73,6 +76,33 @@ public:
         }
     }
 
+    small_vector(small_vector &&that) {
+        if (that.u_status == uninitialized) {
+            u_status = uninitialized;
+        }
+        else if (that.u_status == locally) {
+            u.s.usage = 0;
+            T *storage = reinterpret_cast<T*>(&(u.s.storage));
+            for (auto &value : that) {
+               construct<T>(storage + u.s.usage, std::move(value));
+               destroy_at(&value);
+               ++u.s.usage;
+            }
+            u_status = locally;
+        }
+        else if (that.u_status == onheap) {
+            u.heap.dyn_mem_start = that.u.heap.dyn_mem_start;
+            u.heap.dyn_mem_end = that.u.heap.dyn_mem_end;
+            u.heap.dyn_mem_usage = that.u.heap.dyn_mem_usage;
+            u_status = onheap;
+        }
+        else {
+            sona_unreachable();
+        }
+
+        that.u_status = uninitialized;
+    }
+
     small_vector(std::initializer_list<T> init_list) {
         if (init_list.size() <= PossibleSize) {
             std::uninitialized_copy(init_list.begin(), init_list.end(),
@@ -97,7 +127,8 @@ public:
     }
 
     ~small_vector() {
-        // erase(begin(), end());
+        if (u_status == uninitialized) return;
+        for (auto &value : *this) destroy_at(&value);
         if (u_status == onheap) {
             ::operator delete(u.heap.dyn_mem_start);
         }
@@ -108,6 +139,8 @@ public:
             return reinterpret_cast<T*>(&(u.s.storage));
         else if (u_status == onheap)
             return u.heap.dyn_mem_start;
+        else if (u_status == uninitialized)
+            return nullptr;
         else { sona_unreachable(); return nullptr; }
     }
 
@@ -116,6 +149,8 @@ public:
             return reinterpret_cast<T*>(&(u.s.storage)) + u.s.usage;
         else if (u_status == onheap)
             return u.heap.dyn_mem_usage;
+        else if (u_status == uninitialized)
+            return nullptr;
         else { sona_unreachable(); return nullptr; }
     }
 
@@ -132,6 +167,8 @@ public:
             return reinterpret_cast<T const*>(&(u.s.storage));
         else if (u_status == onheap)
             return u.heap.dyn_mem_start;
+        else if (u_status == uninitialized)
+            return nullptr;
         else { sona_unreachable(); return nullptr; }
     }
 
@@ -140,6 +177,8 @@ public:
             return reinterpret_cast<T const*>(&(u.s.storage)) + u.s.usage;
         else if (u_status == onheap)
             return u.heap.dyn_mem_usage;
+        else if (u_status == uninitialized)
+            return nullptr;
         else { sona_unreachable(); return nullptr; }
     }
 

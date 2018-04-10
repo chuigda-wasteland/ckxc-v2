@@ -44,6 +44,8 @@ public:
 
     virtual std::size_t GetHash() const noexcept = 0;
 
+    virtual ~Type() = default;
+
 protected:
     Type(TypeId id) : m_Id(id) {}
 
