@@ -10,11 +10,9 @@
 
 namespace ckx {
 
-using sona::ref_ptr;
-
 class LabelDecl : public Decl {
 public:
-    LabelDecl(ref_ptr<DeclContext> context,
+    LabelDecl(sona::ref_ptr<DeclContext> context,
               std::string &&labelString,
               SourceRange labelRange)
         : Decl(DeclKind::DK_Label, context),
@@ -28,7 +26,7 @@ private:
 
 class ClassDecl : public Decl, public DeclContext {
 public:
-    ClassDecl(ref_ptr<DeclContext> context,
+    ClassDecl(sona::ref_ptr<DeclContext> context,
               std::string &&className,
               SourceRange idRange,
               SourceLocation leftBraceLoc,
@@ -53,7 +51,7 @@ private:
 
 class EnumDecl : public Decl, public DeclContext {
 public:
-    EnumDecl(ref_ptr<DeclContext> context,
+    EnumDecl(sona::ref_ptr<DeclContext> context,
              std::string &&enumName,
              SourceRange idRange,
              SourceLocation leftBraceLoc,
@@ -78,7 +76,7 @@ private:
 
 class EnumeratorDecl : public Decl {
 public:
-    EnumeratorDecl(ref_ptr<DeclContext> context,
+    EnumeratorDecl(sona::ref_ptr<DeclContext> context,
                    std::string &&enumeratorName,
                    SourceRange idRange,
                    SourceLocation assignLocation
@@ -100,7 +98,7 @@ private:
 
 class FunctionDecl : public Decl, public DeclContext {
 public:
-    FunctionDecl(ref_ptr<DeclContext> context,
+    FunctionDecl(sona::ref_ptr<DeclContext> context,
                  std::string &&functionName,
                  SourceLocation fnLocation,
                  SourceRange idRange,
@@ -124,8 +122,8 @@ private:
 
 class VarDecl : public Decl {
 public:
-    VarDecl(ref_ptr<DeclContext> context,
-            ref_ptr<Type> type,
+    VarDecl(sona::ref_ptr<DeclContext> context,
+            sona::ref_ptr<Type> type,
             DeclSpec spec,
             std::string &&varName,
             SourceRange varNameRange) :
@@ -140,7 +138,7 @@ public:
     SourceRange GetVarNameRange() const noexcept { return m_VarNameRange; }
 
 private:
-    ref_ptr<Type> m_Type;
+    sona::ref_ptr<Type> m_Type;
     DeclSpec m_DeclSpec;
     std::string m_VarName;
     SourceRange m_VarNameRange;
