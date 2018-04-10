@@ -152,9 +152,9 @@ private:
 
 class ForStmt : public Stmt {
 public:
-    /*
     template <typename T1, typename T2, typename T3>
-    ForStmt(T1 initExpr, T2 condExpr, T3 incrExpr, Stmt *stmt,
+    ForStmt(T1 initExpr, T2 condExpr, T3 incrExpr,
+            sona::owner<Stmt> &&stmt,
             SourceLocation forLocation,
             SourceLocation leftParenLocation,
             SourceLocation rightParenLocation,
@@ -168,8 +168,14 @@ public:
           m_LeftParenLocation(leftParenLocation),
           m_RightParenLocation(rightParenLocation),
           m_FirstSemicolonLocation(firstSemicolonLocation),
-          m_SecondSemicolonLocation(secondSemicolonLocation) {}
-          */
+          m_SecondSemicolonLocation(secondSemicolonLocation) {
+        static_assert(std::is_same<T1, sona::owner<Expr>>::value
+                      || std::is_same<T1, sona::empty_optional>::value, "");
+        static_assert(std::is_same<T2, sona::owner<Expr>>::value
+                      || std::is_same<T2, sona::empty_optional>::value, "");
+        static_assert(std::is_same<T3, sona::owner<Expr>>::value
+                      || std::is_same<T3, sona::empty_optional>::value, "");
+    }
 
     bool HasInitExpr() const noexcept { return m_InitExpr.has_value(); }
     bool HasCondExpr() const noexcept { return m_CondExpr.has_value(); }
