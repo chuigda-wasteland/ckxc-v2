@@ -1,7 +1,8 @@
 #ifndef DECL_HPP
 #define DECL_HPP
 
-#include "AST/DeclBase.hpp"
+#include "DeclBase.hpp"
+#include "TypeBase.hpp"
 #include "Basic/SourceRange.hpp"
 
 #include <string>
@@ -119,6 +120,36 @@ private:
     SourceRange m_IdRange;
     SourceLocation m_LeftParenLocation,
                    m_RightParenLocation;
+};
+
+class VarDecl : public Decl {
+public:
+    VarDecl(ref_ptr<DeclContext> context,
+            ref_ptr<Type> type,
+            DeclSpec spec,
+            std::string &&varName,
+            SourceRange varNameRange) :
+        Decl(DeclKind::DK_Var, context),
+        m_Type(type),
+        m_DeclSpec(spec),
+        m_VarName(std::move(varName)),
+        m_VarNameRange(varNameRange) {}
+
+    DeclSpec GetDeclSpec() const noexcept { return m_DeclSpec; }
+    std::string const& GetVarName() const noexcept { return m_VarName; }
+    SourceRange GetVarNameRange() const noexcept { return m_VarNameRange; }
+
+private:
+    ref_ptr<Type> m_Type;
+    DeclSpec m_DeclSpec;
+    std::string m_VarName;
+    SourceRange m_VarNameRange;
+};
+
+class ParamDecl : public Decl {
+};
+
+class FieldDecl : public Decl {
 };
 
 } // namespace ckx

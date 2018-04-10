@@ -1,21 +1,12 @@
 #ifndef TYPEBASE_HPP
 #define TYPEBASE_HPP
 
+#include "TypeFwd.hpp"
 #include "Basic/SourceRange.hpp"
 
 #include <cstdint>
 
 namespace ckx {
-
-class Type;
-    class BuiltinType;
-    class TupleType;
-    class ArrayType;
-    class PointerType;
-    class FunctionType;
-    class EnumType;
-    class ClassType;
-    class UsingType;
 
 class Type {
 public:
@@ -50,6 +41,8 @@ public:
     };
 
     TypeId GetTypeId() const { return m_Id; }
+
+    virtual std::size_t GetHash() const noexcept = 0;
 
 protected:
     Type(TypeId id) : m_Id(id) {}

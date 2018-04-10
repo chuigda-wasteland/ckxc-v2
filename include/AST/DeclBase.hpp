@@ -11,6 +11,12 @@
 
 namespace ckx {
 
+enum class DeclSpec {
+    DS_Static = 0x01,
+    DS_Internal = 0x02,
+    DS_External = 0x04,
+};
+
 class Decl {
 public:
     enum DeclKind : std::uint8_t {

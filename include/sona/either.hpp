@@ -47,6 +47,9 @@ public:
         status = has_t2;
     }
 
+    bool contains_t1() const noexcept { return status == has_t1; }
+    bool contains_t2() const noexcept { return status == has_t2; }
+
     T1& as_t1() {
         sona_assert1(status == has_t1, "this either does not contains T1");
         return *reinterpret_cast<T1*>(&storage);

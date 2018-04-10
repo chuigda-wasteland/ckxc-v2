@@ -10,8 +10,10 @@ public:
     enum class ExprId {
         EI_Unary,
         EI_Binary,
+        EI_Assign,
         EI_Cond,
-        EI_Intergral,
+        EI_ID,
+        EI_Integral,
         EI_Floating,
         EI_Char,
         EI_String,

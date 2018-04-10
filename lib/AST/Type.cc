@@ -1,7 +1,17 @@
 #include "AST/Type.hpp"
 #include "sona/util.hpp"
 
+#include <algorithm>
+
 namespace ckx {
+
+using std::size_t;
+template <typename T>
+using DefaultHash = std::hash<T>;
+
+size_t Type::GetHash() const noexcept {
+    return DefaultHash<TypeId>(GetTypeId());
+}
 
 char const* BuiltinType::GetTypeName() const noexcept {
     switch (GetTypeId()) {
@@ -50,6 +60,42 @@ BuiltinType BuiltinType::MakeUnsigned(BuiltinType const& that) noexcept {
     return BuiltinType(TypeId((std::int8_t)that.GetTypeId()
                               - (std::int8_t)TypeId::TI_i8
                               + (std::int8_t)TypeId::TI_u8));
+}
+
+/// @todo replace hash functions in the future
+
+size_t BuiltinType::GetHash() const noexcept {
+    return Type::GetHash();
+}
+
+size_t TupleType::GetHash() const noexcept {
+    auto rng =
+        sona::linq::from_container(m_ElemTypes).
+            transform([](sona::owner<Type> const& t) { return t.borrow(); }).
+            transform([](sona::ref_ptr<Type const> t) {
+                return t.get().GetHash();
+            });
+
+    return std::accumulate(rng.begin(), rng.end(), 0);
+}
+
+size_t ArrayType::GetHash() const noexcept {
+    return m_Base.borrow().get().GetHash() * GetSize()* 19937;
+}
+
+size_t PointerType::GetHash() const noexcept {
+    return m_Pointee.borrow().get().GetHash() * (9);
+}
+
+size_t FunctionType::GetHash() const noexcept {
+    auto rng =
+        sona::linq::from_container(m_ParamTypes).
+            transform([](sona::owner<Type> const& t) { return t.borrow(); }).
+            transform([](sona::ref_ptr<Type const> t) {
+                return t.get().GetHash();
+            });
+    return std::accumulate(rng.begin(), rng.end(), 0)
+           + m_ReturnType.borrow().get().GetHash();
 }
 
 } // namespace ckx
