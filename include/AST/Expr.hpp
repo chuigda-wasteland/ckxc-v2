@@ -258,6 +258,15 @@ private:
 };
 
 class FloatingLiteralExpr : public LiteralExpr {
+public:
+    FloatingLiteralExpr(double value, SourceRange &&literalRange) :
+        LiteralExpr(ExprId::EI_Floating, std::move(literalRange)),
+        m_Value(value) {}
+
+    double GetValue() const noexcept {
+        return m_Value;
+    }
+
 private:
     double m_Value;
 };
@@ -270,6 +279,30 @@ class StringLiteralExpr : public LiteralExpr {};
 
 class TupleLiteralExpr : public Expr{
 public:
+    TupleLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs,
+                     std::vector<SourceLocation> &&commaLocations,
+                     SourceLocation leftParenLocation,
+                     SourceLocation rightParenLocation)
+        : Expr(ExprId::EI_Tuple),
+          m_ElementExprs(std::move(elementExprs)),
+          m_CommaLocations(std::move(commaLocations)),
+          m_LeftParenLocation(leftParenLocation),
+          m_RightParenLocation(rightParenLocation) {}
+
+    /** @todo ??? GetElementExprs() const noexcept; */
+
+    std::vector<SourceLocation> const& GetCommaLocations() const noexcept {
+        return m_CommaLocations;
+    }
+
+    SourceLocation GetLeftParenLocation() const noexcept {
+        return m_LeftParenLocation;
+    }
+
+    SourceLocation GetRightParenLocation() const noexcept {
+        return m_RightParenLocation;
+    }
+
 private:
     std::vector<sona::owner<Expr>> m_ElementExprs;
     std::vector<SourceLocation> m_CommaLocations;
@@ -277,13 +310,59 @@ private:
 };
 
 class ArrayLiteralExpr : public Expr {
+public:
+    ArrayLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs,
+                     std::vector<SourceLocation> &&commaLocations,
+                     SourceLocation leftBraceLocation,
+                     SourceLocation rightBraceLocation)
+        : Expr(ExprId::EI_Array),
+          m_ElementExprs(std::move(elementExprs)),
+          m_CommaLocations(std::move(commaLocations)),
+          m_LeftBraceLocation(leftBraceLocation),
+          m_RightBraceLocation(rightBraceLocation) {}
+
+    /** @todo ??? GetElementExprs() const noexcept; */
+
+    std::vector<SourceLocation> const& GetCommaLocations() const noexcept {
+        return m_CommaLocations;
+    }
+
+    SourceLocation GetLeftBraceLocation() const noexcept {
+        return m_LeftBraceLocation;
+    }
+
+    SourceLocation GetRightBraceLocation() const noexcept {
+        return m_RightBraceLocation;
+    }
+
 private:
     std::vector<sona::owner<Expr>> m_ElementExprs;
     std::vector<SourceLocation> m_CommaLocations;
     SourceLocation m_LeftBraceLocation, m_RightBraceLocation;
 };
 
-class BracedExpr : public Expr {
+class ParenExpr : public Expr {
+public:
+    ParenExpr(sona::owner<Expr> &&expr,
+              SourceLocation leftParenLocation,
+              SourceLocation rightParenLocation)
+        : Expr(ExprId::EI_Paren),
+          m_Expr(std::move(expr)),
+          m_LeftParenLocation(leftParenLocation),
+          m_RightParenLocation(rightParenLocation) {}
+
+    sona::ref_ptr<Expr const> GetExpr() const noexcept {
+        return m_Expr.borrow();
+    }
+
+    SourceLocation GetLeftParenLocation() const noexcept {
+        return m_LeftParenLocation;
+    }
+
+    SourceLocation GetRightParenLocation() const noexcept {
+        return m_RightParenLocation;
+    }
+
 private:
     sona::owner<Expr> m_Expr;
     SourceLocation m_LeftParenLocation, m_RightParenLocation;

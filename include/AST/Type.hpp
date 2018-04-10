@@ -83,10 +83,12 @@ public:
                  sona::owner<Type> returnType) :
         Type(TypeId::TI_function),
         m_ParamTypes(std::move(paramTypes)),
-        m_ReturnType(returnType) {}
+        m_ReturnType(std::move(returnType)) {}
 
     // std::vector<Type*> const& GetParamTypes() const { return m_ParamTypes; }
-    sona::ref_ptr<Type> GetReturnType() const { return m_ReturnType.borrow(); }
+    sona::ref_ptr<Type const> GetReturnType() const {
+        return m_ReturnType.borrow();
+    }
 
     std::size_t GetHash() const noexcept override;
 

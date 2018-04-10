@@ -16,7 +16,7 @@ class Expr;
         class StringLiteralExpr;
     class TupleLiteralExpr;
     class ArrayLiteralExpr;
-    class BracedExpr;
+    class ParenExpr;
 } // namespace ckx
 
 #endif // EXPRFWD_HPP

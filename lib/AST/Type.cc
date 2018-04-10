@@ -10,7 +10,7 @@ template <typename T>
 using DefaultHash = std::hash<T>;
 
 size_t Type::GetHash() const noexcept {
-    return DefaultHash<TypeId>(GetTypeId());
+    return DefaultHash<TypeId>()(GetTypeId());
 }
 
 char const* BuiltinType::GetTypeName() const noexcept {

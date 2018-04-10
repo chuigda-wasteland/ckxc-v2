@@ -18,7 +18,8 @@ public:
         EI_Char,
         EI_String,
         EI_Tuple,
-        EI_Array
+        EI_Array,
+        EI_Paren
     };
 
 protected:

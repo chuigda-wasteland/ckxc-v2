@@ -119,6 +119,14 @@ public:
         else { sona_unreachable(); return nullptr; }
     }
 
+    const_iterator begin() const {
+        return cbegin();
+    }
+
+    const_iterator end() const {
+        return cend();
+    }
+
     const_iterator cbegin() const {
         if (u_status == locally)
             return reinterpret_cast<T const*>(&(u.s.storage));
