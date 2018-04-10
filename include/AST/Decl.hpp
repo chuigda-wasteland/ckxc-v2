@@ -3,6 +3,7 @@
 
 #include "DeclBase.hpp"
 #include "TypeBase.hpp"
+#include "ExprBase.hpp"
 #include "Basic/SourceRange.hpp"
 
 #include <string>
@@ -78,11 +79,12 @@ class EnumeratorDecl : public Decl {
 public:
     EnumeratorDecl(sona::ref_ptr<DeclContext> context,
                    std::string &&enumeratorName,
+                   sona::owner<Expr> &&init,
                    SourceRange idRange,
-                   SourceLocation assignLocation
-                   /** @todo ref_ptr<Expr> initializer */) :
+                   SourceLocation assignLocation) :
         Decl(DeclKind::DK_Enumerator, context),
         m_EnumeratorName(enumeratorName),
+        m_Init(std::move(init)),
         m_IdRange(idRange),
         m_AssignLocation(assignLocation) {}
 
@@ -92,6 +94,7 @@ public:
 
 private:
     std::string m_EnumeratorName;
+    sona::owner<Expr> m_Init;
     SourceRange m_IdRange;
     SourceLocation m_AssignLocation;
 };

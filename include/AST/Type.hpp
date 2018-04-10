@@ -36,8 +36,11 @@ public:
         : Type(TypeId::TI_tuple),
           m_ElemTypes(std::move(elemTypes)) {}
 
-    /// ??? GetTupleElemTypes() const { return ???; }
-    // TupleElements_t const& GetTupleElemTypes() const { return m_ElemTypes; }
+    auto GetTupleElemTypes() const noexcept {
+        return sona::linq::from_container(m_ElemTypes).
+               transform([](sona::owner<Type> const& t) { return t.borrow(); });
+    }
+
     std::size_t GetTupleSize() const { return m_ElemTypes.size(); }
 
     std::size_t GetHash() const noexcept override;
@@ -85,7 +88,13 @@ public:
         m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(std::move(returnType)) {}
 
-    // std::vector<Type*> const& GetParamTypes() const { return m_ParamTypes; }
+    auto GetParamTypes() const {
+        return sona::linq::from_container(m_ParamTypes).
+               transform([](sona::owner<Type> const& t) {
+                   return t.borrow();
+               });
+    }
+
     sona::ref_ptr<Type const> GetReturnType() const {
         return m_ReturnType.borrow();
     }
