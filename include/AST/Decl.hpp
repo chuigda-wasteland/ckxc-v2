@@ -4,12 +4,45 @@
 #include "DeclBase.hpp"
 #include "TypeBase.hpp"
 #include "ExprBase.hpp"
+#include "ASTContext.hpp"
 #include "Basic/SourceRange.hpp"
 
 #include <string>
 #include <memory>
 
 namespace ckx {
+
+class TransUnitDecl : public Decl, public DeclContext {
+public:
+    TransUnitDecl()
+        : Decl(DeclKind::DK_TransUnit, *this),
+          DeclContext(DeclKind::DK_TransUnit) {}
+
+    sona::ref_ptr<ASTContext> GetASTContext() noexcept {
+        return m_Context;
+    }
+
+private:
+    ASTContext m_Context;
+};
+
+class NamedDecl : public Decl {
+public:
+    NamedDecl(sona::ref_ptr<DeclContext> declContext,
+              DeclKind declKind,
+              std::string &&name,
+              SourceRange &&nameRange)
+        : Decl(declKind, declContext),
+          m_Name(std::move(name)),
+          m_NameRange(std::move(nameRange)) {}
+
+    std::string const& GetName() const noexcept { return m_Name; }
+    SourceRange const& GetNameRange() const noexcept { return m_NameRange; }
+
+private:
+    std::string m_Name;
+    SourceRange m_NameRange;
+};
 
 class LabelDecl : public Decl {
 public:
@@ -107,8 +140,8 @@ public:
                  SourceRange idRange,
                  SourceLocation leftParenLocation,
                  SourceLocation rightParenLocation)
-        : Decl(DeclKind::DK_Function, context),
-          DeclContext(DeclKind::DK_Function),
+        : Decl(DeclKind::DK_Func, context),
+          DeclContext(DeclKind::DK_Func),
           m_FunctionName(std::move(functionName)),
           m_FnLocation(fnLocation),
           m_IdRange(idRange),

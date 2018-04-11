@@ -2,6 +2,7 @@
 #include "sona/util.hpp"
 
 #include <algorithm>
+#include <numeric>
 #include <type_traits>
 
 namespace ckx {

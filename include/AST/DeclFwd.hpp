@@ -4,18 +4,28 @@
 namespace ckx {
 
 class Decl;
-    class LabelDecl;
-    class ClassDecl;
-    class EnumDecl;
-    class EnumeratorDecl;
-    class FunctionDecl;
-    class VarDecl;
-        class ParamDecl;
-        class FieldDecl;
-    class ImportDecl;
-    class ModuleDecl;
-
 class DeclContext;
+
+    class EmptyDecl;
+    /// @todo implement them once we can
+    // class ImportDecl;
+    // class ModuleDecl;
+    class TransUnitDecl;              // : public DeclContext
+    class NamedDecl;
+        class LabelDecl;
+        class TypeDecl;
+            class TagDecl;
+                class ClassDecl;      // : public DeclContext
+                class EnumDecl;       // : public DeclContext
+            class UsingDecl;
+        class ValuedDecl;
+            class FuncDecl;           // : public DeclContext
+            class VarDecl;
+            class FieldDecl;
+            class ParamDecl;
+            class EnumeratorDecl;
+
+/// @todo and_then fix DeclBase.hpp
 
 } // namespace ckx
 

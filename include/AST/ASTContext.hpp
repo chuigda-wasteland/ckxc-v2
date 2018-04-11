@@ -1,7 +1,7 @@
 #ifndef ASTCONTEXT_HPP
 #define ASTCONTEXT_HPP
 
-#include "TypeFwd.hpp"
+#include "Type.hpp"
 #include "sona/pointer_plus.hpp"
 #include <unordered_set>
 
@@ -15,7 +15,8 @@ public:
 
 private:
     template <typename Type_t>
-    using TypeSet = std::unordered_set<Type_t, TypeHash<Type_t>>;
+    using TypeSet =
+    std::unordered_set<Type_t, TypeHash<Type_t>, TypeEqual>;
 
     TypeSet<TupleType> m_TupleTypes;
     TypeSet<ArrayType> m_ArrayTypes;

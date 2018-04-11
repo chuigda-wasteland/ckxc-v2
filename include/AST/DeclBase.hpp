@@ -19,19 +19,26 @@ enum class DeclSpec {
 class Decl {
 public:
     enum DeclKind : std::uint8_t {
+        DK_Empty,
+        /// @todo implement them once we can
+        // DK_Module,
+        // DK_Import,
+        DK_TransUnit,
         DK_Label,
         DK_Class,
-        DK_Field,
         DK_Enum,
-        DK_Enumerator,
-        DK_Function,
+        DK_Using,
+        DK_Func,
         DK_Param,
         DK_Var,
-        DK_Module,
-        DK_Import
+        DK_Field,
+        DK_Enumerator
     };
 
     DeclKind GetDeclKind() const { return m_DeclKind; }
+
+    sona::ref_ptr<DeclContext> CastAsDeclContext() noexcept;
+    sona::ref_ptr<DeclContext const> CastAsDeclContext() const noexcept;
 
 protected:
     Decl(DeclKind declKind, sona::ref_ptr<DeclContext> context)
