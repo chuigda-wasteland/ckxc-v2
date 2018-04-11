@@ -2,6 +2,7 @@
 #define TYPE_HPP
 
 #include "TypeBase.hpp"
+#include "DeclBase.hpp"
 #include "sona/pointer_plus.hpp"
 #include "sona/small_vector.hpp"
 #include "sona/range.hpp"
@@ -9,12 +10,37 @@
 
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 namespace ckx {
 
 class BuiltinType : public Type {
 public:
-    BuiltinType(TypeId id) : Type(id) {}
+    enum class BuiltinTypeId : std::int8_t {
+        BTI_u8,
+        BTI_u16,
+        BTI_u32,
+        BTI_u64,
+        BTI_i8,
+        BTI_i16,
+        BTI_i32,
+        BTI_i64,
+        BTI_r32,
+        BTI_r64,
+        /// @todo I don't know how to implement char elegantly
+            // TI_char,
+        BTI_bool,
+        BTI_nil,
+        BTI_void,
+    };
+
+    BuiltinType(BuiltinTypeId id)
+        : Type(TypeId::TI_Builtin),
+          m_BuiltinTypeId(id) {}
+
+    BuiltinTypeId GetBuiltinTypeId() const noexcept {
+        return m_BuiltinTypeId;
+    }
 
     char const* GetTypeName() const noexcept;
     bool IsNumeric() const noexcept;
@@ -26,6 +52,11 @@ public:
     static BuiltinType MakeUnsigned(BuiltinType const& that) noexcept;
 
     std::size_t GetHash() const noexcept override;
+
+private:
+    BuiltinTypeId m_BuiltinTypeId;
+
+    using NumericBuiltinTypeId = std::underlying_type_t<BuiltinTypeId>;
 };
 
 class TupleType : public Type {
@@ -33,7 +64,7 @@ public:
     using TupleElements_t = sona::small_vector<sona::owner<Type>, 3>;
 
     TupleType(TupleElements_t&& elemTypes)
-        : Type(TypeId::TI_tuple),
+        : Type(TypeId::TI_Tuple),
           m_ElemTypes(std::move(elemTypes)) {}
 
     auto GetTupleElemTypes() const noexcept {
@@ -52,7 +83,7 @@ private:
 class ArrayType : public Type {
 public:
     ArrayType(sona::owner<Type> &&base, std::size_t size)
-        : Type(TypeId::TI_array),
+        : Type(TypeId::TI_Array),
           m_Base(std::move(base)),
           m_Size(size) {}
 
@@ -69,7 +100,7 @@ private:
 class PointerType : public Type {
 public:
     PointerType(sona::owner<Type> &&pointee)
-        : Type(TypeId::TI_pointer),
+        : Type(TypeId::TI_Pointer),
           m_Pointee(std::move(pointee)) {}
 
     sona::ref_ptr<Type const> GetPointee() const { return m_Pointee.borrow(); }
@@ -84,7 +115,7 @@ class FunctionType : public Type {
 public:
     FunctionType(std::vector<sona::owner<Type>> &&paramTypes,
                  sona::owner<Type> returnType) :
-        Type(TypeId::TI_function),
+        Type(TypeId::TI_Function),
         m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(std::move(returnType)) {}
 
@@ -106,9 +137,95 @@ private:
     sona::owner<Type> m_ReturnType;
 };
 
-/// @todo implement class type and enum type after finishing Declaration
-class ClassType : public Type {};
-class EnumType : public Type {};
+class TagType : public Type {
+public:
+    enum class TagTypeId { TTI_Class, TTI_Enum };
+    TagType(TagTypeId id,
+            std::string &&typeName,
+            SourceRange &&typeNameRange,
+            SourceLocation leftBraceLocation,
+            SourceLocation rightBraceLocation)
+        : Type(TypeId::TI_Tag),
+          m_Id(id),
+          m_TypeName(std::move(typeName)),
+          m_TypeNameRange(std::move(typeNameRange)),
+          m_LeftBraceLocation(leftBraceLocation),
+          m_RightBraceLocation(rightBraceLocation) {}
+
+    TagTypeId GetTagTypeId() const noexcept {
+        return m_Id;
+    }
+
+    std::string const& GetTypeName() const noexcept {
+        return m_TypeName;
+    }
+
+    SourceRange const& GetTypeNameRange() const noexcept {
+        return m_TypeNameRange;
+    }
+
+    SourceLocation GetLeftBraceLocation() const noexcept {
+        return m_LeftBraceLocation;
+    }
+
+    SourceLocation GetRightBraceLocation() const noexcept {
+        return m_RightBraceLocation;
+    }
+
+    std::size_t GetHash() const noexcept override = 0;
+
+private:
+    TagTypeId m_Id;
+    std::string m_TypeName;
+    SourceRange m_TypeNameRange;
+    SourceLocation m_LeftBraceLocation,
+                   m_RightBraceLocation;
+};
+
+/// @todo How to calculate hash of class and enum types?
+class ClassType : public TagType {
+public:
+    ClassType(std::string &&typeName,
+              SourceRange &&typeNameRange,
+              sona::ref_ptr<ClassDecl> decl,
+              SourceLocation leftBraceLocation,
+              SourceLocation rightBraceLocation)
+        : TagType(TagTypeId::TTI_Class,
+                  std::move(typeName), std::move(typeNameRange),
+                  leftBraceLocation, rightBraceLocation),
+          m_Decl(decl) {}
+
+    sona::ref_ptr<ClassDecl const> GetDecl() const noexcept {
+        return m_Decl;
+    }
+
+    std::size_t GetHash() const noexcept override;
+
+private:
+    sona::ref_ptr<ClassDecl> m_Decl;
+};
+
+class EnumType : public TagType {
+public:
+    EnumType(std::string &&typeName,
+             SourceRange &&typeNameRange,
+             sona::ref_ptr<EnumDecl> decl,
+             SourceLocation leftBraceLocation,
+             SourceLocation rightBraceLocation)
+        : TagType(TagTypeId::TTI_Enum,
+                  std::move(typeName), std::move(typeNameRange),
+                  leftBraceLocation, rightBraceLocation),
+          m_Decl(decl) {}
+
+    sona::ref_ptr<EnumDecl const> GetDecl() const noexcept {
+        return m_Decl;
+    }
+
+    std::size_t GetHash() const noexcept override;
+
+private:
+    sona::ref_ptr<EnumDecl> m_Decl;
+};
 
 } // namespace ckx
 

@@ -12,8 +12,9 @@ class Type;
         class LValueRefType;
         class RValueRefType;
     class FunctionType;
-    class EnumType;
-    class ClassType;
+    class TagType;
+        class EnumType;
+        class ClassType;
     class UsingType;
 
 } // namespace ckx

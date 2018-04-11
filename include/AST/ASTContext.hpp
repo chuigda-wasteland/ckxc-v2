@@ -13,16 +13,7 @@ public:
     ASTContext() = default;
     ~ASTContext() = default;
 
-
-
 private:
-    template <typename Type_t>
-    struct TypeHash {
-        std::size_t operator() (Type_t const& type) const noexcept {
-            return type.GetHash();
-        }
-    };
-
     template <typename Type_t>
     using TypeSet = std::unordered_set<Type_t, TypeHash<Type_t>>;
 

@@ -2,12 +2,11 @@
 #define DECLBASE_HPP
 
 #include "DeclFwd.hpp"
-#include <vector>
 #include "sona/small_vector.hpp"
 #include "sona/pointer_plus.hpp"
 #include "sona/util.hpp"
 #include "sona/linq.hpp"
-
+#include <vector>
 
 namespace ckx {
 
