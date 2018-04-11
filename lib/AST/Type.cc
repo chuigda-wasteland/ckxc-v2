@@ -186,4 +186,43 @@ bool FunctionType::EqualTo(Type const& that) const noexcept {
     return false;
 }
 
+/// @todo remove magic numbers
+
+std::size_t LValueRefType::GetHash() const noexcept {
+    return GetReferencedType().get().GetHash() * 19260817;
+}
+
+std::size_t RValueRefType::GetHash() const noexcept {
+    return GetReferencedType().get().GetHash() * 19660813;
+}
+
+std::size_t UsingType::GetHash() const noexcept {
+    return m_Aliasee.get().GetHash() * 233;
+}
+
+bool RefType::EqualTo(Type const& that) const noexcept {
+    if (that.GetTypeId() == TypeId::TI_Ref) {
+        RefType const& t = static_cast<RefType const&>(that);
+        return (GetRefTypeId() == t.GetRefTypeId())
+               && (GetReferencedType().get().EqualTo(t.GetReferencedType()));
+    }
+    return false;
+}
+
+bool LValueRefType::EqualTo(Type const& that) const noexcept {
+    return RefType::EqualTo(that);
+}
+
+bool RValueRefType::EqualTo(Type const& that) const noexcept {
+    return RefType::EqualTo(that);
+}
+
+bool UsingType::EqualTo(Type const& that) const noexcept {
+    if (that.GetTypeId() == TypeId::TI_Using) {
+        UsingType const& t = static_cast<UsingType const&>(that);
+        return GetAliasee().get().EqualTo(t);
+    }
+    return false;
+}
+
 } // namespace ckx

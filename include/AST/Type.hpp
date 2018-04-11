@@ -131,6 +131,9 @@ public:
         return m_ReferencedType.borrow();
     }
 
+    std::size_t GetHash() const noexcept override = 0;
+    bool EqualTo(Type const& that) const noexcept override = 0;
+
 private:
     RefTypeId m_RefTypeId;
     sona::owner<Type> m_ReferencedType;
@@ -141,6 +144,9 @@ public:
     LValueRefType(sona::owner<Type> &&referenced)
         : RefType(RefTypeId::RTI_LValueRef,
                   std::move(referenced)) {}
+
+    std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 };
 
 class RValueRefType : public RefType {
@@ -148,6 +154,9 @@ public:
     RValueRefType(sona::owner<Type> &&referenced)
         : RefType(RefTypeId::RTI_RValueRef,
                   std::move(referenced)) {}
+
+    std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 };
 
 class FunctionType : public Type {
@@ -276,6 +285,9 @@ public:
     sona::ref_ptr<Type const> GetAliasee() const noexcept {
         return m_Aliasee;
     }
+
+    std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     sona::ref_ptr<Type> m_Aliasee;
