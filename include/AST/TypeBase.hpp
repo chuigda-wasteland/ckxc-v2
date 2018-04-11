@@ -24,7 +24,7 @@ public:
 
         /// User-defined
         TI_Tag,
-        TI_Ysing
+        TI_Using
 
         /// @todo where should we add "Qualifiers"?
     };

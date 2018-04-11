@@ -114,6 +114,42 @@ private:
     sona::owner<Type> m_Pointee;
 };
 
+class RefType : public Type {
+public:
+    enum class RefTypeId { RTI_LValueRef, RTI_RValueRef };
+    RefType(RefTypeId refTypeId,
+            sona::owner<Type> &&referenced)
+        : Type(TypeId::TI_Ref),
+          m_RefTypeId(refTypeId),
+          m_ReferencedType(std::move(referenced)) {}
+
+    RefTypeId GetRefTypeId() const noexcept {
+        return m_RefTypeId;
+    }
+
+    sona::ref_ptr<Type const> GetReferencedType() const noexcept {
+        return m_ReferencedType.borrow();
+    }
+
+private:
+    RefTypeId m_RefTypeId;
+    sona::owner<Type> m_ReferencedType;
+};
+
+class LValueRefType : public RefType {
+public:
+    LValueRefType(sona::owner<Type> &&referenced)
+        : RefType(RefTypeId::RTI_LValueRef,
+                  std::move(referenced)) {}
+};
+
+class RValueRefType : public RefType {
+public:
+    RValueRefType(sona::owner<Type> &&referenced)
+        : RefType(RefTypeId::RTI_RValueRef,
+                  std::move(referenced)) {}
+};
+
 class FunctionType : public Type {
 public:
     FunctionType(std::vector<sona::owner<Type>> &&paramTypes,
@@ -229,6 +265,20 @@ public:
 
 private:
     sona::ref_ptr<EnumDecl> m_Decl;
+};
+
+class UsingType : public Type {
+public:
+    UsingType(sona::ref_ptr<Type> aliasee)
+        : Type(TypeId::TI_Using),
+          m_Aliasee(aliasee) {}
+
+    sona::ref_ptr<Type const> GetAliasee() const noexcept {
+        return m_Aliasee;
+    }
+
+private:
+    sona::ref_ptr<Type> m_Aliasee;
 };
 
 } // namespace ckx
