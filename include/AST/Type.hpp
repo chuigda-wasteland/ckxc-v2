@@ -52,6 +52,7 @@ public:
     static BuiltinType MakeUnsigned(BuiltinType const& that) noexcept;
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     BuiltinTypeId m_BuiltinTypeId;
@@ -67,14 +68,14 @@ public:
         : Type(TypeId::TI_Tuple),
           m_ElemTypes(std::move(elemTypes)) {}
 
-    auto GetTupleElemTypes() const noexcept {
-        return sona::linq::from_container(m_ElemTypes).
-               transform([](sona::owner<Type> const& t) { return t.borrow(); });
+    TupleElements_t const& GetTupleElemTypes() const noexcept {
+        return m_ElemTypes;
     }
 
     std::size_t GetTupleSize() const { return m_ElemTypes.size(); }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     TupleElements_t m_ElemTypes;
@@ -91,6 +92,7 @@ public:
     std::size_t GetSize() const { return m_Size; }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     sona::owner<Type> m_Base;
@@ -106,6 +108,7 @@ public:
     sona::ref_ptr<Type const> GetPointee() const { return m_Pointee.borrow(); }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     sona::owner<Type> m_Pointee;
@@ -119,11 +122,8 @@ public:
         m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(std::move(returnType)) {}
 
-    auto GetParamTypes() const {
-        return sona::linq::from_container(m_ParamTypes).
-               transform([](sona::owner<Type> const& t) {
-                   return t.borrow();
-               });
+    std::vector<sona::owner<Type>> const& GetParamTypes() const {
+        return m_ParamTypes;
     }
 
     sona::ref_ptr<Type const> GetReturnType() const {
@@ -131,6 +131,7 @@ public:
     }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     std::vector<sona::owner<Type>> m_ParamTypes;
@@ -173,6 +174,7 @@ public:
     }
 
     std::size_t GetHash() const noexcept override = 0;
+    bool EqualTo(Type const& that) const noexcept override = 0;
 
 private:
     TagTypeId m_Id;
@@ -200,6 +202,7 @@ public:
     }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     sona::ref_ptr<ClassDecl> m_Decl;
@@ -222,6 +225,7 @@ public:
     }
 
     std::size_t GetHash() const noexcept override;
+    bool EqualTo(Type const& that) const noexcept override;
 
 private:
     sona::ref_ptr<EnumDecl> m_Decl;
