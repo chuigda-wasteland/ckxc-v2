@@ -13,6 +13,27 @@ public:
     ASTContext() = default;
     ~ASTContext() = default;
 
+    sona::ref_ptr<TupleType const>
+    CreateTupleType(TupleType::TupleElements_t &&elems);
+
+    sona::ref_ptr<ArrayType const>
+    CreateArrayType(sona::ref_ptr<Type> base, size_t size);
+
+    sona::ref_ptr<PointerType const>
+    CreatePointerType(sona::ref_ptr<Type> pointee);
+
+    sona::ref_ptr<LValueRefType const>
+    CreateLValueRefType(sona::ref_ptr<Type> referenced);
+
+    sona::ref_ptr<FunctionType const>
+    BuildFunctionType();
+
+    sona::ref_ptr<Type const>
+    GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
+
+    sona::ref_ptr<RValueRefType const>
+    CreateRValueRefType(sona::ref_ptr<Type> referenced);
+
 private:
     template <typename Type_t>
     using TypeSet =
@@ -21,7 +42,8 @@ private:
     TypeSet<TupleType> m_TupleTypes;
     TypeSet<ArrayType> m_ArrayTypes;
     TypeSet<PointerType> m_PointerTypes;
-    TypeSet<RefType> m_RefTypes;
+    TypeSet<LValueRefType> m_LValueRefTypes;
+    TypeSet<RValueRefType> m_RValueRefTypes;
     TypeSet<FunctionType> m_FuncTypes;
 };
 

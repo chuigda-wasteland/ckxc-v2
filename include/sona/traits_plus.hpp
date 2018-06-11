@@ -2,6 +2,8 @@
 #define TRAITS_PLUS_HPP
 
 #include <type_traits>
+#include <memory>
+
 namespace sona {
 
 namespace detail {

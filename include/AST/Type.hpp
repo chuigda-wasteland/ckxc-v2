@@ -28,13 +28,13 @@ public:
         BTI_r32,
         BTI_r64,
         /// @todo I don't know how to implement char elegantly
-            // TI_char,
+        /// TI_char,
         BTI_bool,
         BTI_nil,
         BTI_void,
     };
 
-    BuiltinType(BuiltinTypeId id)
+    explicit BuiltinType(BuiltinTypeId id)
         : Type(TypeId::TI_Builtin),
           m_BuiltinTypeId(id) {}
 
@@ -62,7 +62,7 @@ private:
 
 class TupleType : public Type {
 public:
-    using TupleElements_t = sona::small_vector<sona::owner<Type>, 3>;
+    using TupleElements_t = sona::small_vector<sona::ref_ptr<Type>, 3>;
 
     TupleType(TupleElements_t&& elemTypes)
         : Type(TypeId::TI_Tuple),
@@ -83,52 +83,52 @@ private:
 
 class ArrayType : public Type {
 public:
-    ArrayType(sona::owner<Type> &&base, std::size_t size)
+    ArrayType(sona::ref_ptr<Type> base, std::size_t size)
         : Type(TypeId::TI_Array),
-          m_Base(std::move(base)),
+          m_Base(base),
           m_Size(size) {}
 
-    sona::ref_ptr<Type const> GetBase() const { return m_Base.borrow(); }
+    sona::ref_ptr<Type const> GetBase() const { return m_Base; }
     std::size_t GetSize() const { return m_Size; }
 
     std::size_t GetHash() const noexcept override;
     bool EqualTo(Type const& that) const noexcept override;
 
 private:
-    sona::owner<Type> m_Base;
+    sona::ref_ptr<Type> m_Base;
     std::size_t m_Size;
 };
 
 class PointerType : public Type {
 public:
-    PointerType(sona::owner<Type> &&pointee)
+    PointerType(sona::ref_ptr<Type> pointee)
         : Type(TypeId::TI_Pointer),
-          m_Pointee(std::move(pointee)) {}
+          m_Pointee(pointee) {}
 
-    sona::ref_ptr<Type const> GetPointee() const { return m_Pointee.borrow(); }
+    sona::ref_ptr<Type const> GetPointee() const { return m_Pointee; }
 
     std::size_t GetHash() const noexcept override;
     bool EqualTo(Type const& that) const noexcept override;
 
 private:
-    sona::owner<Type> m_Pointee;
+    sona::ref_ptr<Type> m_Pointee;
 };
 
 class RefType : public Type {
 public:
     enum class RefTypeId { RTI_LValueRef, RTI_RValueRef };
     RefType(RefTypeId refTypeId,
-            sona::owner<Type> &&referenced)
+            sona::ref_ptr<Type> referenced)
         : Type(TypeId::TI_Ref),
           m_RefTypeId(refTypeId),
-          m_ReferencedType(std::move(referenced)) {}
+          m_ReferencedType(referenced) {}
 
     RefTypeId GetRefTypeId() const noexcept {
         return m_RefTypeId;
     }
 
     sona::ref_ptr<Type const> GetReferencedType() const noexcept {
-        return m_ReferencedType.borrow();
+        return m_ReferencedType;
     }
 
     std::size_t GetHash() const noexcept override = 0;
@@ -136,14 +136,13 @@ public:
 
 private:
     RefTypeId m_RefTypeId;
-    sona::owner<Type> m_ReferencedType;
+    sona::ref_ptr<Type> m_ReferencedType;
 };
 
 class LValueRefType : public RefType {
 public:
-    LValueRefType(sona::owner<Type> &&referenced)
-        : RefType(RefTypeId::RTI_LValueRef,
-                  std::move(referenced)) {}
+    LValueRefType(sona::ref_ptr<Type> referenced)
+        : RefType(RefTypeId::RTI_LValueRef, referenced) {}
 
     std::size_t GetHash() const noexcept override;
     bool EqualTo(Type const& that) const noexcept override;
@@ -151,9 +150,8 @@ public:
 
 class RValueRefType : public RefType {
 public:
-    RValueRefType(sona::owner<Type> &&referenced)
-        : RefType(RefTypeId::RTI_RValueRef,
-                  std::move(referenced)) {}
+    RValueRefType(sona::ref_ptr<Type> referenced)
+        : RefType(RefTypeId::RTI_RValueRef, referenced) {}
 
     std::size_t GetHash() const noexcept override;
     bool EqualTo(Type const& that) const noexcept override;
