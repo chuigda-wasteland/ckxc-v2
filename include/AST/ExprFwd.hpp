@@ -4,19 +4,19 @@
 namespace ckx {
 
 class Expr;
-    class AssignExpr;
-    class UnaryExpr;
-    class BinaryExpr;
-    class CondExpr;
-    class IdExpr;
-    class LiteralExpr;
-        class IntegralLiteralExpr;
-        class FloatingLiteralExpr;
-        class CharLiteralExpr;
-        class StringLiteralExpr;
-    class TupleLiteralExpr;
-    class ArrayLiteralExpr;
-    class ParenExpr;
+class AssignExpr;
+class UnaryExpr;
+class BinaryExpr;
+class CondExpr;
+class IdExpr;
+class LiteralExpr;
+class IntegralLiteralExpr;
+class FloatingLiteralExpr;
+class CharLiteralExpr;
+class StringLiteralExpr;
+class TupleLiteralExpr;
+class ArrayLiteralExpr;
+class ParenExpr;
 } // namespace ckx
 
 #endif // EXPRFWD_HPP

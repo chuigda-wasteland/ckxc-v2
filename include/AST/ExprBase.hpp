@@ -7,28 +7,28 @@ namespace ckx {
 
 class Expr {
 public:
-    enum class ExprId {
-        EI_Unary,
-        EI_Binary,
-        EI_Assign,
-        EI_Cond,
-        EI_ID,
-        EI_Integral,
-        EI_Floating,
-        EI_Char,
-        EI_String,
-        EI_Tuple,
-        EI_Array,
-        EI_Paren
-    };
+  enum class ExprId {
+    EI_Unary,
+    EI_Binary,
+    EI_Assign,
+    EI_Cond,
+    EI_ID,
+    EI_Integral,
+    EI_Floating,
+    EI_Char,
+    EI_String,
+    EI_Tuple,
+    EI_Array,
+    EI_Paren
+  };
 
 protected:
-    Expr(ExprId id) : m_ExprId(id) {}
+  Expr(ExprId id) : m_ExprId(id) {}
 
-    ExprId GetExprId() const { return m_ExprId; }
+  ExprId GetExprId() const { return m_ExprId; }
 
 private:
-    ExprId m_ExprId;
+  ExprId m_ExprId;
 };
 
 } // namespace ckx

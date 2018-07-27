@@ -34,3 +34,4 @@
 # Qt configurations
 *.user
 *.user.*
+*.project

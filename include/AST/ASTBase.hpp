@@ -4,7 +4,7 @@
 namespace ckx {
 namespace AST {
 
-class ASTBase { };
+class ASTBase {};
 
 } // namespace AST
 } // namespace ckx
