@@ -85,11 +85,10 @@ bool BuiltinType::EqualTo(Type const &that) const noexcept {
 }
 
 size_t TupleType::GetHash() const noexcept {
-  auto rng =
-      sona::linq::from_container(m_ElemTypes)
-          .transform([](sona::owner<Type> const &t) { return t.borrow(); })
-          .transform(
-              [](sona::ref_ptr<Type const> t) { return t.get().GetHash(); });
+  auto rng = sona::linq::from_container(m_ElemTypes)
+             .transform([](sona::ref_ptr<Type const> t) {
+                return t.get().GetHash();
+              });
 
   return (size_t)std::accumulate(rng.begin(), rng.end(), 0);
 }
@@ -98,17 +97,11 @@ bool TupleType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Tuple) {
     TupleType const &t = static_cast<TupleType const &>(that);
     if (GetTupleElemTypes().size() == t.GetTupleElemTypes().size()) {
-      auto rng1 =
-          sona::linq::from_container(GetTupleElemTypes())
-              .transform([](sona::owner<Type> const &t) { return t.borrow(); });
-
-      auto rng2 =
-          sona::linq::from_container(t.GetTupleElemTypes())
-              .transform([](sona::owner<Type> const &t) { return t.borrow(); });
-
+      auto rng1 = sona::linq::from_container(GetTupleElemTypes());
+      auto rng2 = sona::linq::from_container(t.GetTupleElemTypes());
       auto rng = rng1.zip_with(rng2).transform(
-          [](std::pair<sona::ref_ptr<Type const>, sona::ref_ptr<Type const>>
-                 p) { return p.first.get().EqualTo(p.second.get()); });
+          [](std::pair<sona::ref_ptr<Type>, sona::ref_ptr<Type>> p)
+          { return p.first.get().EqualTo(p.second.get()); });
 
       for (bool b : rng)
         if (!b) return false;

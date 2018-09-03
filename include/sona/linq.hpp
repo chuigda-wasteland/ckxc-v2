@@ -25,11 +25,10 @@ template <typename Iter, typename Transform> class transform_iterator {
 
 public:
   using iterator_category =
-      typename std::iterator_traits<Iter>::iterator_category;
+    typename std::iterator_traits<Iter>::iterator_category;
   using difference_type = typename std::iterator_traits<Iter>::difference_type;
   using value_type =
-      invoke_result_t<Transform,
-                      typename std::iterator_traits<Iter>::value_type>;
+    decltype(std::declval<Transform>()(*std::declval<Iter>()));
   using reference = value_type;
   using pointer = std::add_pointer_t<value_type>;
 
@@ -386,7 +385,7 @@ public:
       min_iter_tag<iterator_category1, iterator_category2>;
   using difference_type =
       std::common_type_t<difference_type1, difference_type2>;
-  using value_type = std::pair<reference1, reference2>;
+  using value_type = std::pair<value_type1, value_type2>;
   using reference = value_type;
   using pointer = value_type *;
 
