@@ -13,7 +13,9 @@ public:
   ref_ptr(ref_ptr const &) = default;
   ref_ptr &operator=(ref_ptr const &) = default;
 
-  operator ref_ptr<T const>() const noexcept { return ref_ptr<T const>(*ptr); }
+  operator ref_ptr<T const>() const noexcept {
+    return ref_ptr<T const>(*ptr);
+  }
 
   operator T &() const noexcept { return *ptr; }
   T &get() const noexcept { return *ptr; }
