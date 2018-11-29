@@ -20,9 +20,6 @@ class Decl {
 public:
   enum DeclKind : std::uint8_t {
     DK_Empty,
-    /// @todo implement them once we can
-    // DK_Module,
-    // DK_Import,
     DK_TransUnit,
     DK_Label,
     DK_Class,
