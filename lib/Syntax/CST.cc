@@ -1,4 +1,6 @@
 #include "Syntax/CST.h"
 
-CSTNode::~CSTNode() {
-}
+using namespace ckx::Syntax;
+
+CSTNode::~CSTNode() {}
+

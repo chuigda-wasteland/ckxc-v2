@@ -10,6 +10,9 @@
 #include <sona/linq.hpp>
 #include <sona/pointer_plus.hpp>
 
+namespace ckx {
+namespace Syntax {
+
 class CSTNode {
 public:
   enum class CSTNodeKind {
@@ -330,5 +333,8 @@ private:
   std::vector<sona::owner<CSTType>> m_ParamTypes;
   std::vector<std::string> m_ParamNames;
 };
+
+} // namespace Syntax;
+} // namespace ckx
 
 #endif // CST_CC

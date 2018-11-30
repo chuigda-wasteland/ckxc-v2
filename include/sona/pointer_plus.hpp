@@ -7,6 +7,8 @@ namespace sona {
 
 template <typename T> class ref_ptr {
 public:
+  ref_ptr(T *ptr) : ptr(ptr) {}
+
   ref_ptr(T &ref) : ptr(std::addressof(ref)) {}
   ref_ptr(T &&) = delete;
 
