@@ -13,7 +13,7 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-endif()
+endif ()
 
 include_directories (include)
 
@@ -32,3 +32,6 @@ target_link_libraries (temporary sona)
 target_link_libraries (temporary AST)
 target_link_libraries (temporary Syntax)
 target_link_libraries (temporary Meta)
+
+add_executable (TestDependencyResolver test/TestDependencyResolver.cc)
+target_link_libraries (TestDependencyResolver Meta)

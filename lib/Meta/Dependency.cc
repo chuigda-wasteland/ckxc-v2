@@ -18,9 +18,9 @@ private:
   bool m_PermanentlyMarked = false;
 };
 
-bool VisitGraphNode(GraphNode& node,
-                    std::unordered_map<std::string, GraphNode>& nodeSet,
-                    std::vector<sona::ref_ptr<DependInfo>>& sorted) {
+bool VisitGraphNode(GraphNode &node,
+                    std::unordered_map<std::string, GraphNode> &nodeSet,
+                    std::vector<sona::ref_ptr<DependInfo>> &sorted) {
   if (node.IsMarkedPermanently()) {
     return true;
   }

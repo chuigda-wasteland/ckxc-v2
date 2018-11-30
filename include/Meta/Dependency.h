@@ -16,6 +16,13 @@ namespace Meta {
 
 class DependInfo {
 public:
+#ifdef TEST
+  DependInfo(std::string const& exportedName,
+             std::vector<std::string> &&requiredNames) :
+    m_ExportedName(exportedName),
+    m_RequiredNames(std::move(requiredNames)) {}
+#endif
+
   DependInfo(std::string &&exportedName,
              std::vector<std::string> &&requiredNames)
     : m_ExportedName(std::move(exportedName)),
