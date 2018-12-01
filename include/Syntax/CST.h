@@ -10,6 +10,7 @@
 #include <sona/range.hpp>
 #include <sona/linq.hpp>
 #include <sona/pointer_plus.hpp>
+#include <sona/stringref.hpp>
 
 namespace ckx {
 namespace Syntax {
@@ -82,7 +83,7 @@ public:
   CSTDecl(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
 
   virtual Meta::DependInfo CompileDependency(
-    std::vector<std::string> const& importedNames) const noexcept = 0;
+    std::vector<sona::string_ref> const& importedNames) const noexcept = 0;
 };
 
 class CSTStmt : public CSTNode {
@@ -112,13 +113,13 @@ private:
 
 class CSTUserDefinedType : public CSTType {
 public:
-  CSTUserDefinedType(std::string &&name)
-    : CSTType(CSTNodeKind::CNK_UserDefinedType), m_Name(std::move(name)) {}
+  CSTUserDefinedType(sona::string_ref name)
+    : CSTType(CSTNodeKind::CNK_UserDefinedType), m_Name(name) {}
 
-  std::string const& GetName() const noexcept { return m_Name; }
+  sona::string_ref GetName() const noexcept { return m_Name; }
 
 private:
-  std::string m_Name;
+  sona::string_ref m_Name;
 };
 
 class CSTTemplatedType : public CSTType {
@@ -170,32 +171,31 @@ private:
 
 class CSTIdentifier {
 public:
-  CSTIdentifier(std::string &&identifier)
-    : m_Identifier(std::move(identifier)) {}
+  CSTIdentifier(sona::string_ref identifier) : m_Identifier(identifier) {}
 
-  CSTIdentifier(std::vector<std::string> &&nestedNameSpecifiers,
-                std::string &&identifier)
+  CSTIdentifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
+                sona::string_ref identifier)
     : m_NestedNameSpecifiers(std::move(nestedNameSpecifiers)),
-      m_Identifier(std::move(identifier)) {}
+      m_Identifier(identifier) {}
 
   CSTIdentifier(CSTIdentifier &&that)
     : m_NestedNameSpecifiers(std::move(that.m_NestedNameSpecifiers)),
-      m_Identifier(std::move(that.m_Identifier)) {}
+      m_Identifier(that.m_Identifier) {}
 
   CSTIdentifier(CSTIdentifier const&) = delete;
   CSTIdentifier& operator=(CSTIdentifier const&) = delete;
 
-  std::string const& GetIdentifier() const noexcept {
+  sona::string_ref const& GetIdentifier() const noexcept {
     return m_Identifier;
   }
 
-  std::vector<std::string> const& GetNestedNameSpecifiers() const noexcept {
+  std::vector<sona::string_ref> const& GetNestedNameSpecifiers() const noexcept {
     return m_NestedNameSpecifiers;
   }
 
 private:
-  std::vector<std::string> m_NestedNameSpecifiers;
-  std::string m_Identifier;
+  std::vector<sona::string_ref> m_NestedNameSpecifiers;
+  sona::string_ref m_Identifier;
 };
 
 class CSTImport : public CSTNode {
@@ -250,7 +250,7 @@ public:
   }
 
   Meta::DependInfo CompileDependency(
-    std::vector<std::string> const& importedNames) const noexcept override;
+    std::vector<sona::string_ref> const& importedNames) const noexcept override;
 
 private:
   CSTIdentifier m_ClassName;
@@ -261,10 +261,10 @@ class CSTEnumDecl : public CSTDecl {
 public:
   class Enumerator {
   public:
-    Enumerator(std::string &&name, sona::optional<int64_t> const& value)
-      : m_Name(name), m_Value(value) {}
+    Enumerator(CSTIdentifier &&name, sona::optional<int64_t> const& value)
+      : m_Name(std::move(name)), m_Value(value) {}
 
-    std::string const& GetName() const noexcept {
+    CSTIdentifier const& GetName() const noexcept {
       return m_Name;
     }
 
@@ -278,25 +278,26 @@ public:
     }
 
   private:
-    std::string m_Name;
+    CSTIdentifier m_Name;
     sona::optional<int64_t> m_Value;
   };
 
   Meta::DependInfo CompileDependency(
-    std::vector<std::string> const& importedNames) const noexcept override;
+    std::vector<sona::string_ref> const& importedNames) const noexcept override;
 
 private:
-  std::vector<std::string> m_Enumerators;
+  std::vector<sona::string_ref> m_Enumerators;
 };
 
 class CSTADTDecl : public CSTDecl {
 public:
   class DataConstructor {
   public:
-    DataConstructor(std::string &&name, sona::owner<CSTType> &&underlyingType)
+    DataConstructor(sona::string_ref &&name,
+                    sona::owner<CSTType> &&underlyingType)
       : m_Name(name), m_UnderlyingType(std::move(underlyingType)) {}
 
-    std::string const& GetName() const noexcept {
+    sona::string_ref const& GetName() const noexcept {
       return m_Name;
     }
 
@@ -305,37 +306,41 @@ public:
     }
 
   private:
-    std::string m_Name;
+    sona::string_ref m_Name;
     sona::owner<CSTType> m_UnderlyingType;
   };
 
-  CSTADTDecl(std::string &&name, std::vector<DataConstructor> &&constructors)
+  CSTADTDecl(CSTIdentifier &&name, std::vector<DataConstructor> &&constructors)
     : CSTDecl(CSTNodeKind::CNK_ADTDecl), m_Name(std::move(name)),
       m_Constructors(std::move(constructors)) {}
+
+  CSTIdentifier const& GetName() const noexcept {
+     return m_Name;
+  }
 
   std::vector<DataConstructor> const& GetConstructors() const noexcept {
     return m_Constructors;
   }
 
   Meta::DependInfo CompileDependency(
-    std::vector<std::string> const& importedNames) const noexcept override;
+    std::vector<sona::string_ref> const& importedNames) const noexcept override;
 
 private:
-  std::string m_Name;
+  CSTIdentifier m_Name;
   std::vector<DataConstructor> m_Constructors;
 };
 
 class CSTFuncDecl : public CSTDecl {
 public:
-  CSTFuncDecl(std::string &&name,
+  CSTFuncDecl(CSTIdentifier &&name,
               std::vector<sona::owner<CSTType>> &&paramTypes,
-              std::vector<std::string> &&paramNames) :
+              std::vector<sona::string_ref> &&paramNames) :
     CSTDecl(CSTNodeKind::CNK_FuncDecl),
     m_Name(std::move(name)),
     m_ParamTypes(std::move(paramTypes)),
     m_ParamNames(std::move(paramNames)) {}
 
-  std::string const& GetName() const noexcept { return m_Name; }
+  CSTIdentifier const& GetName() const noexcept { return m_Name; }
 
   auto GetParamTypes() const noexcept {
     return sona::linq::from_container(m_ParamTypes).transform(
@@ -343,12 +348,12 @@ public:
   }
 
   Meta::DependInfo CompileDependency(
-    std::vector<std::string> const& importedNames) const noexcept override;
+    std::vector<sona::string_ref> const& importedNames) const noexcept override;
 
 private:
-  std::string m_Name;
+  CSTIdentifier m_Name;
   std::vector<sona::owner<CSTType>> m_ParamTypes;
-  std::vector<std::string> m_ParamNames;
+  std::vector<sona::string_ref> m_ParamNames;
 };
 
 } // namespace Syntax;

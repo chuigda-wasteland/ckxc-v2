@@ -5,35 +5,35 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <stack>
 #include <type_traits>
 #include <unordered_map>
 
 #include <sona/pointer_plus.hpp>
 #include <sona/optional.hpp>
+#include <sona/stringref.hpp>
 
 namespace ckx {
 namespace Meta {
 
 class DependInfo {
 public:
-#ifdef TEST
-  DependInfo(std::string const& exportedName,
-             std::vector<std::string> &&requiredNames) :
-    m_ExportedName(exportedName),
-    m_RequiredNames(std::move(requiredNames)) {}
-#endif
+  DependInfo(sona::string_ref exportedName,
+             std::vector<sona::string_ref> &&requiredNames,
+             void const* extraData)
+    : m_ExportedName(exportedName),
+      m_RequiredNames(requiredNames),
+      m_ExtraData(extraData) {}
 
-  DependInfo(std::string &&exportedName,
-             std::vector<std::string> &&requiredNames)
-    : m_ExportedName(std::move(exportedName)),
-      m_RequiredNames(std::move(requiredNames)),
-      m_ExtraData(nullptr) {}
+  DependInfo(sona::string_ref exportedName,
+             std::vector<sona::string_ref> &&requiredNames)
+    : DependInfo(exportedName, std::move(requiredNames), nullptr) {}
 
-  std::string const& GetExportedName() const noexcept {
+  sona::string_ref GetExportedName() const noexcept {
     return m_ExportedName;
   }
 
-  std::vector<std::string> const& GetRequiredNames() const noexcept {
+  std::vector<sona::string_ref> const& GetRequiredNames() const noexcept {
     return m_RequiredNames;
   }
 
@@ -45,13 +45,22 @@ public:
 
   template <typename ExtraDataType>
   sona::ref_ptr<ExtraDataType const> GetExtraDataUnsafe() const noexcept {
-    return (ExtraDataType const*)m_ExtraData;
+    return reinterpret_cast<ExtraDataType const*>(m_ExtraData);
   }
 
 private:
-  std::string m_ExportedName;
-  std::vector<std::string> m_RequiredNames;
+  sona::string_ref m_ExportedName;
+  std::vector<sona::string_ref> m_RequiredNames;
   void const* m_ExtraData;
+};
+
+class DependContext {
+public:
+
+private:
+  std::unordered_map<std::string, DependInfo> m_CollectedDependInfo;
+  std::stack<std::vector<sona::string_ref>> m_KnownSymbols;
+  std::stack<sona::string_ref> m_EnclosingScopeSymbol;
 };
 
 sona::optional<std::vector<sona::ref_ptr<DependInfo>>>

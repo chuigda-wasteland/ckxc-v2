@@ -9,17 +9,17 @@ using namespace ckx::Meta;
 void test0() {
   cout << "-- running test0" << endl;
 
-  string mod0 = "support";
-  string mod1 = "chrono";
-  string mod2 = "container";
-  string mod3 = "filesystem";
-  string mod4 = "hadoop";
+  string_ref mod0 = "support";
+  string_ref mod1 = "chrono";
+  string_ref mod2 = "container";
+  string_ref mod3 = "filesystem";
+  string_ref mod4 = "hadoop";
 
-  vector<string> mod0req;
-  vector<string> mod1req { mod0 };
-  vector<string> mod2req { mod0 };
-  vector<string> mod3req { mod1, mod2 };
-  vector<string> mod4req { mod1, mod2, mod3 };
+  vector<string_ref> mod0req;
+  vector<string_ref> mod1req { mod0 };
+  vector<string_ref> mod2req { mod0 };
+  vector<string_ref> mod3req { mod1, mod2 };
+  vector<string_ref> mod4req { mod1, mod2, mod3 };
 
   DependInfo mod0depinfo(mod0, std::move(mod0req));
   DependInfo mod1depinfo(mod1, std::move(mod1req));
@@ -36,7 +36,7 @@ void test0() {
 
   if (resolvedDeplist.has_value()) {
     for (ref_ptr<DependInfo> dpinfo : resolvedDeplist.value()) {
-      cout << dpinfo.get().GetExportedName() << endl;
+      cout << dpinfo.get().GetExportedName().get() << endl;
     }
   }
 }
@@ -44,11 +44,11 @@ void test0() {
 void test1() {
   cout << "-- running test1" << endl;
 
-  string mod0 = "fork";
-  string mod1 = "knife";
+  string_ref mod0 = "fork";
+  string_ref mod1 = "knife";
 
-  vector<string> mod0req { mod1 };
-  vector<string> mod1req { mod0 };
+  vector<string_ref> mod0req { mod1 };
+  vector<string_ref> mod1req { mod0 };
 
   DependInfo mod0depinfo(mod0, std::move(mod0req));
   DependInfo mod1depinfo(mod1, std::move(mod1req));
@@ -60,7 +60,7 @@ void test1() {
 
   if (resolvedDeplist.has_value()) {
     for (ref_ptr<DependInfo> dpinfo : resolvedDeplist.value()) {
-      cout << dpinfo.get().GetExportedName() << endl;
+      cout << dpinfo.get().GetExportedName().get() << endl;
     }
   }
   else {

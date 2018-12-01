@@ -30,9 +30,9 @@ bool VisitGraphNode(GraphNode &node,
   }
 
   node.MarkTemporarily();
-  for (std::string const& requiredName
+  for (sona::string_ref const& requiredName
        : node.GetData().get().GetRequiredNames()) {
-    auto it = nodeSet.find(requiredName);
+    auto it = nodeSet.find(requiredName.get());
     if (it == nodeSet.end()) {
       return false;
     }
@@ -56,7 +56,7 @@ ResolveDependency(std::vector<sona::ref_ptr<DependInfo>> const& dependInfos) {
 
   std::unordered_map<std::string, GraphNode> nodeSet;
   for (sona::ref_ptr<DependInfo> dependInfo : dependInfos) {
-    nodeSet[dependInfo.get().GetExportedName()].SetData(dependInfo);
+    nodeSet[dependInfo.get().GetExportedName().get()].SetData(dependInfo);
   }
 
   bool hasUnmarked = true;

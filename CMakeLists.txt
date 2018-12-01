@@ -33,5 +33,8 @@ target_link_libraries (temporary AST)
 target_link_libraries (temporary Syntax)
 target_link_libraries (temporary Meta)
 
+target_link_libraries (Meta sona)
+target_link_libraries (Syntax sona)
+
 add_executable (TestDependencyResolver test/TestDependencyResolver.cc)
 target_link_libraries (TestDependencyResolver Meta)
