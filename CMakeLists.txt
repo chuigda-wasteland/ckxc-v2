@@ -25,16 +25,11 @@ aux_source_directory (lib/Meta META_SRC)
 add_library (sona ${SONA_SRC})
 add_library (AST ${AST_SRC})
 add_library (Syntax ${SYNTAX_SRC})
-add_library (Meta ${META_SRC})
 
 add_executable (temporary driver/temporarymain.cc)
 target_link_libraries (temporary sona)
 target_link_libraries (temporary AST)
 target_link_libraries (temporary Syntax)
-target_link_libraries (temporary Meta)
 
-target_link_libraries (Meta sona)
 target_link_libraries (Syntax sona)
 
-add_executable (TestDependencyResolver test/TestDependencyResolver.cc)
-target_link_libraries (TestDependencyResolver Meta)
