@@ -26,17 +26,25 @@ public:
     CNK_Import,
     CNK_Export,
 
-    /// Declarations(Definitions)
+    /// Attributes
+    CNK_AttributeList,
+
+    /// Forward Declarations
+    CNK_ForwardDecl,
+
+    /// Definitions
     CNK_ClassDecl,
     CNK_EnumDecl,
     CNK_ADTDecl,
-    CNK_FuncDecl,
     CNK_VarDecl,
+
+    /// Function definition is special
+    CNK_FuncDecl,
 
     /** @todo most of these are not completed yet */
     CNK_TypeAliasDecl,
     CNK_LabelDecl,
-    CNK_TemplateDecl,
+    CNK_TemplatedDecl,
     CNK_ConceptDecl,
 
     /// Statements
@@ -48,9 +56,11 @@ public:
     CNK_ForEachStmt,
     CNK_WhileStmt,
     CNK_CompoundStmt,
+    CNK_ReturnStmt,
 
     /// Expressions
     CNK_LiteralExpr,
+    CNK_StringLiteralExpr,
     CNK_IdRefExpr,
     CNK_FuncCallExpr,
     CNK_UnaryExpr,
@@ -75,8 +85,39 @@ private:
   CSTNodeKind m_NodeKind;
 };
 
+class CSTAttributeList : public CSTNode {
+public:
+  class CSTAttribute {
+  public:
+    CSTAttribute(sona::string_ref const& attributeName,
+                 sona::string_ref const& attributeValue)
+      : m_AttributeName(attributeName), m_AttributeValue(attributeValue) {}
+
+    CSTAttribute(sona::string_ref const& attributeName)
+      : m_AttributeName(attributeName),
+        m_AttributeValue(sona::empty_optional()) {}
+
+  private:
+    sona::string_ref m_AttributeName;
+    sona::optional<sona::string_ref> m_AttributeValue;
+  };
+
+  CSTAttributeList(std::vector<CSTAttributeList> &attributes)
+    : CSTNode(CSTNode::CSTNodeKind::CNK_AttributeList),
+      m_Attributes(std::move(attributes)) {}
+
+  std::vector<CSTAttributeList> const& GetAttributes() const noexcept {
+    return m_Attributes;
+  }
+
+private:
+  std::vector<CSTAttributeList> m_Attributes;
+};
+
 class CSTType : public CSTNode {
-public: CSTType(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+public:
+  CSTType(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+  // virtual TypeResult accept(CSTTypeVisitor &visitor) = 0;
 };
 
 class CSTDecl : public CSTNode {
@@ -230,15 +271,58 @@ private:
   sona::owner<CSTDecl> m_Node;
 };
 
+class CSTForwardDecl : public CSTDecl {
+public:
+  enum class ForwardDeclKind { FDK_Class, FDK_Enum, FDK_ADT };
+  CSTForwardDecl(ForwardDeclKind fdk, sona::string_ref const& name)
+    : CSTDecl(CSTNodeKind::CNK_ForwardDecl),
+      m_ForwardDeclKind(fdk), m_Name(name) {}
+
+  ForwardDeclKind GetFDK() const noexcept {
+    return m_ForwardDeclKind;
+  }
+
+  sona::string_ref const& GetName() const noexcept {
+    return m_Name;
+  }
+
+private:
+  ForwardDeclKind m_ForwardDeclKind;
+  sona::string_ref m_Name;
+};
+
+class CSTTemplatedDecl : public CSTDecl {
+public:
+  CSTTemplatedDecl(
+      std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> tparams,
+      sona::owner<CSTDecl> underlyingDecl)
+    : CSTDecl(CSTNodeKind::CNK_TemplatedDecl),
+      m_TParams(std::move(tparams)),
+      m_UnderlyingDecl(std::move(underlyingDecl)){}
+
+  std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> const&
+  GetTemplateParams() const noexcept {
+    return m_TParams;
+  }
+
+  sona::ref_ptr<CSTDecl const> GetUnderlyingDecl() const noexcept {
+    return m_UnderlyingDecl.borrow();
+  }
+
+private:
+  std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> m_TParams;
+  sona::owner<CSTDecl> m_UnderlyingDecl;
+};
+
 class CSTClassDecl : public CSTDecl {
 public:
-  CSTClassDecl(CSTIdentifier &&className,
+  CSTClassDecl(sona::string_ref const& className,
             std::vector<sona::owner<CSTDecl>> &&subDecls)
     : CSTDecl(CSTNodeKind::CNK_ClassDecl),
-      m_ClassName(std::move(className)),
+      m_ClassName(className),
       m_SubDecls(std::move(subDecls)) {}
 
-  CSTIdentifier const& GetClassName() const noexcept {
+  sona::string_ref const& GetClassName() const noexcept {
     return m_ClassName;
   }
 
@@ -251,7 +335,7 @@ public:
   DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
-  CSTIdentifier m_ClassName;
+  sona::string_ref m_ClassName;
   std::vector<sona::owner<CSTDecl>> m_SubDecls;
 };
 
@@ -259,10 +343,11 @@ class CSTEnumDecl : public CSTDecl {
 public:
   class Enumerator {
   public:
-    Enumerator(CSTIdentifier &&name, sona::optional<int64_t> const& value)
-      : m_Name(std::move(name)), m_Value(value) {}
+    Enumerator(sona::string_ref const& name,
+               sona::optional<int64_t> const& value)
+      : m_Name(name), m_Value(value) {}
 
-    CSTIdentifier const& GetName() const noexcept {
+    sona::string_ref const& GetName() const noexcept {
       return m_Name;
     }
 
@@ -276,7 +361,7 @@ public:
     }
 
   private:
-    CSTIdentifier m_Name;
+    sona::string_ref m_Name;
     sona::optional<int64_t> m_Value;
   };
 
@@ -290,7 +375,7 @@ class CSTADTDecl : public CSTDecl {
 public:
   class DataConstructor {
   public:
-    DataConstructor(sona::string_ref &&name,
+    DataConstructor(sona::string_ref const& name,
                     sona::owner<CSTType> &&underlyingType)
       : m_Name(name), m_UnderlyingType(std::move(underlyingType)) {}
 
@@ -307,11 +392,12 @@ public:
     sona::owner<CSTType> m_UnderlyingType;
   };
 
-  CSTADTDecl(CSTIdentifier &&name, std::vector<DataConstructor> &&constructors)
-    : CSTDecl(CSTNodeKind::CNK_ADTDecl), m_Name(std::move(name)),
+  CSTADTDecl(sona::string_ref const& name,
+             std::vector<DataConstructor> &&constructors)
+    : CSTDecl(CSTNodeKind::CNK_ADTDecl), m_Name(name),
       m_Constructors(std::move(constructors)) {}
 
-  CSTIdentifier const& GetName() const noexcept {
+  sona::string_ref const& GetName() const noexcept {
      return m_Name;
   }
 
@@ -322,7 +408,7 @@ public:
   DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
-  CSTIdentifier m_Name;
+  sona::string_ref m_Name;
   std::vector<DataConstructor> m_Constructors;
 };
 
@@ -330,11 +416,13 @@ class CSTFuncDecl : public CSTDecl {
 public:
   CSTFuncDecl(CSTIdentifier &&name,
               std::vector<sona::owner<CSTType>> &&paramTypes,
-              std::vector<sona::string_ref> &&paramNames) :
+              std::vector<sona::string_ref> &&paramNames,
+              sona::optional<sona::owner<CSTStmt>> &&funcBody) :
     CSTDecl(CSTNodeKind::CNK_FuncDecl),
     m_Name(std::move(name)),
     m_ParamTypes(std::move(paramTypes)),
-    m_ParamNames(std::move(paramNames)) {}
+    m_ParamNames(std::move(paramNames)),
+    m_FuncBody(std::move(funcBody)) {}
 
   CSTIdentifier const& GetName() const noexcept { return m_Name; }
 
@@ -343,12 +431,40 @@ public:
           [](sona::owner<CSTType> const& it) { return it.borrow(); });
   }
 
+  bool IsDefinition() const noexcept {
+    return m_FuncBody.has_value();
+  }
+
+  sona::ref_ptr<CSTStmt const> GetFuncBodyUnsafe() const noexcept {
+    return m_FuncBody.value().borrow();
+  }
+
   DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   CSTIdentifier m_Name;
   std::vector<sona::owner<CSTType>> m_ParamTypes;
   std::vector<sona::string_ref> m_ParamNames;
+  sona::optional<sona::owner<CSTStmt>> m_FuncBody;
+};
+
+class CSTVarDecl : public CSTDecl {
+public:
+  CSTVarDecl(sona::string_ref const& name, sona::owner<CSTType> type)
+    : CSTDecl(CSTNodeKind::CNK_ADTDecl),
+      m_Name(name), m_Type(std::move(type)) {}
+
+  sona::string_ref const& GetName() const noexcept {
+    return m_Name;
+  }
+
+  sona::ref_ptr<CSTType const> GetType() const noexcept {
+    return m_Type.borrow();
+  }
+
+private:
+  sona::string_ref m_Name;
+  sona::owner<CSTType> m_Type;
 };
 
 } // namespace Syntax;
