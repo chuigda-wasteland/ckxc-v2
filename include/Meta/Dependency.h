@@ -13,6 +13,8 @@
 #include <sona/optional.hpp>
 #include <sona/stringref.hpp>
 
+#include <Syntax/CSTVisitor.h>
+
 namespace ckx {
 namespace Meta {
 
@@ -54,8 +56,16 @@ private:
   void const* m_ExtraData;
 };
 
-class DependContext {
+class DependencyResolveContext : public Syntax::CSTDeclVisitor {
 public:
+  Syntax::DeclResult
+  VisitClassDecl(sona::ref_ptr<Syntax::CSTClassDecl> decl) override;
+  Syntax::DeclResult
+  VisitEnumDecl(sona::ref_ptr<Syntax::CSTEnumDecl> decl) override;
+  Syntax::DeclResult
+  VisitFuncDecl(sona::ref_ptr<Syntax::CSTFuncDecl> decl) override;
+  Syntax::DeclResult
+  VisitADTDecl(sona::ref_ptr<Syntax::CSTADTDecl> decl) override;
 
 private:
   std::unordered_map<std::string, DependInfo> m_CollectedDependInfo;

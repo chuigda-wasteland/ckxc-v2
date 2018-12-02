@@ -5,7 +5,8 @@
 #include <string>
 
 #include <Basic/SourceRange.hpp>
-#include <Meta/Dependency.h>
+
+#include <Syntax/CSTVisitor.h>
 
 #include <sona/range.hpp>
 #include <sona/linq.hpp>
@@ -81,9 +82,7 @@ public: CSTType(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
 class CSTDecl : public CSTNode {
 public:
   CSTDecl(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
-
-  virtual Meta::DependInfo CompileDependency(
-    std::vector<sona::string_ref> const& importedNames) const noexcept = 0;
+  virtual DeclResult accept(CSTDeclVisitor &visitor) = 0;
 };
 
 class CSTStmt : public CSTNode {
@@ -249,8 +248,7 @@ public:
                        { return it.borrow(); });
   }
 
-  Meta::DependInfo CompileDependency(
-    std::vector<sona::string_ref> const& importedNames) const noexcept override;
+  DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   CSTIdentifier m_ClassName;
@@ -282,8 +280,7 @@ public:
     sona::optional<int64_t> m_Value;
   };
 
-  Meta::DependInfo CompileDependency(
-    std::vector<sona::string_ref> const& importedNames) const noexcept override;
+  DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   std::vector<sona::string_ref> m_Enumerators;
@@ -322,8 +319,7 @@ public:
     return m_Constructors;
   }
 
-  Meta::DependInfo CompileDependency(
-    std::vector<sona::string_ref> const& importedNames) const noexcept override;
+  DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   CSTIdentifier m_Name;
@@ -347,8 +343,7 @@ public:
           [](sona::owner<CSTType> const& it) { return it.borrow(); });
   }
 
-  Meta::DependInfo CompileDependency(
-    std::vector<sona::string_ref> const& importedNames) const noexcept override;
+  DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   CSTIdentifier m_Name;

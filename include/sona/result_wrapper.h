@@ -29,6 +29,12 @@ private:
 
 class result_wrapper {
 public:
+  template <typename T> result_wrapper(T const& value)
+    : pbase(new result_wrapper_impl<T>(value)) {}
+
+  template <typename T> result_wrapper(T&& value)
+    : pbase(new result_wrapper_impl<T>(std::move(value))) {}
+
   template <typename T> T const* get() const noexcept {
     return pbase.borrow().get().get<T>();
   }

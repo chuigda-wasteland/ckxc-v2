@@ -8,22 +8,18 @@ using namespace sona;
 
 CSTNode::~CSTNode() {}
 
-Meta::DependInfo
-CSTClassDecl::
-CompileDependency(vector<string_ref> const &importedNames) const noexcept {
-  vector<string_ref> requirements;
-  for (sona::ref_ptr<CSTDecl const> decl : GetSubDecls()) {
-    Meta::DependInfo subDep = decl.get().CompileDependency(importedNames);
-    for (string_ref str : subDep.GetRequiredNames()) {
-      if (str == GetClassName().GetIdentifier()
-          || find(importedNames.cbegin(), importedNames.cend(), str)
-             == importedNames.cend()) {
-        continue;
-      }
-      requirements.push_back(str);
-    }
-  }
+DeclResult CSTClassDecl::accept(CSTDeclVisitor &visitor) {
+  return visitor.VisitClassDecl(this);
+}
 
-  return Meta::DependInfo(GetClassName().GetIdentifier(),
-                          std::move(requirements), this);
+DeclResult CSTEnumDecl::accept(CSTDeclVisitor &visitor) {
+  return visitor.VisitEnumDecl(this);
+}
+
+DeclResult CSTADTDecl::accept(CSTDeclVisitor &visitor) {
+  return visitor.VisitADTDecl(this);
+}
+
+DeclResult CSTFuncDecl::accept(CSTDeclVisitor &visitor) {
+  return visitor.VisitFuncDecl(this);
 }

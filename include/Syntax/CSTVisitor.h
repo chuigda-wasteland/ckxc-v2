@@ -5,7 +5,7 @@
 #include <sona/pointer_plus.hpp>
 #include <type_traits>
 
-#include <Syntax/CST.h>
+#include <Syntax/CSTFwd.h>
 
 namespace ckx {
 namespace Syntax {
