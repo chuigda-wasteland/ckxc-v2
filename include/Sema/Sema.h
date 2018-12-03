@@ -12,7 +12,7 @@ namespace Sema {
 class Sema final {
 public:
   sona::owner<AST::TransUnitDecl>
-  ActOnTransUnit(sona::ref_ptr<Syntax::CSTTransUnit> transUnit);
+  ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit);
 };
 
 } // namespace Sema

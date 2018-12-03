@@ -4,47 +4,47 @@
 namespace ckx {
 namespace Syntax {
 
-class CSTNode;
-  class CSTTransUnit;
-  class CSTAttributeList;
-  class CSTIdentifier;
-  class CSTImport;
-  class CSTExport;
+class Node;
+  class TransUnit;
+  class AttributeList;
+  class Identifier;
+  class Import;
+  class Export;
 
-  class CSTType;
-    class CSTBasicType;
-    class CSTUserDefinedType;
-    class CSTTemplatedType;
-    class CSTComposedType;
+  class Type;
+    class BasicType;
+    class UserDefinedType;
+    class TemplatedType;
+    class ComposedType;
 
-  class CSTDecl;
-    class CSTTemplatedDecl;
-    class CSTForwardDecl;
-    class CSTClassDecl;
-    class CSTEnumDecl;
-    class CSTADTDecl;
-    class CSTFuncDecl;
-    class CSTVarDecl;
+  class Decl;
+    class TemplatedDecl;
+    class ForwardDecl;
+    class ClassDecl;
+    class EnumDecl;
+    class ADTDecl;
+    class FuncDecl;
+    class VarDecl;
 
-  class CSTStmt;
-    class CSTEmptyStmt;
-    class CSTExprStmt;
-    class CSTIfStmt;
-    class CSTMatchStmt;
-    class CSTForStmt;
-    class CSTForEachStmt;
-    class CSTWhileStmt;
-    class CSTCompoundStmt;
-    class CSTReturnStmt;
+  class Stmt;
+    class EmptyStmt;
+    class ExprStmt;
+    class IfStmt;
+    class MatchStmt;
+    class ForStmt;
+    class ForEachStmt;
+    class WhileStmt;
+    class CompoundStmt;
+    class ReturnStmt;
 
-  class CSTExpr;
-    class CSTLiteralExpr;
-    class CSTStringLiteralExpr;
-    class CSTIdRefExpr;
-    class CSTFuncCallExpr;
-    class CSTUnaryExpr;
-    class CSTBinaryExpr;
-    class CSTMixFixExpr;
+  class Expr;
+    class LiteralExpr;
+    class StringLiteralExpr;
+    class IdRefExpr;
+    class FuncCallExpr;
+    class UnaryExpr;
+    class BinaryExpr;
+    class MixFixExpr;
 
 } // namespace Syntax
 } // namespace ckx

@@ -19,42 +19,42 @@ using StmtResult = sona::result_wrapper;
 class CSTMiscVisitor {
 public:
   virtual MiscResult
-  VisitAttributeList(sona::ref_ptr<CSTAttributeList> attributeList) = 0;
-  virtual MiscResult VisitImport(sona::ref_ptr<CSTImport> imported) = 0;
-  virtual MiscResult VisitExport(sona::ref_ptr<CSTExport> exported) = 0;
+  VisitAttributeList(sona::ref_ptr<AttributeList> attributeList) = 0;
+  virtual MiscResult VisitImport(sona::ref_ptr<Import> imported) = 0;
+  virtual MiscResult VisitExport(sona::ref_ptr<Export> exported) = 0;
 };
 
 class CSTTypeVisitor {
 public:
-  virtual TypeResult VisitBasicType(sona::ref_ptr<CSTBasicType> type) = 0;
+  virtual TypeResult VisitBasicType(sona::ref_ptr<BasicType> type) = 0;
   virtual TypeResult
-  VisitUserDefinedType(sona::ref_ptr<CSTUserDefinedType> type) = 0;
+  VisitUserDefinedType(sona::ref_ptr<UserDefinedType> type) = 0;
   virtual TypeResult
-  VisitTemplatedType(sona::ref_ptr<CSTTemplatedType> type) = 0;
+  VisitTemplatedType(sona::ref_ptr<TemplatedType> type) = 0;
   virtual TypeResult
-  VisitComposedType(sona::ref_ptr<CSTComposedType> type);
+  VisitComposedType(sona::ref_ptr<ComposedType> type);
 };
 
 class CSTDeclVisitor {
 public:
-  virtual DeclResult VisitForwardDecl(sona::ref_ptr<CSTForwardDecl> decl) = 0;
-  virtual DeclResult VisitClassDecl(sona::ref_ptr<CSTClassDecl> decl) = 0;
-  virtual DeclResult VisitEnumDecl(sona::ref_ptr<CSTEnumDecl> decl) = 0;
-  virtual DeclResult VisitFuncDecl(sona::ref_ptr<CSTFuncDecl> decl) = 0;
-  virtual DeclResult VisitADTDecl(sona::ref_ptr<CSTADTDecl> decl) = 0;
+  virtual DeclResult VisitForwardDecl(sona::ref_ptr<ForwardDecl> decl) = 0;
+  virtual DeclResult VisitClassDecl(sona::ref_ptr<ClassDecl> decl) = 0;
+  virtual DeclResult VisitEnumDecl(sona::ref_ptr<EnumDecl> decl) = 0;
+  virtual DeclResult VisitFuncDecl(sona::ref_ptr<FuncDecl> decl) = 0;
+  virtual DeclResult VisitADTDecl(sona::ref_ptr<ADTDecl> decl) = 0;
 };
 
 class CSTStmtVisitor {
 public:
-  virtual StmtResult VisitEmptyStmt(sona::ref_ptr<CSTEmptyStmt> stmt) = 0;
-  virtual StmtResult VisitExprStmt(sona::ref_ptr<CSTExprStmt> stmt) = 0;
-  virtual StmtResult VisitIfStmt(sona::ref_ptr<CSTIfStmt> stmt) = 0;
-  virtual StmtResult VisitMatchStmt(sona::ref_ptr<CSTMatchStmt> stmt) = 0;
-  virtual StmtResult VisitForStmt(sona::ref_ptr<CSTForStmt> stmt) = 0;
-  virtual StmtResult VisitForEachStmt(sona::ref_ptr<CSTForEachStmt> stmt) = 0;
-  virtual StmtResult VisitWhileStmt(sona::ref_ptr<CSTWhileStmt> stmt) = 0;
-  virtual StmtResult VisitCompoundStmt(sona::ref_ptr<CSTCompoundStmt> stmt) = 0;
-  virtual StmtResult VisitReturnStmt(sona::ref_ptr<CSTReturnStmt> stmt) = 0;
+  virtual StmtResult VisitEmptyStmt(sona::ref_ptr<EmptyStmt> stmt) = 0;
+  virtual StmtResult VisitExprStmt(sona::ref_ptr<ExprStmt> stmt) = 0;
+  virtual StmtResult VisitIfStmt(sona::ref_ptr<IfStmt> stmt) = 0;
+  virtual StmtResult VisitMatchStmt(sona::ref_ptr<MatchStmt> stmt) = 0;
+  virtual StmtResult VisitForStmt(sona::ref_ptr<ForStmt> stmt) = 0;
+  virtual StmtResult VisitForEachStmt(sona::ref_ptr<ForEachStmt> stmt) = 0;
+  virtual StmtResult VisitWhileStmt(sona::ref_ptr<WhileStmt> stmt) = 0;
+  virtual StmtResult VisitCompoundStmt(sona::ref_ptr<CompoundStmt> stmt) = 0;
+  virtual StmtResult VisitReturnStmt(sona::ref_ptr<ReturnStmt> stmt) = 0;
 };
 
 class CSTExprVisitor {

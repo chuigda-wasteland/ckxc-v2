@@ -6,20 +6,20 @@ using namespace Syntax;
 using namespace std;
 using namespace sona;
 
-CSTNode::~CSTNode() {}
+Node::~Node() {}
 
-DeclResult CSTClassDecl::accept(CSTDeclVisitor &visitor) {
+DeclResult ClassDecl::accept(CSTDeclVisitor &visitor) {
   return visitor.VisitClassDecl(this);
 }
 
-DeclResult CSTEnumDecl::accept(CSTDeclVisitor &visitor) {
+DeclResult EnumDecl::accept(CSTDeclVisitor &visitor) {
   return visitor.VisitEnumDecl(this);
 }
 
-DeclResult CSTADTDecl::accept(CSTDeclVisitor &visitor) {
+DeclResult ADTDecl::accept(CSTDeclVisitor &visitor) {
   return visitor.VisitADTDecl(this);
 }
 
-DeclResult CSTFuncDecl::accept(CSTDeclVisitor &visitor) {
+DeclResult FuncDecl::accept(CSTDeclVisitor &visitor) {
   return visitor.VisitFuncDecl(this);
 }

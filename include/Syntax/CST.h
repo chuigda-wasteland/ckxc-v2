@@ -16,9 +16,9 @@
 namespace ckx {
 namespace Syntax {
 
-class CSTNode {
+class Node {
 public:
-  enum class CSTNodeKind {
+  enum class NodeKind {
     /// Basic identifier
     CNK_Identifier,
 
@@ -77,33 +77,33 @@ public:
     CNK_ComposedType
   };
 
-  CSTNode(CSTNodeKind nodeKind) : m_NodeKind(nodeKind) {}
-  virtual ~CSTNode() = 0;
+  Node(NodeKind nodeKind) : m_NodeKind(nodeKind) {}
+  virtual ~Node() = 0;
 
-  CSTNodeKind GetNodeKind() const noexcept {
+  NodeKind GetNodeKind() const noexcept {
     return m_NodeKind;
   }
 
 private:
-  CSTNodeKind m_NodeKind;
+  NodeKind m_NodeKind;
 };
 
-class CSTAttributeList : public CSTNode {
+class AttributeList : public Node {
 public:
-  class CSTAttribute {
+  class Attribute {
   public:
-    CSTAttribute(sona::string_ref const& attributeName,
-                 sona::string_ref const& attributeValue,
-                 SingleSourceRange nameRange,
-                 SingleSourceRange valueRange)
+    Attribute(sona::string_ref const& attributeName,
+              sona::string_ref const& attributeValue,
+              SingleSourceRange nameRange,
+              SingleSourceRange valueRange)
       : m_AttributeName(attributeName),
         m_AttributeValue(attributeValue),
         m_NameRange(nameRange),
         m_ValueRange(valueRange) {}
 
-    CSTAttribute(sona::string_ref const& attributeName,
-                 SingleSourceRange nameRange,
-                 SingleSourceRange valueRange)
+    Attribute(sona::string_ref const& attributeName,
+              SingleSourceRange nameRange,
+              SingleSourceRange valueRange)
       : m_AttributeName(attributeName),
         m_AttributeValue(sona::empty_optional()),
         m_NameRange(nameRange),
@@ -136,38 +136,38 @@ public:
     SingleSourceRange m_ValueRange;
   };
 
-  CSTAttributeList(std::vector<CSTAttributeList> &attributes)
-    : CSTNode(CSTNode::CSTNodeKind::CNK_AttributeList),
+  AttributeList(std::vector<AttributeList> &attributes)
+    : Node(Node::NodeKind::CNK_AttributeList),
       m_Attributes(std::move(attributes)) {}
 
-  std::vector<CSTAttributeList> const& GetAttributes() const noexcept {
+  std::vector<AttributeList> const& GetAttributes() const noexcept {
     return m_Attributes;
   }
 
 private:
-  std::vector<CSTAttributeList> m_Attributes;
+  std::vector<AttributeList> m_Attributes;
 };
 
-class CSTType : public CSTNode {
+class Type : public Node {
 public:
-  CSTType(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+  Type(NodeKind nodeKind) : Node(nodeKind) {}
 };
 
-class CSTDecl : public CSTNode {
+class Decl : public Node {
 public:
-  CSTDecl(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+  Decl(NodeKind nodeKind) : Node(nodeKind) {}
   virtual DeclResult accept(CSTDeclVisitor &visitor) = 0;
 };
 
-class CSTStmt : public CSTNode {
-public: CSTStmt(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+class Stmt : public Node {
+public: Stmt(NodeKind nodeKind) : Node(nodeKind) {}
 };
 
-class CSTExpr : public CSTNode {
-public: CSTExpr(CSTNodeKind nodeKind) : CSTNode(nodeKind) {}
+class Expr : public Node {
+public: Expr(NodeKind nodeKind) : Node(nodeKind) {}
 };
 
-class CSTBasicType : public CSTType {
+class BasicType : public Type {
 public:
   enum class TypeKind {
     TK_Int8, TK_Int16, TK_Int32, TK_Int64,
@@ -175,8 +175,8 @@ public:
     TK_Float, TK_Double, TK_Quad, TK_Bool
   };
 
-  CSTBasicType(TypeKind typeKind, SingleSourceRange const& range)
-    : CSTType(CSTNodeKind::CNK_BasicType),
+  BasicType(TypeKind typeKind, SingleSourceRange const& range)
+    : Type(NodeKind::CNK_BasicType),
       m_TypeKind(typeKind), m_Range(range) {}
 
   TypeKind GetTypeKind() const noexcept { return m_TypeKind; }
@@ -188,10 +188,10 @@ private:
   SingleSourceRange m_Range;
 };
 
-class CSTUserDefinedType : public CSTType {
+class UserDefinedType : public Type {
 public:
-  CSTUserDefinedType(sona::string_ref name, SingleSourceRange const& range)
-    : CSTType(CSTNodeKind::CNK_UserDefinedType),
+  UserDefinedType(sona::string_ref name, SingleSourceRange const& range)
+    : Type(NodeKind::CNK_UserDefinedType),
       m_Name(name), m_Range(range) {}
 
   sona::string_ref GetName() const noexcept { return m_Name; }
@@ -203,47 +203,47 @@ private:
   SingleSourceRange m_Range;
 };
 
-class CSTTemplatedType : public CSTType {
+class TemplatedType : public Type {
 public:
-  using CSTTemplateArg = sona::either<sona::owner<CSTType>,
-                                      sona::owner<CSTExpr>>;
+  using TemplateArg = sona::either<sona::owner<Type>,
+                                      sona::owner<Expr>>;
 
-  CSTTemplatedType(sona::owner<CSTUserDefinedType> &&rootType,
-                   std::vector<CSTTemplateArg> &&templateArgs)
-    : CSTType(CSTNodeKind::CNK_TemplatedType),
+  TemplatedType(sona::owner<UserDefinedType> &&rootType,
+                   std::vector<TemplateArg> &&templateArgs)
+    : Type(NodeKind::CNK_TemplatedType),
       m_RootType(std::move(rootType)),
       m_TemplateArgs(std::move(templateArgs)) {}
 
-  sona::ref_ptr<CSTUserDefinedType const> GetRootType() const noexcept {
+  sona::ref_ptr<UserDefinedType const> GetRootType() const noexcept {
     return m_RootType.borrow();
   }
 
-  std::vector<CSTTemplateArg> const& GetTemplateArgs() const noexcept {
+  std::vector<TemplateArg> const& GetTemplateArgs() const noexcept {
     return m_TemplateArgs;
   }
 
 private:
-  sona::owner<CSTUserDefinedType> m_RootType;
-  std::vector<CSTTemplateArg> m_TemplateArgs;
+  sona::owner<UserDefinedType> m_RootType;
+  std::vector<TemplateArg> m_TemplateArgs;
 };
 
-class CSTComposedType : public CSTType {
+class ComposedType : public Type {
 public:
-  enum class CSTTypeSpecifier { CTS_Const, CST_Volatile, CST_Pointer, CST_Ref };
+  enum class TypeSpecifier { CTS_Const, _Volatile, _Pointer, _Ref };
 
-  CSTComposedType(sona::owner<CSTType> rootType,
-                  std::vector<CSTTypeSpecifier> &&typeSpecifiers,
+  ComposedType(sona::owner<Type> rootType,
+                  std::vector<TypeSpecifier> &&typeSpecifiers,
                   std::vector<SingleSourceRange> &&typeSpecRanges)
-    : CSTType(CSTNodeKind::CNK_ComposedType),
+    : Type(NodeKind::CNK_ComposedType),
       m_RootType(std::move(rootType)),
       m_TypeSpecifiers(typeSpecifiers),
       m_TypeSpecifierRanges(std::move(typeSpecRanges)) {}
 
-  sona::ref_ptr<CSTType const> GetRootType() const noexcept {
+  sona::ref_ptr<Type const> GetRootType() const noexcept {
     return m_RootType.borrow();
   }
 
-  std::vector<CSTTypeSpecifier> const& GetTypeSpecifiers() const noexcept {
+  std::vector<TypeSpecifier> const& GetTypeSpecifiers() const noexcept {
     return m_TypeSpecifiers;
   }
 
@@ -253,18 +253,18 @@ public:
   }
 
 private:
-  sona::owner<CSTType> m_RootType;
-  std::vector<CSTTypeSpecifier> m_TypeSpecifiers;
+  sona::owner<Type> m_RootType;
+  std::vector<TypeSpecifier> m_TypeSpecifiers;
   std::vector<SingleSourceRange> m_TypeSpecifierRanges;
 };
 
-class CSTIdentifier {
+class Identifier {
 public:
-  CSTIdentifier(sona::string_ref const& identifier,
+  Identifier(sona::string_ref const& identifier,
                 SingleSourceRange const& idRange)
     : m_Identifier(identifier), m_IdRange(idRange) {}
 
-  CSTIdentifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
+  Identifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
                 sona::string_ref identifier,
                 std::vector<SingleSourceRange> &&nnsRanges,
                 SingleSourceRange idRange)
@@ -273,14 +273,14 @@ public:
       m_NNSRanges(std::move(nnsRanges)),
       m_IdRange(idRange) {}
 
-  CSTIdentifier(CSTIdentifier &&that)
+  Identifier(Identifier &&that)
     : m_NestedNameSpecifiers(std::move(that.m_NestedNameSpecifiers)),
       m_Identifier(that.m_Identifier),
       m_NNSRanges(std::move(that.m_NNSRanges)),
       m_IdRange(that.m_IdRange) {}
 
-  CSTIdentifier(CSTIdentifier const&) = delete;
-  CSTIdentifier& operator=(CSTIdentifier const&) = delete;
+  Identifier(Identifier const&) = delete;
+  Identifier& operator=(Identifier const&) = delete;
 
   sona::string_ref const& GetIdentifier() const noexcept {
     return m_Identifier;
@@ -306,27 +306,27 @@ private:
   SingleSourceRange m_IdRange;
 };
 
-class CSTImport : public CSTNode {
+class Import : public Node {
 public:
-  CSTImport(CSTIdentifier &&importedIdentifier,
+  Import(Identifier &&importedIdentifier,
             SingleSourceRange const& importRange)
-    : CSTNode(CSTNodeKind::CNK_Import),
+    : Node(NodeKind::CNK_Import),
       m_ImportedIdentifier(std::move(importedIdentifier)),
       m_ImportRange(importRange),
       m_IsWeak(false),
       m_WeakRange(0, 0, 0) {}
 
-  CSTImport(CSTIdentifier &&importedIdentifier,
+  Import(Identifier &&importedIdentifier,
             SingleSourceRange const& importRange,
             std::true_type /* isWeakImport */,
             SingleSourceRange const& weakRange)
-    : CSTNode(CSTNodeKind::CNK_Import),
+    : Node(NodeKind::CNK_Import),
       m_ImportedIdentifier(std::move(importedIdentifier)),
       m_ImportRange(importRange),
       m_IsWeak(true),
       m_WeakRange(weakRange) {}
 
-  CSTIdentifier const& GetImportedIdentifier() const noexcept {
+  Identifier const& GetImportedIdentifier() const noexcept {
     return m_ImportedIdentifier;
   }
 
@@ -344,19 +344,19 @@ public:
   }
 
 private:
-  CSTIdentifier m_ImportedIdentifier;
+  Identifier m_ImportedIdentifier;
   SingleSourceRange m_ImportRange;
   bool m_IsWeak;
   SingleSourceRange m_WeakRange;
 };
 
-class CSTExport : public CSTNode {
+class Export : public Node {
 public:
-  CSTExport(sona::owner<CSTDecl> &&node, SingleSourceRange exportRange)
-    : CSTNode(CSTNodeKind::CNK_Export), m_Node(std::move(node)),
+  Export(sona::owner<Decl> &&node, SingleSourceRange exportRange)
+    : Node(NodeKind::CNK_Export), m_Node(std::move(node)),
       m_ExportRange(exportRange) {}
 
-  sona::ref_ptr<CSTDecl const> GetExportedDecl() const noexcept {
+  sona::ref_ptr<Decl const> GetExportedDecl() const noexcept {
     return m_Node.borrow();
   }
 
@@ -365,17 +365,17 @@ public:
   }
 
 private:
-  sona::owner<CSTDecl> m_Node;
+  sona::owner<Decl> m_Node;
   SingleSourceRange m_ExportRange;
 };
 
-class CSTForwardDecl : public CSTDecl {
+class ForwardDecl : public Decl {
 public:
   enum class ForwardDeclKind { FDK_Class, FDK_Enum, FDK_ADT };
-  CSTForwardDecl(ForwardDeclKind fdk, sona::string_ref const& name,
+  ForwardDecl(ForwardDeclKind fdk, sona::string_ref const& name,
                  SingleSourceRange const& keywordRange,
                  SingleSourceRange const& nameRange)
-    : CSTDecl(CSTNodeKind::CNK_ForwardDecl),
+    : Decl(NodeKind::CNK_ForwardDecl),
       m_ForwardDeclKind(fdk), m_Name(name),
       m_KeywordRange(keywordRange),
       m_NameRange(nameRange) {}
@@ -403,23 +403,23 @@ private:
   SingleSourceRange m_NameRange;
 };
 
-class CSTTemplatedDecl : public CSTDecl {
+class TemplatedDecl : public Decl {
 public:
-  CSTTemplatedDecl(
-      std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> tparams,
-      sona::owner<CSTDecl> underlyingDecl,
+  TemplatedDecl(
+      std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> tparams,
+      sona::owner<Decl> underlyingDecl,
       SingleSourceRange templateRange)
-    : CSTDecl(CSTNodeKind::CNK_TemplatedDecl),
+    : Decl(NodeKind::CNK_TemplatedDecl),
       m_TParams(std::move(tparams)),
       m_UnderlyingDecl(std::move(underlyingDecl)),
       m_TemplateRange(templateRange) {}
 
-  std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> const&
+  std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> const&
   GetTemplateParams() const noexcept {
     return m_TParams;
   }
 
-  sona::ref_ptr<CSTDecl const> GetUnderlyingDecl() const noexcept {
+  sona::ref_ptr<Decl const> GetUnderlyingDecl() const noexcept {
     return m_UnderlyingDecl.borrow();
   }
 
@@ -428,16 +428,16 @@ public:
   }
 
 private:
-  std::vector<sona::either<sona::string_ref, sona::owner<CSTExpr>>> m_TParams;
-  sona::owner<CSTDecl> m_UnderlyingDecl;
+  std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> m_TParams;
+  sona::owner<Decl> m_UnderlyingDecl;
   SingleSourceRange m_TemplateRange;
 };
 
-class CSTClassDecl : public CSTDecl {
+class ClassDecl : public Decl {
 public:
-  CSTClassDecl(sona::string_ref const& className,
-               std::vector<sona::owner<CSTDecl>> &&subDecls)
-    : CSTDecl(CSTNodeKind::CNK_ClassDecl),
+  ClassDecl(sona::string_ref const& className,
+               std::vector<sona::owner<Decl>> &&subDecls)
+    : Decl(NodeKind::CNK_ClassDecl),
       m_ClassName(className),
       m_SubDecls(std::move(subDecls)) {}
 
@@ -447,7 +447,7 @@ public:
 
   auto GetSubDecls() const noexcept {
     return sona::linq::from_container(m_SubDecls).
-             transform([](sona::owner<CSTDecl> const& it)
+             transform([](sona::owner<Decl> const& it)
                        { return it.borrow(); });
   }
 
@@ -455,10 +455,10 @@ public:
 
 private:
   sona::string_ref m_ClassName;
-  std::vector<sona::owner<CSTDecl>> m_SubDecls;
+  std::vector<sona::owner<Decl>> m_SubDecls;
 };
 
-class CSTEnumDecl : public CSTDecl {
+class EnumDecl : public Decl {
 public:
   class Enumerator {
   public:
@@ -509,11 +509,11 @@ public:
     SingleSourceRange m_ValueRange;
   };
 
-  CSTEnumDecl(sona::string_ref const& name,
+  EnumDecl(sona::string_ref const& name,
               std::vector<Enumerator> &&enumerators,
               SingleSourceRange const& enumRange,
               SingleSourceRange const& nameRange)
-    : CSTDecl(CSTNodeKind::CNK_EnumDecl),
+    : Decl(NodeKind::CNK_EnumDecl),
       m_Name(name), m_Enumerators(std::move(enumerators)),
       m_EnumRange(enumRange), m_NameRange(nameRange) {}
 
@@ -541,12 +541,12 @@ private:
   SingleSourceRange m_EnumRange, m_NameRange;
 };
 
-class CSTADTDecl : public CSTDecl {
+class ADTDecl : public Decl {
 public:
   class DataConstructor {
   public:
     DataConstructor(sona::string_ref const& name,
-                    sona::owner<CSTType> &&underlyingType,
+                    sona::owner<Type> &&underlyingType,
                     SingleSourceRange const& nameRange)
       : m_Name(name), m_UnderlyingType(std::move(underlyingType)),
         m_NameRange(nameRange) {}
@@ -559,7 +559,7 @@ public:
       return m_Name;
     }
 
-    sona::ref_ptr<CSTType const> GetUnderlyingType() const noexcept {
+    sona::ref_ptr<Type const> GetUnderlyingType() const noexcept {
       return m_UnderlyingType.borrow();
     }
 
@@ -569,15 +569,15 @@ public:
 
   private:
     sona::string_ref m_Name;
-    sona::owner<CSTType> m_UnderlyingType;
+    sona::owner<Type> m_UnderlyingType;
     SingleSourceRange m_NameRange;
   };
 
-  CSTADTDecl(sona::string_ref const& name,
+  ADTDecl(sona::string_ref const& name,
              std::vector<DataConstructor> &&constructors,
              SingleSourceRange const& enumClassRange,
              SingleSourceRange const& nameRange)
-    : CSTDecl(CSTNodeKind::CNK_ADTDecl), m_Name(name),
+    : Decl(NodeKind::CNK_ADTDecl), m_Name(name),
       m_Constructors(std::move(constructors)),
       m_EnumClassRange(enumClassRange),
       m_NameRange(nameRange) {}
@@ -608,33 +608,33 @@ private:
 
 };
 
-class CSTFuncDecl : public CSTDecl {
+class FuncDecl : public Decl {
 public:
-  CSTFuncDecl(CSTIdentifier &&name,
-              std::vector<sona::owner<CSTType>> &&paramTypes,
+  FuncDecl(Identifier &&name,
+              std::vector<sona::owner<Type>> &&paramTypes,
               std::vector<sona::string_ref> &&paramNames,
-              sona::optional<sona::owner<CSTStmt>> &&funcBody,
+              sona::optional<sona::owner<Stmt>> &&funcBody,
               SingleSourceRange funcRange,
               SingleSourceRange nameRange) :
-    CSTDecl(CSTNodeKind::CNK_FuncDecl),
+    Decl(NodeKind::CNK_FuncDecl),
     m_Name(std::move(name)),
     m_ParamTypes(std::move(paramTypes)),
     m_ParamNames(std::move(paramNames)),
     m_FuncBody(std::move(funcBody)),
     m_FuncRange(funcRange), m_NameRange(nameRange) {}
 
-  CSTIdentifier const& GetName() const noexcept { return m_Name; }
+  Identifier const& GetName() const noexcept { return m_Name; }
 
   auto GetParamTypes() const noexcept {
     return sona::linq::from_container(m_ParamTypes).transform(
-          [](sona::owner<CSTType> const& it) { return it.borrow(); });
+          [](sona::owner<Type> const& it) { return it.borrow(); });
   }
 
   bool IsDefinition() const noexcept {
     return m_FuncBody.has_value();
   }
 
-  sona::ref_ptr<CSTStmt const> GetFuncBodyUnsafe() const noexcept {
+  sona::ref_ptr<Stmt const> GetFuncBodyUnsafe() const noexcept {
     return m_FuncBody.value().borrow();
   }
 
@@ -649,19 +649,19 @@ public:
   DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
-  CSTIdentifier m_Name;
-  std::vector<sona::owner<CSTType>> m_ParamTypes;
+  Identifier m_Name;
+  std::vector<sona::owner<Type>> m_ParamTypes;
   std::vector<sona::string_ref> m_ParamNames;
-  sona::optional<sona::owner<CSTStmt>> m_FuncBody;
+  sona::optional<sona::owner<Stmt>> m_FuncBody;
   SingleSourceRange m_FuncRange, m_NameRange;
 };
 
-class CSTVarDecl : public CSTDecl {
+class VarDecl : public Decl {
 public:
-  CSTVarDecl(sona::string_ref const& name, sona::owner<CSTType> type,
+  VarDecl(sona::string_ref const& name, sona::owner<Type> type,
              SingleSourceRange const& defRange,
              SingleSourceRange const& nameRange)
-    : CSTDecl(CSTNodeKind::CNK_VarDecl),
+    : Decl(NodeKind::CNK_VarDecl),
       m_Name(name), m_Type(std::move(type)),
       m_DefRange(defRange), m_NameRange(nameRange) {}
 
@@ -669,7 +669,7 @@ public:
     return m_Name;
   }
 
-  sona::ref_ptr<CSTType const> GetType() const noexcept {
+  sona::ref_ptr<Type const> GetType() const noexcept {
     return m_Type.borrow();
   }
 
@@ -683,40 +683,40 @@ public:
 
 private:
   sona::string_ref m_Name;
-  sona::owner<CSTType> m_Type;
+  sona::owner<Type> m_Type;
   SingleSourceRange m_DefRange, m_NameRange;
 };
 
-class CSTTransUnit : public CSTNode {
+class TransUnit : public Node {
 public:
-  CSTTransUnit() : CSTNode(CSTNodeKind::CNK_TransUnit) {}
+  TransUnit() : Node(NodeKind::CNK_TransUnit) {}
 
-  void Declare(sona::owner<CSTDecl> &&decl) {
+  void Declare(sona::owner<Decl> &&decl) {
     m_Decls.push_back(std::move(decl));
   }
 
-  void Import(sona::owner<CSTImport> &&import) {
+  void DoImport(sona::owner<Import> &&import) {
     m_Imports.push_back(std::move(import));
   }
 
   auto GetDecls() const noexcept {
     return sona::linq::from_container(m_Decls).
-        transform([](sona::owner<CSTDecl> const& decl)
+        transform([](sona::owner<Decl> const& decl)
           { return decl.borrow(); } );
   }
 
   auto GetImports() const noexcept {
     return sona::linq::from_container(m_Imports).
-        transform([](sona::owner<CSTImport> const& decl)
+        transform([](sona::owner<Import> const& decl)
           { return decl.borrow(); } );
   }
 
 private:
-  std::vector<sona::owner<CSTDecl>> m_Decls;
-  std::vector<sona::owner<CSTImport>> m_Imports;
+  std::vector<sona::owner<Decl>> m_Decls;
+  std::vector<sona::owner<Import>> m_Imports;
 };
 
 } // namespace Syntax;
 } // namespace ckx
 
-#endif // CST_CC
+#endif // CST_H
