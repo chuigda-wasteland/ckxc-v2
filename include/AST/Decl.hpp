@@ -11,6 +11,7 @@
 #include <string>
 
 namespace ckx {
+namespace AST {
 
 class TransUnitDecl : public Decl, public DeclContext {
 public:
@@ -151,6 +152,7 @@ class ParamDecl : public Decl {};
 
 class FieldDecl : public Decl {};
 
+} // namespace AST
 } // namespace ckx
 
 #endif // DECL_HPP

@@ -2,6 +2,7 @@
 #define STMTFWD_HPP
 
 namespace ckx {
+namespace AST {
 
 class Stmt;
 class EmptyStmt;
@@ -18,6 +19,7 @@ class BreakStmt;
 class ContinueStmt;
 class ReturnStmt;
 
+} // namespace AST
 } // namespace ckx
 
 #endif // STMTFWD_HPP

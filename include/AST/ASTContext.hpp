@@ -6,6 +6,7 @@
 #include <unordered_set>
 
 namespace ckx {
+namespace AST {
 
 /// @todo Finish AST Context
 class ASTContext {
@@ -45,6 +46,7 @@ private:
   TypeSet<FunctionType> m_FuncTypes;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // ASTCONTEXT_HPP

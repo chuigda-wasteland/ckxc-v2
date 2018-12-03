@@ -4,6 +4,7 @@
 #include "StmtFwd.hpp"
 
 namespace ckx {
+namespace AST {
 
 class Stmt {
 public:
@@ -32,6 +33,7 @@ private:
   StmtId m_StmtId;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // STMTBASE_HPP

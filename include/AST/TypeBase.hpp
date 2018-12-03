@@ -8,6 +8,7 @@
 #include <type_traits>
 
 namespace ckx {
+namespace AST {
 
 class Type {
 public:
@@ -56,6 +57,7 @@ template <typename Type_t> struct TypeHash {
   }
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // TYPEBASE_HPP

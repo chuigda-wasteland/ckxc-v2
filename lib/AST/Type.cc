@@ -6,6 +6,7 @@
 #include <type_traits>
 
 namespace ckx {
+namespace AST {
 
 using std::size_t;
 template <typename T> using DefaultHash = std::hash<T>;
@@ -209,4 +210,5 @@ bool UsingType::EqualTo(Type const &that) const noexcept {
   return false;
 }
 
+} // namespace AST
 } // namespace ckx

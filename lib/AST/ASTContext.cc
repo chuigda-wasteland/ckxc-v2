@@ -1,6 +1,7 @@
 #include "AST/ASTContext.hpp"
 
 namespace ckx {
+namespace AST {
 
 sona::ref_ptr<Type const>
 ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
@@ -57,4 +58,5 @@ ASTContext::CreateRValueRefType(sona::ref_ptr<Type> referenced) {
   return *iter;
 }
 
+} // namespace AST
 } // namespace ckx

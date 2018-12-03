@@ -13,6 +13,7 @@
 #include <vector>
 
 namespace ckx {
+namespace AST {
 
 class BuiltinType : public Type {
 public:
@@ -258,6 +259,7 @@ private:
   sona::ref_ptr<Type> m_Aliasee;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // TYPE_HPP

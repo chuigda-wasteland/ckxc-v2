@@ -10,6 +10,7 @@
 #include "sona/pointer_plus.hpp"
 
 namespace ckx {
+namespace AST {
 
 class EmptyStmt : public Stmt {
 public:
@@ -240,6 +241,7 @@ private:
   sona::optional<sona::owner<Expr>> m_ReturnedExpr;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // STMT_HPP

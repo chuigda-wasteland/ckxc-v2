@@ -5,6 +5,7 @@ namespace ckx {
 namespace Syntax {
 
 class CSTNode;
+  class CSTTransUnit;
   class CSTAttributeList;
   class CSTIdentifier;
   class CSTImport;

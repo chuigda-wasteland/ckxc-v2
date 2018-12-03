@@ -2,6 +2,7 @@
 #define DECLFWD_HPP
 
 namespace ckx {
+namespace AST {
 
 class Decl;
 class DeclContext;
@@ -27,6 +28,7 @@ class EnumeratorDecl;
 
 /// @todo and_then fix DeclBase.hpp
 
+} // namespace AST
 } // namespace ckx
 
 #endif // DECLFWD_HPP

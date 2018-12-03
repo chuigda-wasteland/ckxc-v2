@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace ckx {
+namespace AST {
 
 enum class DeclSpec {
   DS_Static = 0x01,
@@ -59,6 +60,7 @@ private:
   std::vector<sona::ref_ptr<Decl>> m_Decls;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // DECLBASE_HPP

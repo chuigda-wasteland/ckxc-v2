@@ -2,6 +2,7 @@
 #define EXPRFWD_HPP
 
 namespace ckx {
+namespace AST {
 
 class Expr;
 class AssignExpr;
@@ -17,6 +18,8 @@ class StringLiteralExpr;
 class TupleLiteralExpr;
 class ArrayLiteralExpr;
 class ParenExpr;
+
+} // namespace AST
 } // namespace ckx
 
 #endif // EXPRFWD_HPP

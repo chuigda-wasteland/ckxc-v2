@@ -26,6 +26,9 @@ public:
     CNK_Import,
     CNK_Export,
 
+    /// Translation unit
+    CNK_TransUnit,
+
     /// Attributes
     CNK_AttributeList,
 
@@ -682,6 +685,35 @@ private:
   sona::string_ref m_Name;
   sona::owner<CSTType> m_Type;
   SingleSourceRange m_DefRange, m_NameRange;
+};
+
+class CSTTransUnit : public CSTNode {
+public:
+  CSTTransUnit() : CSTNode(CSTNodeKind::CNK_TransUnit) {}
+
+  void Declare(sona::owner<CSTDecl> &&decl) {
+    m_Decls.push_back(std::move(decl));
+  }
+
+  void Import(sona::owner<CSTImport> &&import) {
+    m_Imports.push_back(std::move(import));
+  }
+
+  auto GetDecls() const noexcept {
+    return sona::linq::from_container(m_Decls).
+        transform([](sona::owner<CSTDecl> const& decl)
+          { return decl.borrow(); } );
+  }
+
+  auto GetImports() const noexcept {
+    return sona::linq::from_container(m_Imports).
+        transform([](sona::owner<CSTImport> const& decl)
+          { return decl.borrow(); } );
+  }
+
+private:
+  std::vector<sona::owner<CSTDecl>> m_Decls;
+  std::vector<sona::owner<CSTImport>> m_Imports;
 };
 
 } // namespace Syntax;
