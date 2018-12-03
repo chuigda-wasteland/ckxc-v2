@@ -10,35 +10,29 @@
 namespace ckx {
 
 using Coord = std::uint16_t;
-using SourceFileId = std::uint16_t;
 
 class SourceLocation {
 public:
-  SourceLocation(SourceFileId fileId, Coord line, Coord col)
-      : m_FileId(fileId), m_Line(line), m_Col(col) {}
-  SourceFileId GetFileId() const { return m_FileId; }
+  SourceLocation(Coord line, Coord col)
+      : m_Line(line), m_Col(col) {}
   Coord GetLine() const { return m_Line; }
   Coord GetCol() const { return m_Col; }
 
 private:
-  SourceFileId m_FileId;
   Coord m_Line, m_Col;
 };
 
 class SingleSourceRange {
 public:
-  SingleSourceRange(SourceFileId fileId, Coord startLine, Coord startCol,
-                    Coord endCol)
-      : m_FileId(fileId), m_StartLine(startLine), m_StartCol(startCol),
-        m_EndCol(endCol) {}
+  SingleSourceRange(Coord startLine, Coord startCol, Coord endCol)
+    : m_StartLine(startLine), m_StartCol(startCol), m_EndCol(endCol) {}
 
-  SourceFileId GetFileId() const { return m_FileId; }
+
   Coord GetStartLine() const { return m_StartLine; }
   Coord GetStartCol() const { return m_StartCol; }
   Coord GetEndCol() const { return m_EndCol; }
 
 private:
-  SourceFileId m_FileId;
   Coord m_StartLine, m_StartCol, m_EndCol;
 };
 
