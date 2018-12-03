@@ -58,7 +58,15 @@ public:
 };
 
 class CSTExprVisitor {
-
+public:
+  virtual ExprResult VisitLiteralExpr(sona::ref_ptr<LiteralExpr> expr) = 0;
+  virtual ExprResult
+  VisitStringLiteralExpr(sona::ref_ptr<StringLiteralExpr> expr) = 0;
+  virtual ExprResult VisitIdRefExpr(sona::ref_ptr<IdRefExpr> expr) = 0;
+  virtual ExprResult VisitFuncCallExpr(sona::ref_ptr<FuncCallExpr> expr) = 0;
+  virtual ExprResult VisitUnaryExpr(sona::ref_ptr<UnaryExpr> expr) = 0;
+  virtual ExprResult VisitBinaryExpr(sona::ref_ptr<BinaryExpr> expr) = 0;
+  virtual ExprResult VisitMixFixExpr(sona::ref_ptr<MixFixExpr> expr) = 0;
 };
 
 } // namespace Syntax
