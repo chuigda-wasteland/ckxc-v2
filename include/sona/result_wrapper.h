@@ -35,16 +35,22 @@ public:
   template <typename T> result_wrapper(T&& value)
     : pbase(new result_wrapper_impl<T>(std::move(value))) {}
 
-  template <typename T> T const* get() const noexcept {
-    return pbase.borrow().get().get<T>();
+  template <typename T> result_wrapper(std::nullptr_t)
+    : pbase(nullptr) {}
+
+  bool has_value() const noexcept { return pbase != nullptr; }
+
+  template <typename T> ref_ptr<T const> get() const noexcept {
+    if (!has_value()) return nullptr;
+    return pbase->get<T>();
   }
 
   template <typename T> T const& get_unsafe() const noexcept {
-    return pbase.borrow().get().get_unsafe<T>();
+    return pbase->get_unsafe<T>();
   }
 
 private:
-  sona::owner<result_wrapper_impl_base> pbase;
+  std::unique_ptr<result_wrapper_impl_base> pbase;
 };
 
 template <typename T>
