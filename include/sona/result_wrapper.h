@@ -10,7 +10,7 @@ class result_wrapper_impl_base {
 public:
   template <typename T> T const* get() const noexcept;
   template <typename T> T const& get_unsafe() const noexcept;
-  virtual ~result_wrapper_impl_base() {}
+  virtual ~result_wrapper_impl_base() noexcept {}
 };
 
 template <typename T>
@@ -21,7 +21,7 @@ public:
 
   T const& get_impl() const noexcept { return value; }
 
-  ~result_wrapper_impl_base() noexcept {}
+  ~result_wrapper_impl() noexcept override {}
 
 private:
   T value;

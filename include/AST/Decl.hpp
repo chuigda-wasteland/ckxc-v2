@@ -1,13 +1,11 @@
 #ifndef DECL_HPP
 #define DECL_HPP
 
-#include "ASTContext.hpp"
+#include "AST/ASTContext.hpp"
 #include "Basic/SourceRange.hpp"
-#include "DeclBase.hpp"
-#include "ExprBase.hpp"
-#include "TypeBase.hpp"
-
-#include "Expr.hpp"
+#include "AST/DeclBase.hpp"
+#include "AST/ExprBase.hpp"
+#include "AST/TypeBase.hpp"
 
 #include <memory>
 #include <string>

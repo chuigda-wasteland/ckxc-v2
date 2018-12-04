@@ -486,7 +486,7 @@ public:
       return m_Value.has_value();
     }
 
-    int GetValueUnsafe() const noexcept {
+    int64_t GetValueUnsafe() const noexcept {
       sona_assert(HasValue());
       return m_Value.value();
     }
