@@ -74,10 +74,9 @@ enum class AssignmentOperator {
 class AssignExpr : public Expr {
 public:
   AssignExpr(AssignmentOperator op, sona::owner<Expr> &&assigned,
-             sona::owner<Expr> &&assignee, SourceLocation assignLocation)
+             sona::owner<Expr> &&assignee)
       : Expr(ExprId::EI_Assign), m_Operator(op),
-        m_Assigned(std::move(assigned)), m_Assignee(std::move(assignee)),
-        m_AssignLocation(assignLocation) {}
+        m_Assigned(std::move(assigned)), m_Assignee(std::move(assignee)) {}
 
   AssignmentOperator GetOperator() const noexcept { return m_Operator; }
 
@@ -89,45 +88,35 @@ public:
     return m_Assignee.borrow();
   }
 
-  SourceLocation GetAssignLocation() const noexcept { return m_AssignLocation; }
-
 private:
   AssignmentOperator m_Operator;
   sona::owner<Expr> m_Assigned, m_Assignee;
-  SourceLocation m_AssignLocation;
 };
 
 class UnaryExpr : public Expr {
 public:
-  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand,
-            SourceLocation operatorLocation)
-      : Expr(ExprId::EI_Unary), m_Operator(op), m_Operand(std::move(operand)),
-        m_OperatorLocation(operatorLocation) {}
-
+  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand)
+    : Expr(ExprId::EI_Unary), m_Operator(op),
+      m_Operand(std::move(operand)) {}
+  
   UnaryOperator GetOperator() const noexcept { return m_Operator; }
 
   sona::ref_ptr<Expr const> GetOperand() const noexcept {
     return m_Operand.borrow();
   }
 
-  SourceLocation GetOperatorLocation() const noexcept {
-    return m_OperatorLocation;
-  }
-
 private:
   UnaryOperator m_Operator;
   sona::owner<Expr> m_Operand;
-  SourceLocation m_OperatorLocation;
 };
 
 class BinaryExpr : public Expr {
 public:
   BinaryExpr(BinaryOperator op, sona::owner<Expr> &&leftOperand,
-             sona::owner<Expr> &&rightOperand, SourceLocation operatorLocation)
-      : Expr(ExprId::EI_Binary), m_Operator(op),
-        m_LeftOperand(std::move(leftOperand)),
-        m_RightOperand(std::move(rightOperand)),
-        m_OperatorLocation(operatorLocation) {}
+             sona::owner<Expr> &&rightOperand)
+    : Expr(ExprId::EI_Binary), m_Operator(op),
+      m_LeftOperand(std::move(leftOperand)),
+      m_RightOperand(std::move(rightOperand)){}
 
   BinaryOperator GetOperator() const noexcept { return m_Operator; }
 
@@ -139,43 +128,31 @@ public:
     return m_RightOperand.borrow();
   }
 
-  SourceLocation GetOperatorLocation() const noexcept {
-    return m_OperatorLocation;
-  }
-
 private:
   BinaryOperator m_Operator;
   sona::owner<Expr> m_LeftOperand, m_RightOperand;
-  SourceLocation m_OperatorLocation;
 };
 
 class CondExpr : public Expr {
 public:
   CondExpr(sona::owner<Expr> &&condExpr, sona::owner<Expr> &&thenExpr,
-           sona::owner<Expr> &&elseExpr, SourceLocation questionLocation,
-           SourceLocation colonLocation)
-      : Expr(ExprId::EI_Cond), m_CondExpr(std::move(condExpr)),
-        m_ThenExpr(std::move(thenExpr)), m_ElseExpr(std::move(elseExpr)),
-        m_QuestionLocation(questionLocation), m_ColonLocation(colonLocation) {}
-
+           sona::owner<Expr> &&elseExpr)
+    : Expr(ExprId::EI_Cond), m_CondExpr(std::move(condExpr)),
+      m_ThenExpr(std::move(thenExpr)), m_ElseExpr(std::move(elseExpr)) {}
+  
 private:
   sona::owner<Expr> m_CondExpr, m_ThenExpr, m_ElseExpr;
-  SourceLocation m_QuestionLocation, m_ColonLocation;
 };
 
 class IdExpr : public Expr {
 public:
-  IdExpr(std::string &&idString, SourceRange &&idRange)
-      : Expr(ExprId::EI_ID), m_IdString(std::move(idString)),
-        m_IdRange(std::move(idRange)) {}
-
+  IdExpr(std::string &&idString)
+    : Expr(ExprId::EI_ID), m_IdString(std::move(idString)) {}
+  
   std::string const &GetIdString() const noexcept { return m_IdString; }
-
-  SourceRange const &GetIdRange() const noexcept { return m_IdRange; }
 
 private:
   std::string m_IdString;
-  SourceRange m_IdRange;
 };
 
 class LiteralExpr : public Expr {
@@ -183,8 +160,7 @@ public:
   SourceRange const &GetLiteralRange() const noexcept { return m_LiteralRange; }
 
 protected:
-  LiteralExpr(ExprId literalId, SourceRange &&literalRange)
-      : Expr(literalId), m_LiteralRange(std::move(literalRange)) {
+  LiteralExpr(ExprId literalId) : Expr(literalId) {
     sona_assert(literalId >= ExprId::EI_Integral &&
                 literalId <= ExprId::EI_String);
   }
@@ -196,8 +172,8 @@ private:
 class IntegralLiteralExpr : public LiteralExpr {
 public:
   template <typename Integer_t>
-  IntegralLiteralExpr(Integer_t value, SourceRange &&range)
-      : LiteralExpr(ExprId::EI_Integral, std::move(range)), m_Value(value) {
+  IntegralLiteralExpr(Integer_t value)
+      : LiteralExpr(ExprId::EI_Integral), m_Value(value) {
     static_assert(std::is_same<Integer_t, std::int64_t>::value ||
                       std::is_same<Integer_t, std::uint64_t>::value,
                   "Not an integer!");
@@ -207,12 +183,12 @@ public:
 
   bool IsUnsignedInt() const noexcept { return !IsSignedInt(); }
 
-  std::int64_t GetAsSInt() const noexcept {
+  std::int64_t GetAsSIntUnsafe() const noexcept {
     sona_assert(IsSignedInt());
     return m_Value.as_t1();
   }
 
-  std::uint64_t GetAsUInt() const noexcept {
+  std::uint64_t GetAsUIntUnsafe() const noexcept {
     sona_assert(IsUnsignedInt());
     return m_Value.as_t2();
   }
@@ -223,8 +199,8 @@ private:
 
 class FloatingLiteralExpr : public LiteralExpr {
 public:
-  FloatingLiteralExpr(double value, SourceRange &&literalRange)
-      : LiteralExpr(ExprId::EI_Floating, std::move(literalRange)),
+  FloatingLiteralExpr(double value)
+      : LiteralExpr(ExprId::EI_Floating),
         m_Value(value) {}
 
   double GetValue() const noexcept { return m_Value; }
@@ -241,87 +217,43 @@ class StringLiteralExpr : public LiteralExpr {};
 
 class TupleLiteralExpr : public Expr {
 public:
-  TupleLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs,
-                   std::vector<SourceLocation> &&commaLocations,
-                   SourceLocation leftParenLocation,
-                   SourceLocation rightParenLocation)
-      : Expr(ExprId::EI_Tuple), m_ElementExprs(std::move(elementExprs)),
-        m_CommaLocations(std::move(commaLocations)),
-        m_LeftParenLocation(leftParenLocation),
-        m_RightParenLocation(rightParenLocation) {}
+  TupleLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs)
+    : Expr(ExprId::EI_Tuple), m_ElementExprs(std::move(elementExprs)) {}
 
-  /** @todo ??? GetElementExprs() const noexcept; */
-
-  std::vector<SourceLocation> const &GetCommaLocations() const noexcept {
-    return m_CommaLocations;
+  auto GetElementExprs() const noexcept {
+    return sona::linq::from_container(m_ElementExprs).
+      transform([](sona::owner<Expr> const& it)
+	        { return it.borrow(); });
   }
-
-  SourceLocation GetLeftParenLocation() const noexcept {
-    return m_LeftParenLocation;
-  }
-
-  SourceLocation GetRightParenLocation() const noexcept {
-    return m_RightParenLocation;
-  }
-
+	
 private:
   std::vector<sona::owner<Expr>> m_ElementExprs;
-  std::vector<SourceLocation> m_CommaLocations;
-  SourceLocation m_LeftParenLocation, m_RightParenLocation;
 };
 
 class ArrayLiteralExpr : public Expr {
 public:
-  ArrayLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs,
-                   std::vector<SourceLocation> &&commaLocations,
-                   SourceLocation leftBraceLocation,
-                   SourceLocation rightBraceLocation)
-      : Expr(ExprId::EI_Array), m_ElementExprs(std::move(elementExprs)),
-        m_CommaLocations(std::move(commaLocations)),
-        m_LeftBraceLocation(leftBraceLocation),
-        m_RightBraceLocation(rightBraceLocation) {}
+  ArrayLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs)
+    : Expr(ExprId::EI_Array), m_ElementExprs(std::move(elementExprs)) {}
 
-  /** @todo ??? GetElementExprs() const noexcept; */
-
-  std::vector<SourceLocation> const &GetCommaLocations() const noexcept {
-    return m_CommaLocations;
-  }
-
-  SourceLocation GetLeftBraceLocation() const noexcept {
-    return m_LeftBraceLocation;
-  }
-
-  SourceLocation GetRightBraceLocation() const noexcept {
-    return m_RightBraceLocation;
+  auto GetElementExprs() const noexcept {
+    return sona::linq::from_container(m_ElementExprs).
+      transform([](sona::owner<Expr> const& it)
+		{ return it.borrow(); });
   }
 
 private:
   std::vector<sona::owner<Expr>> m_ElementExprs;
-  std::vector<SourceLocation> m_CommaLocations;
-  SourceLocation m_LeftBraceLocation, m_RightBraceLocation;
 };
 
 class ParenExpr : public Expr {
 public:
-  ParenExpr(sona::owner<Expr> &&expr, SourceLocation leftParenLocation,
-            SourceLocation rightParenLocation)
-      : Expr(ExprId::EI_Paren), m_Expr(std::move(expr)),
-        m_LeftParenLocation(leftParenLocation),
-        m_RightParenLocation(rightParenLocation) {}
-
+  ParenExpr(sona::owner<Expr> &&expr)
+    : Expr(ExprId::EI_Paren), m_Expr(std::move(expr)) {}
+  
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
-
-  SourceLocation GetLeftParenLocation() const noexcept {
-    return m_LeftParenLocation;
-  }
-
-  SourceLocation GetRightParenLocation() const noexcept {
-    return m_RightParenLocation;
-  }
 
 private:
   sona::owner<Expr> m_Expr;
-  SourceLocation m_LeftParenLocation, m_RightParenLocation;
 };
 
 } // namespace ckx
