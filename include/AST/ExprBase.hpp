@@ -4,6 +4,7 @@
 #include "ExprFwd.hpp"
 
 namespace ckx {
+namespace AST {
 
 class Expr {
 public:
@@ -33,6 +34,7 @@ private:
   ExprId m_ExprId;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // EXPRBASE_HPP

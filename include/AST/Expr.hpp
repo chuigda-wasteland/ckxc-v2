@@ -13,6 +13,7 @@
 #include <vector>
 
 namespace ckx {
+namespace AST {
 
 enum class UnaryOperator {
   UOP_Incr,
@@ -98,7 +99,7 @@ public:
   UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand)
     : Expr(ExprId::EI_Unary), m_Operator(op),
       m_Operand(std::move(operand)) {}
-  
+
   UnaryOperator GetOperator() const noexcept { return m_Operator; }
 
   sona::ref_ptr<Expr const> GetOperand() const noexcept {
@@ -139,7 +140,7 @@ public:
            sona::owner<Expr> &&elseExpr)
     : Expr(ExprId::EI_Cond), m_CondExpr(std::move(condExpr)),
       m_ThenExpr(std::move(thenExpr)), m_ElseExpr(std::move(elseExpr)) {}
-  
+
 private:
   sona::owner<Expr> m_CondExpr, m_ThenExpr, m_ElseExpr;
 };
@@ -148,7 +149,7 @@ class IdExpr : public Expr {
 public:
   IdExpr(std::string &&idString)
     : Expr(ExprId::EI_ID), m_IdString(std::move(idString)) {}
-  
+
   std::string const &GetIdString() const noexcept { return m_IdString; }
 
 private:
@@ -223,9 +224,9 @@ public:
   auto GetElementExprs() const noexcept {
     return sona::linq::from_container(m_ElementExprs).
       transform([](sona::owner<Expr> const& it)
-	        { return it.borrow(); });
+          { return it.borrow(); });
   }
-	
+
 private:
   std::vector<sona::owner<Expr>> m_ElementExprs;
 };
@@ -238,7 +239,7 @@ public:
   auto GetElementExprs() const noexcept {
     return sona::linq::from_container(m_ElementExprs).
       transform([](sona::owner<Expr> const& it)
-		{ return it.borrow(); });
+    { return it.borrow(); });
   }
 
 private:
@@ -249,13 +250,14 @@ class ParenExpr : public Expr {
 public:
   ParenExpr(sona::owner<Expr> &&expr)
     : Expr(ExprId::EI_Paren), m_Expr(std::move(expr)) {}
-  
+
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
 
 private:
   sona::owner<Expr> m_Expr;
 };
 
+} // namespace AST
 } // namespace ckx
 
 #endif // EXPR_HPP
