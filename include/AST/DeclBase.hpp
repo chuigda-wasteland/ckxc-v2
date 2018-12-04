@@ -6,6 +6,7 @@
 #include "sona/pointer_plus.hpp"
 #include "sona/small_vector.hpp"
 #include "sona/util.hpp"
+#include "sona/stringref.hpp"
 #include <vector>
 
 namespace ckx {

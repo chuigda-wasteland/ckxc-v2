@@ -3,6 +3,8 @@
 
 #include "StmtFwd.hpp"
 
+#include "sona/stringref.hpp"
+
 namespace ckx {
 namespace AST {
 

@@ -173,49 +173,26 @@ private:
 class TagType : public Type {
 public:
   enum class TagTypeId { TTI_Class, TTI_Enum };
-  TagType(TagTypeId id, std::string &&typeName, SourceRange &&typeNameRange,
-          SourceLocation leftBraceLocation, SourceLocation rightBraceLocation)
-      : Type(TypeId::TI_Tag), m_Id(id), m_TypeName(std::move(typeName)),
-        m_TypeNameRange(std::move(typeNameRange)),
-        m_LeftBraceLocation(leftBraceLocation),
-        m_RightBraceLocation(rightBraceLocation) {}
+  TagType(TagTypeId id, sona::string_ref const& typeName)
+    : Type(TypeId::TI_Tag), m_Id(id), m_TypeName(typeName) {}
 
   TagTypeId GetTagTypeId() const noexcept { return m_Id; }
 
-  std::string const &GetTypeName() const noexcept { return m_TypeName; }
-
-  SourceRange const &GetTypeNameRange() const noexcept {
-    return m_TypeNameRange;
-  }
-
-  SourceLocation GetLeftBraceLocation() const noexcept {
-    return m_LeftBraceLocation;
-  }
-
-  SourceLocation GetRightBraceLocation() const noexcept {
-    return m_RightBraceLocation;
-  }
+  sona::string_ref const &GetTypeName() const noexcept { return m_TypeName; }
 
   std::size_t GetHash() const noexcept override = 0;
   bool EqualTo(Type const &that) const noexcept override = 0;
 
 private:
   TagTypeId m_Id;
-  std::string m_TypeName;
-  SourceRange m_TypeNameRange;
-  SourceLocation m_LeftBraceLocation, m_RightBraceLocation;
+  sona::string_ref m_TypeName;
 };
 
 /// @todo How to calculate hash of class and enum types?
 class ClassType : public TagType {
 public:
-  ClassType(std::string &&typeName, SourceRange &&typeNameRange,
-            sona::ref_ptr<ClassDecl> decl, SourceLocation leftBraceLocation,
-            SourceLocation rightBraceLocation)
-      : TagType(TagTypeId::TTI_Class, std::move(typeName),
-                std::move(typeNameRange), leftBraceLocation,
-                rightBraceLocation),
-        m_Decl(decl) {}
+  ClassType(sona::string_ref const& typeName , sona::ref_ptr<ClassDecl> decl)
+      : TagType(TagTypeId::TTI_Class, typeName), m_Decl(decl) {}
 
   sona::ref_ptr<ClassDecl const> GetDecl() const noexcept { return m_Decl; }
 
@@ -228,13 +205,8 @@ private:
 
 class EnumType : public TagType {
 public:
-  EnumType(std::string &&typeName, SourceRange &&typeNameRange,
-           sona::ref_ptr<EnumDecl> decl, SourceLocation leftBraceLocation,
-           SourceLocation rightBraceLocation)
-      : TagType(TagTypeId::TTI_Enum, std::move(typeName),
-                std::move(typeNameRange), leftBraceLocation,
-                rightBraceLocation),
-        m_Decl(decl) {}
+  EnumType(sona::string_ref const& typeName, sona::ref_ptr<EnumDecl> decl)
+      : TagType(TagTypeId::TTI_Enum, typeName), m_Decl(decl) {}
 
   sona::ref_ptr<EnumDecl const> GetDecl() const noexcept { return m_Decl; }
 

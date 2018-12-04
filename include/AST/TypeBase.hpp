@@ -4,6 +4,8 @@
 #include "Basic/SourceRange.hpp"
 #include "TypeFwd.hpp"
 
+#include "sona/stringref.hpp"
+
 #include <cstdint>
 #include <type_traits>
 

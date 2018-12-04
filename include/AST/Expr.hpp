@@ -5,8 +5,7 @@
 #include "ExprBase.hpp"
 #include "StmtBase.hpp"
 
-#include "Basic/SourceRange.hpp"
-
+#include "sona/either.hpp"
 #include "sona/optional.hpp"
 #include "sona/pointer_plus.hpp"
 #include <type_traits>
@@ -147,19 +146,16 @@ private:
 
 class IdExpr : public Expr {
 public:
-  IdExpr(std::string &&idString)
-    : Expr(ExprId::EI_ID), m_IdString(std::move(idString)) {}
+  IdExpr(sona::string_ref const& idString)
+    : Expr(ExprId::EI_ID), m_IdString(idString) {}
 
-  std::string const &GetIdString() const noexcept { return m_IdString; }
+  sona::string_ref const &GetIdString() const noexcept { return m_IdString; }
 
 private:
-  std::string m_IdString;
+  sona::string_ref m_IdString;
 };
 
 class LiteralExpr : public Expr {
-public:
-  SourceRange const &GetLiteralRange() const noexcept { return m_LiteralRange; }
-
 protected:
   LiteralExpr(ExprId literalId) : Expr(literalId) {
     sona_assert(literalId >= ExprId::EI_Integral &&
@@ -167,7 +163,6 @@ protected:
   }
 
 private:
-  SourceRange m_LiteralRange;
 };
 
 class IntegralLiteralExpr : public LiteralExpr {
