@@ -25,8 +25,36 @@ Scope::Scope(sona::ref_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
   }
 }
 
-sona::iterator_range<std::map::const_iterator>
-Scope::GetAllFuncsLocal(const sona::string_ref &name) const {
+sona::ref_ptr<AST::VarDecl const>
+Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
+  auto it = m_Variables.find(name);
+  if (it != m_Variables.cend()) {
+    return it->second.borrow();
+  }
+
+  if (m_ParentScope != nullptr) {
+    return m_ParentScope->LookupVarDecl(name);
+  }
+
+  return nullptr;
+}
+
+sona::ref_ptr<AST::Type const>
+Scope::LookupType(const sona::string_ref &name) const noexcept {
+  auto it = m_Types.find(name);
+  if (it != m_Types.cend()) {
+    return it->second;
+  }
+
+  if (m_ParentScope != nullptr) {
+    return m_ParentScope->LookupType(name);
+  }
+
+  return nullptr;
+}
+
+sona::iterator_range<Scope::FunctionSet::const_iterator>
+Scope::GetAllFuncsLocal(const sona::string_ref &name) const noexcept {
   FunctionSet::const_iterator it = m_Functions.find(name);
   if (it == m_Functions.cend()) {
     return sona::iterator_range<FunctionSet::const_iterator>(it, it);
@@ -38,8 +66,8 @@ Scope::GetAllFuncsLocal(const sona::string_ref &name) const {
   return sona::iterator_range<FunctionSet::const_iterator>(it, it2);
 }
 
-sona::iterator_range<std::map::const_iterator>
-Scope::GetAllFuncs(const sona::string_ref &name) const {
+sona::iterator_range<Scope::FunctionSet::const_iterator>
+Scope::GetAllFuncs(const sona::string_ref &name) const noexcept {
   auto localResult = GetAllFuncsLocal(name);
   if (localResult.size() == 0 && m_ParentScope != nullptr) {
     return m_ParentScope->GetAllFuncs(name);

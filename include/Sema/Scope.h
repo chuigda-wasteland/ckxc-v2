@@ -54,9 +54,11 @@ public:
     return GetFlags() & scopeFlags;
   }
 
-  sona::ref_ptr<AST::VarDecl> LookupVarDecl() const noexcept;
+  sona::ref_ptr<AST::VarDecl const>
+  LookupVarDecl(sona::string_ref const& name) const noexcept;
 
-  sona::ref_ptr<AST::Type> LookupType() const noexcept;
+  sona::ref_ptr<AST::Type const>
+  LookupType(sona::string_ref const& name) const noexcept;
 
   sona::iterator_range<FunctionSet::const_iterator>
   GetAllFuncsLocal(sona::string_ref const& name) const noexcept;
@@ -75,9 +77,6 @@ private:
 
   FunctionSet m_Functions;
 };
-
-sona::iterator_range<std::map::const_iterator>
-Scope::GetAllFuncs(const sona::string_ref &name) const;
 
 } // namespace Sema
 } // namespace ckx
