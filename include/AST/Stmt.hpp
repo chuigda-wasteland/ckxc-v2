@@ -40,18 +40,17 @@ private:
 
 class CompoundStmt : public Stmt {
 public:
-  CompoundStmt(std::vector<Stmt> &&stmts)
+  CompoundStmt(std::vector<sona::owner<Stmt>> &&stmts)
         : Stmt(StmtId::SI_Compound),
           m_Stmts(std::move(stmts)) {}
 
-    void AddStmt(sona::ref_ptr<Stmt> stmt) { m_Stmts.push_back(stmt); }
-
-    sona::ref_ptr<std::vector<Stmt> const> GetStmts() const {
-        return sona::ref_ptr<std::vector<Stmt> const>(m_Stmts);
+    auto GetStmts() const {
+      return sona::linq::from_container(m_Stmts).
+          transform([](sona::owner<Stmt> const& it) { return it.borrow(); });
     }
 
 private:
-    std::vector<Stmt> m_Stmts;
+    std::vector<sona::owner<Stmt>> m_Stmts;
 };
 
 /// @todo On hold~

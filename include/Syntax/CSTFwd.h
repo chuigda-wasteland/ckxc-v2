@@ -4,47 +4,15 @@
 namespace ckx {
 namespace Syntax {
 
-class Node;
-  class TransUnit;
-  class AttributeList;
-  class Identifier;
-  class Import;
-  class Export;
+#define CST_ABSTRACT(name) class name;
+#define CST_TRANSUNIT(name) class name;
+#define CST_MISC(name) class name;
+#define CST_TYPE(name) class name;
+#define CST_DECL(name) class name;
+#define CST_STMT(name) class name;
+#define CST_EXPR(name) class name;
 
-  class Type;
-    class BasicType;
-    class UserDefinedType;
-    class TemplatedType;
-    class ComposedType;
-
-  class Decl;
-    class TemplatedDecl;
-    class ForwardDecl;
-    class ClassDecl;
-    class EnumDecl;
-    class ADTDecl;
-    class FuncDecl;
-    class VarDecl;
-
-  class Stmt;
-    class EmptyStmt;
-    class ExprStmt;
-    class IfStmt;
-    class MatchStmt;
-    class ForStmt;
-    class ForEachStmt;
-    class WhileStmt;
-    class CompoundStmt;
-    class ReturnStmt;
-
-  class Expr;
-    class LiteralExpr;
-    class StringLiteralExpr;
-    class IdRefExpr;
-    class FuncCallExpr;
-    class UnaryExpr;
-    class BinaryExpr;
-    class MixFixExpr;
+#include "Syntax/CSTNodeDefs.def"
 
 } // namespace Syntax
 } // namespace ckx

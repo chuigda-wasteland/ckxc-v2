@@ -87,12 +87,16 @@ private:
   sona::owner<Expr> m_Init;
 };
 
-class FunctionDecl : public Decl, public DeclContext {
+class FuncDecl : public Decl, public DeclContext {
 public:
-  FunctionDecl(sona::ref_ptr<DeclContext> context,
-               sona::string_ref const& functionName)
+  FuncDecl(sona::ref_ptr<DeclContext> context,
+           sona::string_ref const& functionName)
     : Decl(DeclKind::DK_Func, context), DeclContext(DeclKind::DK_Func),
       m_FunctionName(functionName) {}
+
+  sona::string_ref const& GetName() const noexcept {
+    return m_FunctionName;
+  }
 
 private:
   sona::string_ref m_FunctionName;

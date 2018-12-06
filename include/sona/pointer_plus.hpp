@@ -19,8 +19,27 @@ public:
     return ref_ptr<T const>(*ptr);
   }
 
-  operator T &() const noexcept { return *ptr; }
-  T &get() const noexcept { return *ptr; }
+  T* operator->() noexcept { return ptr; }
+  T const* operator->() const noexcept { return ptr; }
+
+  T& get() noexcept { return *ptr; }
+  T const& get() const noexcept { return *ptr; }
+
+  friend bool operator== (ref_ptr<T> lhs, T* rhs) {
+    return lhs.ptr == rhs;
+  }
+
+  friend bool operator== (T* lhs, ref_ptr<T> rhs) {
+    return lhs == rhs.ptr;
+  }
+
+  friend bool operator!= (ref_ptr<T> lhs, T* rhs) {
+    return lhs.ptr != rhs;
+  }
+
+  friend bool operator!= (T* lhs, ref_ptr<T> rhs) {
+    return lhs != rhs.ptr;
+  }
 
 private:
   T *ptr;

@@ -119,7 +119,7 @@ size_t ArrayType::GetHash() const noexcept {
 bool ArrayType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Array) {
     ArrayType const &t = static_cast<ArrayType const &>(that);
-    return GetBase().get().EqualTo(t.GetBase());
+    return GetBase()->EqualTo(t.GetBase().get());
   }
   return false;
 }
@@ -131,7 +131,7 @@ size_t PointerType::GetHash() const noexcept {
 bool PointerType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Pointer) {
     PointerType const &t = static_cast<PointerType const &>(that);
-    return t.GetPointee().get().EqualTo(t.GetPointee());
+    return t.GetPointee()->EqualTo(t.GetPointee().get());
   }
   return false;
 }
@@ -149,7 +149,7 @@ size_t FunctionType::GetHash() const noexcept {
 bool FunctionType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Function) {
     FunctionType const &t = static_cast<FunctionType const &>(that);
-    if (GetReturnType().get().EqualTo(t.GetReturnType()) &&
+    if (GetReturnType()->EqualTo(t.GetReturnType().get()) &&
         GetParamTypes().size() == t.GetParamTypes().size()) {
       auto rng1 =
           sona::linq::from_container(GetParamTypes())
@@ -189,7 +189,7 @@ bool RefType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Ref) {
     RefType const &t = static_cast<RefType const &>(that);
     return (GetRefTypeId() == t.GetRefTypeId()) &&
-           (GetReferencedType().get().EqualTo(t.GetReferencedType()));
+           (GetReferencedType()->EqualTo(t.GetReferencedType().get()));
   }
   return false;
 }

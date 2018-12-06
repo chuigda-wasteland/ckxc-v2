@@ -1,0 +1,82 @@
+#ifndef CST_ABSTRACT
+#define CST_ABSTRACT(NODENAME)
+#endif
+
+#ifndef CST_MISC
+#define CST_MISC(NODENAME)
+#endif
+
+#ifndef CST_TYPE
+#define CST_TYPE(NODENAME)
+#endif
+
+#ifndef CST_DECL
+#define CST_DECL(NODENAME)
+#endif
+
+#ifndef CST_STMT
+#define CST_STMT(NODENAME)
+#endif
+
+#ifndef CST_EXPR
+#define CST_EXPR(NODENAME)
+#endif
+
+#ifndef CST_TRANSUNIT
+#define CST_TRANSUNIT(NODENAME)
+#endif
+
+CST_ABSTRACT(Node)
+
+  CST_TRANSUNIT(TransUnit)
+
+  CST_MISC(AttributeList)
+  CST_MISC(Import)
+  CST_MISC(Export)
+
+  CST_ABSTRACT(Type)
+
+    CST_TYPE(BasicType)
+    CST_TYPE(UserDefinedType)
+    CST_TYPE(TemplatedType)
+    CST_TYPE(ComposedType)
+
+  CST_ABSTRACT(Decl)
+
+    CST_DECL(TemplatedDecl)
+    CST_DECL(ForwardDecl)
+    CST_DECL(ClassDecl)
+    CST_DECL(EnumDecl)
+    CST_DECL(ADTDecl)
+    CST_DECL(FuncDecl)
+    CST_DECL(VarDecl)
+
+  CST_ABSTRACT(Stmt)
+
+    CST_STMT(EmptyStmt)
+    CST_STMT(ExprStmt)
+    CST_STMT(IfStmt)
+    CST_STMT(MatchStmt)
+    CST_STMT(ForStmt)
+    CST_STMT(ForEachStmt)
+    CST_STMT(WhileStmt)
+    CST_STMT(CompoundStmt)
+    CST_STMT(ReturnStmt)
+
+  CST_ABSTRACT(Expr)
+
+    CST_EXPR(LiteralExpr)
+    CST_EXPR(StringLiteralExpr)
+    CST_EXPR(IdRefExpr)
+    CST_EXPR(FuncCallExpr)
+    CST_EXPR(UnaryExpr)
+    CST_EXPR(BinaryExpr)
+    CST_EXPR(MixFixExpr)
+
+#undef CST_MISC
+#undef CST_TYPE
+#undef CST_DECL
+#undef CST_EXPR
+#undef CST_STMT
+#undef CST_TRANSUNIT
+#undef CST_ABSTRACT

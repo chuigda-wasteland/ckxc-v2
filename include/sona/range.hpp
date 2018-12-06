@@ -27,6 +27,8 @@ public:
   reverse_iterator rbegin() const noexcept { return reverse_iterator(last); }
   reverse_iterator rend() const noexcept { return reverse_iterator(first); }
 
+  std::size_t size() const noexcept { return std::distance(first, last); }
+
 private:
   Iterator const first;
   Iterator const last;

@@ -54,10 +54,29 @@ public:
     return r1.pv == r2.pv;
   }
 
+  std::size_t hash() const noexcept {
+    return std::hash<std::string>()(pv->first);
+  }
+
+  friend bool operator< (string_ref const& s1, string_ref const& s2) {
+    return s1.pv->first < s2.pv->first;
+  }
+
 private:
   typename string_set::value_type *pv;
 };
 
 } // namespace sona
+
+namespace std {
+
+template <>
+struct hash<sona::string_ref> {
+  std::size_t operator() (sona::string_ref const& ref) const noexcept {
+    return ref.hash();
+  }
+};
+
+} // namespace std
 
 #endif // STRINGREF_HPP

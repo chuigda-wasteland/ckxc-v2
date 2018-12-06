@@ -19,62 +19,14 @@ namespace Syntax {
 class Node {
 public:
   enum class NodeKind {
-    /// Basic identifier
-    CNK_Identifier,
+    #define CST_TRANSUNIT(name) CNK_##name,
+    #define CST_MISC(name) CNK_##name,
+    #define CST_TYPE(name) CNK_##name,
+    #define CST_DECL(name) CNK_##name,
+    #define CST_STMT(name) CNK_##name,
+    #define CST_EXPR(name) CNK_##name,
 
-    /// Special structure
-    CNK_Import,
-    CNK_Export,
-
-    /// Translation unit
-    CNK_TransUnit,
-
-    /// Attributes
-    CNK_AttributeList,
-
-    /// Forward Declarations
-    CNK_ForwardDecl,
-
-    /// Definitions
-    CNK_ClassDecl,
-    CNK_EnumDecl,
-    CNK_ADTDecl,
-    CNK_VarDecl,
-
-    /// Function definition is special
-    CNK_FuncDecl,
-
-    /** @todo most of these are not completed yet */
-    CNK_TypeAliasDecl,
-    CNK_LabelDecl,
-    CNK_TemplatedDecl,
-    CNK_ConceptDecl,
-
-    /// Statements
-    CNK_EmptyStmt,
-    CNK_ExprStmt,
-    CNK_IfStmt,
-    CNK_MatchStmt,
-    CNK_ForStmt,
-    CNK_ForEachStmt,
-    CNK_WhileStmt,
-    CNK_CompoundStmt,
-    CNK_ReturnStmt,
-
-    /// Expressions
-    CNK_LiteralExpr,
-    CNK_StringLiteralExpr,
-    CNK_IdRefExpr,
-    CNK_FuncCallExpr,
-    CNK_UnaryExpr,
-    CNK_BinaryExpr,
-    CNK_MixFixExpr,
-
-    /// Type structure
-    CNK_BasicType,
-    CNK_UserDefinedType,
-    CNK_TemplatedType,
-    CNK_ComposedType
+    #include "Syntax/CSTNodeDefs.def"
   };
 
   Node(NodeKind nodeKind) : m_NodeKind(nodeKind) {}
@@ -156,7 +108,6 @@ public:
 class Decl : public Node {
 public:
   Decl(NodeKind nodeKind) : Node(nodeKind) {}
-  virtual DeclResult accept(CSTDeclVisitor &visitor) = 0;
 };
 
 class Stmt : public Node {
@@ -232,8 +183,8 @@ public:
   enum class TypeSpecifier { CTS_Const, _Volatile, _Pointer, _Ref };
 
   ComposedType(sona::owner<Type> rootType,
-                  std::vector<TypeSpecifier> &&typeSpecifiers,
-                  std::vector<SingleSourceRange> &&typeSpecRanges)
+               std::vector<TypeSpecifier> &&typeSpecifiers,
+               std::vector<SingleSourceRange> &&typeSpecRanges)
     : Type(NodeKind::CNK_ComposedType),
       m_RootType(std::move(rootType)),
       m_TypeSpecifiers(typeSpecifiers),
@@ -261,13 +212,13 @@ private:
 class Identifier {
 public:
   Identifier(sona::string_ref const& identifier,
-                SingleSourceRange const& idRange)
+             SingleSourceRange const& idRange)
     : m_Identifier(identifier), m_IdRange(idRange) {}
 
   Identifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
-                sona::string_ref identifier,
-                std::vector<SingleSourceRange> &&nnsRanges,
-                SingleSourceRange idRange)
+             sona::string_ref identifier,
+             std::vector<SingleSourceRange> &&nnsRanges,
+             SingleSourceRange idRange)
     : m_NestedNameSpecifiers(std::move(nestedNameSpecifiers)),
       m_Identifier(identifier),
       m_NNSRanges(std::move(nnsRanges)),
@@ -309,7 +260,7 @@ private:
 class Import : public Node {
 public:
   Import(Identifier &&importedIdentifier,
-            SingleSourceRange const& importRange)
+         SingleSourceRange const& importRange)
     : Node(NodeKind::CNK_Import),
       m_ImportedIdentifier(std::move(importedIdentifier)),
       m_ImportRange(importRange),
@@ -317,9 +268,9 @@ public:
       m_WeakRange(0, 0, 0) {}
 
   Import(Identifier &&importedIdentifier,
-            SingleSourceRange const& importRange,
-            std::true_type /* isWeakImport */,
-            SingleSourceRange const& weakRange)
+         SingleSourceRange const& importRange,
+         std::true_type /* isWeakImport */,
+         SingleSourceRange const& weakRange)
     : Node(NodeKind::CNK_Import),
       m_ImportedIdentifier(std::move(importedIdentifier)),
       m_ImportRange(importRange),
@@ -451,8 +402,6 @@ public:
                        { return it.borrow(); });
   }
 
-  DeclResult accept(CSTDeclVisitor &visitor) override;
-
 private:
   sona::string_ref m_ClassName;
   std::vector<sona::owner<Decl>> m_SubDecls;
@@ -510,9 +459,9 @@ public:
   };
 
   EnumDecl(sona::string_ref const& name,
-              std::vector<Enumerator> &&enumerators,
-              SingleSourceRange const& enumRange,
-              SingleSourceRange const& nameRange)
+           std::vector<Enumerator> &&enumerators,
+           SingleSourceRange const& enumRange,
+           SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_EnumDecl),
       m_Name(name), m_Enumerators(std::move(enumerators)),
       m_EnumRange(enumRange), m_NameRange(nameRange) {}
@@ -532,8 +481,6 @@ public:
   SingleSourceRange const& GetNameSourceRange() const noexcept {
     return m_NameRange;
   }
-
-  DeclResult accept(CSTDeclVisitor &visitor) override;
 
 private:
   sona::string_ref m_Name;
@@ -574,9 +521,9 @@ public:
   };
 
   ADTDecl(sona::string_ref const& name,
-             std::vector<DataConstructor> &&constructors,
-             SingleSourceRange const& enumClassRange,
-             SingleSourceRange const& nameRange)
+          std::vector<DataConstructor> &&constructors,
+          SingleSourceRange const& enumClassRange,
+          SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_ADTDecl), m_Name(name),
       m_Constructors(std::move(constructors)),
       m_EnumClassRange(enumClassRange),
@@ -598,8 +545,6 @@ public:
     return m_NameRange;
   }
 
-  DeclResult accept(CSTDeclVisitor &visitor) override;
-
 private:
   sona::string_ref m_Name;
   std::vector<DataConstructor> m_Constructors;
@@ -611,11 +556,11 @@ private:
 class FuncDecl : public Decl {
 public:
   FuncDecl(Identifier &&name,
-              std::vector<sona::owner<Type>> &&paramTypes,
-              std::vector<sona::string_ref> &&paramNames,
-              sona::optional<sona::owner<Stmt>> &&funcBody,
-              SingleSourceRange funcRange,
-              SingleSourceRange nameRange) :
+           std::vector<sona::owner<Type>> &&paramTypes,
+           std::vector<sona::string_ref> &&paramNames,
+           sona::optional<sona::owner<Stmt>> &&funcBody,
+           SingleSourceRange funcRange,
+           SingleSourceRange nameRange) :
     Decl(NodeKind::CNK_FuncDecl),
     m_Name(std::move(name)),
     m_ParamTypes(std::move(paramTypes)),
@@ -646,8 +591,6 @@ public:
     return m_NameRange;
   }
 
-  DeclResult accept(CSTDeclVisitor &visitor) override;
-
 private:
   Identifier m_Name;
   std::vector<sona::owner<Type>> m_ParamTypes;
@@ -659,8 +602,8 @@ private:
 class VarDecl : public Decl {
 public:
   VarDecl(sona::string_ref const& name, sona::owner<Type> type,
-             SingleSourceRange const& defRange,
-             SingleSourceRange const& nameRange)
+          SingleSourceRange const& defRange,
+          SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_VarDecl),
       m_Name(name), m_Type(std::move(type)),
       m_DefRange(defRange), m_NameRange(nameRange) {}
