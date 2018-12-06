@@ -72,7 +72,7 @@ private:
   sona::ref_ptr<Scope> m_EnclosingLoopScope;
   ScopeFlags m_ScopeFlags;
 
-  std::unordered_map<sona::string_ref, sona::owner<AST::VarDecl>> m_Variables;
+  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::VarDecl>> m_Variables;
   std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type>> m_Types;
 
   FunctionSet m_Functions;

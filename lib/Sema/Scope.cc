@@ -29,7 +29,7 @@ sona::ref_ptr<AST::VarDecl const>
 Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
   auto it = m_Variables.find(name);
   if (it != m_Variables.cend()) {
-    return it->second.borrow();
+    return it->second;
   }
 
   if (m_ParentScope != nullptr) {
@@ -55,12 +55,12 @@ Scope::LookupType(const sona::string_ref &name) const noexcept {
 
 sona::iterator_range<Scope::FunctionSet::const_iterator>
 Scope::GetAllFuncsLocal(const sona::string_ref &name) const noexcept {
-  FunctionSet::const_iterator it = m_Functions.find(name);
+  auto it = m_Functions.find(name);
   if (it == m_Functions.cend()) {
     return sona::iterator_range<FunctionSet::const_iterator>(it, it);
   }
 
-  FunctionSet::const_iterator it2 = it;
+  auto it2 = it;
   ++it2;
   for (; it2 != m_Functions.cend() && it2->first == name; ++it2);
   return sona::iterator_range<FunctionSet::const_iterator>(it, it2);
