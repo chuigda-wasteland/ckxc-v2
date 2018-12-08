@@ -68,6 +68,39 @@ SemaClass::ActOnExpr(ref_ptr<Syntax::Expr const> expr) {
 
 ref_ptr<AST::Type const>
 SemaClass::ResolveBasicType(ref_ptr<Syntax::BasicType const> type) {
+  AST::BuiltinType::BuiltinTypeId btid;
+  switch (type->GetTypeKind()) {
+  case Syntax::BasicType::TypeKind::TK_Int8:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_i8; break;
+  case Syntax::BasicType::TypeKind::TK_Int16:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_i16; break;
+  case Syntax::BasicType::TypeKind::TK_Int32:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_i32; break;
+  case Syntax::BasicType::TypeKind::TK_Int64:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_i64; break;
+  case Syntax::BasicType::TypeKind::TK_UInt8:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_u8; break;
+  case Syntax::BasicType::TypeKind::TK_UInt16:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_u16; break;
+  case Syntax::BasicType::TypeKind::TK_UInt32:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_u32; break;
+  case Syntax::BasicType::TypeKind::TK_UInt64:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_u64; break;
+  case Syntax::BasicType::TypeKind::TK_Float:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_r32; break;
+  case Syntax::BasicType::TypeKind::TK_Double:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_r64; break;
+  case Syntax::BasicType::TypeKind::TK_Quad:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_r128; break;
+  case Syntax::BasicType::TypeKind::TK_Bool:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_bool; break;
+  case Syntax::BasicType::TypeKind::TK_Void:
+    btid = AST::BuiltinType::BuiltinTypeId::BTI_void; break;
+  default:
+    sona_unreachable1("unhandled case");
+  }
+
+  return m_ASTContext.GetBuiltinType(btid);
 }
 
 ref_ptr<AST::Type const>

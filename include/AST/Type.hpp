@@ -28,6 +28,7 @@ public:
     BTI_i64,
     BTI_r32,
     BTI_r64,
+    BTI_r128,
     /// @todo I don't know how to implement char elegantly
     /// TI_char,
     BTI_bool,

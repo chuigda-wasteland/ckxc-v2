@@ -123,7 +123,8 @@ public:
   enum class TypeKind {
     TK_Int8, TK_Int16, TK_Int32, TK_Int64,
     TK_UInt8, TK_UInt16, TK_UInt32, TK_UInt64,
-    TK_Float, TK_Double, TK_Quad, TK_Bool
+    TK_Float, TK_Double, TK_Quad, TK_Bool,
+    TK_Void
   };
 
   BasicType(TypeKind typeKind, SingleSourceRange const& range)
