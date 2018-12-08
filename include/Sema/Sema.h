@@ -37,19 +37,19 @@ private:
 
 #define CST_TYPE(name) \
   sona::ref_ptr<AST::Type const> \
-  Resolve##name(sona::ref_ptr<Syntax::Type const> type);
+  Resolve##name(sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
   sona::owner<AST::Decl> \
-  ActOn##name(sona::ref_ptr<Syntax::Decl const> decl);
+  ActOn##name(sona::ref_ptr<Syntax::name const> decl);
 
 #define CST_STMT(name) \
   sona::owner<AST::Stmt> \
-  ActOn##name(sona::ref_ptr<Syntax::Stmt const> stmt);
+  ActOn##name(sona::ref_ptr<Syntax::name const> stmt);
 
 #define CST_EXPR(name) \
   sona::owner<AST::Expr> \
-  ActOn##name(sona::ref_ptr<Syntax::Expr const> expr);
+  ActOn##name(sona::ref_ptr<Syntax::name const> expr);
 
 #include "Syntax/CSTNodeDefs.def"
 
