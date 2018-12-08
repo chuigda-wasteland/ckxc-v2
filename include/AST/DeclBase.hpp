@@ -13,6 +13,7 @@ namespace ckx {
 namespace AST {
 
 enum class DeclSpec {
+  DS_None = 0x00,
   DS_Static = 0x01,
   DS_Internal = 0x02,
   DS_External = 0x04,

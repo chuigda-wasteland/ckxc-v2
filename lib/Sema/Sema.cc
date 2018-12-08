@@ -145,3 +145,4 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
 
   return resolvedRootType;
 }
+
