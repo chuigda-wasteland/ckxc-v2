@@ -21,10 +21,10 @@ public:
                                                  size_t size);
 
   sona::ref_ptr<PointerType const>
-  CreatePointerType(sona::ref_ptr<Type> pointee);
+  CreatePointerType(sona::ref_ptr<Type const> pointee);
 
   sona::ref_ptr<LValueRefType const>
-  CreateLValueRefType(sona::ref_ptr<Type> referenced);
+  CreateLValueRefType(sona::ref_ptr<Type const> referenced);
 
   sona::ref_ptr<FunctionType const> BuildFunctionType();
 
@@ -32,7 +32,7 @@ public:
   GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
 
   sona::ref_ptr<RValueRefType const>
-  CreateRValueRefType(sona::ref_ptr<Type> referenced);
+  CreateRValueRefType(sona::ref_ptr<Type const> referenced);
 
 private:
   template <typename Type_t>

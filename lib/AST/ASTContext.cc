@@ -42,19 +42,19 @@ ASTContext::CreateArrayType(sona::ref_ptr<Type> base, size_t size) {
 }
 
 sona::ref_ptr<PointerType const>
-ASTContext::CreatePointerType(sona::ref_ptr<Type> pointee) {
+ASTContext::CreatePointerType(sona::ref_ptr<Type const> pointee) {
   auto iter = m_PointerTypes.emplace(pointee).first;
   return sona::ref_ptr<PointerType const>(*iter);
 }
 
 sona::ref_ptr<LValueRefType const>
-ASTContext::CreateLValueRefType(sona::ref_ptr<Type> referenced) {
+ASTContext::CreateLValueRefType(sona::ref_ptr<const Type> referenced) {
   auto iter = m_LValueRefTypes.emplace(referenced).first;
   return *iter;
 }
 
 sona::ref_ptr<RValueRefType const>
-ASTContext::CreateRValueRefType(sona::ref_ptr<Type> referenced) {
+ASTContext::CreateRValueRefType(sona::ref_ptr<const Type> referenced) {
   auto iter = m_RValueRefTypes.emplace(referenced).first;
   return *iter;
 }

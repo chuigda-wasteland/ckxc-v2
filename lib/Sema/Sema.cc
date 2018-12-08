@@ -105,9 +105,7 @@ SemaClass::ResolveBasicType(ref_ptr<Syntax::BasicType const> type) {
 
 ref_ptr<AST::Type const>
 SemaClass::ResolveUserDefinedType(ref_ptr<Syntax::UserDefinedType const> type) {
-  (void)type;
-  sona_unreachable1("not implemented");
-  return nullptr;
+  return m_ScopeChains.back().LookupType(type->GetName());
 }
 
 ref_ptr<AST::Type const>
@@ -119,7 +117,31 @@ SemaClass::ResolveTemplatedType(ref_ptr<Syntax::TemplatedType const> type) {
 
 ref_ptr<AST::Type const>
 SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
-  (void)type;
-  sona_unreachable1("not implemented");
-  return nullptr;
+  ref_ptr<Syntax::Type const> rootType = type->GetRootType();
+  ref_ptr<AST::Type const> resolvedRootType = ResolveType(rootType);
+
+  if (resolvedRootType == nullptr) {
+    return nullptr;
+  }
+
+  for (Syntax::ComposedType::TypeSpecifier tySpec : type->GetTypeSpecifiers()) {
+    /// @todo add proper diagnostics
+    switch (tySpec) {
+    case Syntax::ComposedType::TypeSpecifier::CTS_Const:
+    case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
+      sona_unreachable1("not implemented");
+      break;
+    case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
+      resolvedRootType =
+        m_ASTContext.CreatePointerType(resolvedRootType).get();
+    case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
+      resolvedRootType =
+        m_ASTContext.CreateLValueRefType(resolvedRootType).get();
+    case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
+      resolvedRootType =
+        m_ASTContext.CreateRValueRefType(resolvedRootType).get();
+    }
+  }
+
+  return resolvedRootType;
 }

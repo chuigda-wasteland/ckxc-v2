@@ -97,7 +97,7 @@ private:
 
 class PointerType : public Type {
 public:
-  PointerType(sona::ref_ptr<Type> pointee)
+  PointerType(sona::ref_ptr<Type const> pointee)
       : Type(TypeId::TI_Pointer), m_Pointee(pointee) {}
 
   sona::ref_ptr<Type const> GetPointee() const { return m_Pointee; }
@@ -106,13 +106,13 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
 private:
-  sona::ref_ptr<Type> m_Pointee;
+  sona::ref_ptr<Type const> m_Pointee;
 };
 
 class RefType : public Type {
 public:
   enum class RefTypeId { RTI_LValueRef, RTI_RValueRef };
-  RefType(RefTypeId refTypeId, sona::ref_ptr<Type> referenced)
+  RefType(RefTypeId refTypeId, sona::ref_ptr<Type const> referenced)
       : Type(TypeId::TI_Ref), m_RefTypeId(refTypeId),
         m_ReferencedType(referenced) {}
 
@@ -127,12 +127,12 @@ public:
 
 private:
   RefTypeId m_RefTypeId;
-  sona::ref_ptr<Type> m_ReferencedType;
+  sona::ref_ptr<Type const> m_ReferencedType;
 };
 
 class LValueRefType : public RefType {
 public:
-  LValueRefType(sona::ref_ptr<Type> referenced)
+  LValueRefType(sona::ref_ptr<Type const> referenced)
       : RefType(RefTypeId::RTI_LValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;
@@ -141,7 +141,7 @@ public:
 
 class RValueRefType : public RefType {
 public:
-  RValueRefType(sona::ref_ptr<Type> referenced)
+  RValueRefType(sona::ref_ptr<Type const> referenced)
       : RefType(RefTypeId::RTI_RValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;

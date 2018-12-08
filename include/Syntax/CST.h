@@ -181,7 +181,9 @@ private:
 
 class ComposedType : public Type {
 public:
-  enum class TypeSpecifier { CTS_Const, _Volatile, _Pointer, _Ref };
+  enum class TypeSpecifier {
+    CTS_Const, CTS_Volatile, CTS_Pointer, CTS_Ref, CTS_RvRef
+  };
 
   ComposedType(sona::owner<Type> rootType,
                std::vector<TypeSpecifier> &&typeSpecifiers,
