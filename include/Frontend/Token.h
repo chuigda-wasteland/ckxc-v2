@@ -81,8 +81,8 @@ public:
   }
 
 private:
-  SourceRange const m_SourceRange;
   TokenKind const m_TokenKind;
+  SourceRange const m_SourceRange;
 
   union {
     std::int64_t IntValue;
