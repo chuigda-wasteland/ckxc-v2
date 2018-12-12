@@ -30,6 +30,7 @@ add_library (Sema ${SEMA_SRC})
 add_library (Basic ${BASIC_SRC})
 
 add_executable (temporary driver/temporarymain.cc)
+target_link_libraries (temporary Basic)
 target_link_libraries (temporary sona)
 target_link_libraries (temporary AST)
 target_link_libraries (temporary Syntax)

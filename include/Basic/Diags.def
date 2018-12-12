@@ -1,0 +1,7 @@
+#ifndef DIAG_TEMPLATE
+#define DIAG_TEMPLATE(ID, TMPSTR)
+#endif
+
+DIAG_TEMPLATE(Example, "'{}' was not found, did you mean '{}'?")
+
+#undef DIAG_TEMPLATE

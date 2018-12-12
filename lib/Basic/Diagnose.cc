@@ -1,6 +1,46 @@
 #include "Basic/Diagnose.h"
+#include <sstream>
 
-using namespace ckx::Diag;
+namespace ckx {
+namespace Diag {
+
+std::string
+FormatDiagMessage(DiagMessageTemplate messageTemplate,
+                  std::vector<sona::string_ref> const& paramStrings) {
+  char const *templateStr = nullptr;
+  switch (messageTemplate) {
+  #define DIAG_TEMPLATE(ID, STR) \
+  case DMT_##ID: templateStr = STR; break;
+  #include "Basic/Diags.def"
+  default:
+    sona_unreachable1("unhandled diag kind");
+  }
+
+  auto iter = paramStrings.begin();
+  std::stringstream sstream;
+  for (size_t idx = 0; templateStr[idx] != '\0';) {
+    if (templateStr[idx] == '{' && templateStr[idx+1] == '}') {
+      idx += 2;
+      if (iter == paramStrings.end()) {
+        sona_unreachable1("not enough param string provided");
+      }
+      sstream << (*iter).get();
+      ++iter;
+    }
+    else {
+      sstream << templateStr[idx];
+      ++idx;
+    }
+  }
+
+  if (iter != paramStrings.end()) {
+    sona_unreachable1("redundant param string provided");
+  }
+
+  std::string ret;
+  std::getline(sstream, ret);
+  return ret;
+}
 
 DiagnosticEngine::DiagnosticInfo&
 DiagnosticEngine::Diag(DiagnosticInfoRank rank,
@@ -42,3 +82,6 @@ void DiagnosticEngine::DiagnosticInfo::AddSubDiagnose(
 void DiagnosticEngine::DiagnosticInfo::Dump() const noexcept {
   /// @todo
 }
+
+} // namespace Diag
+} // namespace ckx

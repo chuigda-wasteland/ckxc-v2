@@ -1,18 +1,13 @@
-#include "Syntax/CST.h"
-#include "Sema/Sema.h"
-#include "AST/ASTBase.hpp"
-#include "AST/Decl.hpp"
-#include "AST/Expr.hpp"
-#include "AST/Stmt.hpp"
-
-#include <algorithm>
+#include "Basic/Diagnose.h"
 #include <iostream>
-#include <vector>
 
 int main() {
   using namespace std;
   using namespace sona;
   using namespace ckx;
+
+  cout << Diag::FormatDiagMessage(Diag::DMT_Example, {"Class", "Klass"})
+       << endl;
 
   return 0;
 }

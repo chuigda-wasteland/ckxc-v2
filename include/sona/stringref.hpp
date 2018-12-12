@@ -8,7 +8,7 @@
 namespace sona {
 
 namespace impl_stc89c52 {
-std::unordered_map<std::string, int> glob_container() noexcept;
+std::unordered_map<std::string, int>& glob_container() noexcept;
 }
 
 class string_ref {

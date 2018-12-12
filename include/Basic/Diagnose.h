@@ -5,18 +5,20 @@
 
 #include <vector>
 #include <string>
+#include <initializer_list>
 #include "sona/stringref.hpp"
 
 namespace ckx {
 namespace Diag {
 
-enum class DiagMessageTemplate {
-  /// @todo use table generation to generate this
+enum DiagMessageTemplate {
+#define DIAG_TEMPLATE(ID, TMPSTR) DMT_##ID
+#include "Basic/Diags.def"
 };
 
 std::string
 FormatDiagMessage(DiagMessageTemplate messageTemplate,
-                  std::initializer_list<sona::string_ref> paramStrings);
+                  const std::vector<sona::string_ref>& paramStrings);
 
 class DiagnosticEngine {
 private:
