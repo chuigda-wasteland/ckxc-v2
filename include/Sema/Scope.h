@@ -12,7 +12,8 @@ namespace Sema {
 
 class Scope {
 public:
-  using FunctionSet = std::map<sona::string_ref, sona::owner<AST::FuncDecl>>;
+  using FunctionSet =
+  std::map<sona::string_ref, sona::ref_ptr<AST::FuncDecl const>>;
 
   enum ScopeFlags {
     SF_None          = 0x0000,
@@ -54,9 +55,12 @@ public:
     return GetFlags() & scopeFlags;
   }
 
-  void AddVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) const noexcept;
+  void AddVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl);
 
-  void AddType(sona::ref_ptr<AST::Type const> type) const noexcept;
+  void AddType(const sona::string_ref& typeName,
+               sona::ref_ptr<AST::Type const> type);
+
+  void AddFunction(sona::ref_ptr<AST::FuncDecl const> funcDecl);
 
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDecl(sona::string_ref const& name) const noexcept;
@@ -76,8 +80,10 @@ private:
   sona::ref_ptr<Scope> m_EnclosingLoopScope;
   ScopeFlags m_ScopeFlags;
 
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::VarDecl>> m_Variables;
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type>> m_Types;
+  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::VarDecl const>>
+  m_Variables;
+  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type const>>
+  m_Types;
 
   FunctionSet m_Functions;
 };

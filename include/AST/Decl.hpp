@@ -123,6 +123,11 @@ public:
     return m_RetType;
   }
 
+  bool IsDefinition() const noexcept {
+    /// @todo provide a way to link declarations and definitions together.
+    return false;
+  }
+
 private:
   sona::string_ref m_FunctionName;
   std::vector<sona::ref_ptr<Type const>> m_ParamTypes;

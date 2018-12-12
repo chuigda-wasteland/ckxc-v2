@@ -176,7 +176,8 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
       new AST::ClassType(decl->GetClassName(),
                          ref_ptr<AST::ClassDecl>(classDecl));
   m_ASTContext.AddUserDefinedType(owner<AST::Type>(classType));
-  GetCurrentScope()->AddType(ref_ptr<AST::Type>(classType));
+  GetCurrentScope()->AddType(decl->GetClassName(),
+                             ref_ptr<AST::Type>(classType));
   return classDeclOwner;
 }
 
@@ -213,7 +214,8 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
       new AST::EnumType(decl->GetName(),
                         ref_ptr<AST::EnumDecl>(enumDecl));
   m_ASTContext.AddUserDefinedType(owner<AST::Type>(enumType));
-  GetCurrentScope()->AddType(ref_ptr<AST::Type>(enumType));
+  GetCurrentScope()->AddType(decl->GetName(),
+                             ref_ptr<AST::Type>(enumType));
   return enumDeclOwnewr;
 }
 
@@ -239,7 +241,7 @@ SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
 
 owner<AST::Decl>
 SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
-  sona::ref_ptr<AST::Type const> retType = ResolveType(decl->GetReturnType());
+  ref_ptr<AST::Type const> retType = ResolveType(decl->GetReturnType());
   if (retType == nullptr) {
     return nullptr;
   }
@@ -255,22 +257,20 @@ SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
   ref_ptr<AST::FunctionType const> funcType =
       m_ASTContext.BuildFunctionType(paramTypes, retType);
 
-  for (ref_ptr<AST::FuncDecl const> existingFuncs :
+  for (ref_ptr<AST::FuncDecl const> existingFunc :
        sona::linq::from_container(
          GetCurrentScope()->GetAllFuncs(decl->GetName())).
-           transform([](const auto& p) { return p.second.borrow(); })) {
+           transform([](const auto& p) { return p.second; })) {
     ref_ptr<AST::FunctionType const> existingFuncType =
-        m_ASTContext.BuildFunctionType(existingFuncs->GetParamTypes(),
-                                       existingFuncs->GetRetType());
+        m_ASTContext.BuildFunctionType(existingFunc->GetParamTypes(),
+                                       existingFunc->GetRetType());
     if (existingFuncType == funcType) {
-      /// @todo report error here
-      return nullptr;
+      /// @todo check redeclaration, redefinition and more
     }
+
   }
 
-  /// @todo incomplete here
+  /// @todo implement the rest part
 
   return nullptr;
 }
-
-

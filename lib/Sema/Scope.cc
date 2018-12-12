@@ -25,6 +25,19 @@ Scope::Scope(sona::ref_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
   }
 }
 
+void Scope::AddVarDecl(sona::ref_ptr<const AST::VarDecl> varDecl) {
+  m_Variables.emplace(varDecl->GetVarName(), varDecl);
+}
+
+void Scope::AddType(sona::string_ref const& typeName,
+                    sona::ref_ptr<const AST::Type> type) {
+  m_Types.emplace(typeName, type);
+}
+
+void Scope::AddFunction(sona::ref_ptr<const AST::FuncDecl> funcDecl) {
+  m_Functions.emplace(funcDecl->GetName(), funcDecl);
+}
+
 sona::ref_ptr<AST::VarDecl const>
 Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
   auto it = m_Variables.find(name);
