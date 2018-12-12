@@ -209,6 +209,11 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
       currentEnumValue = enumerator.GetValueUnsafe();
     }
 
+    if (GetCurrentDeclContext()->LookupDeclLocal(enumerator.GetName())) {
+      /// @todo report error
+      continue;
+    }
+
     AST::EnumeratorDecl *enumeratorDecl =
         new AST::EnumeratorDecl(GetCurrentDeclContext(),
                                 enumerator.GetName(),
