@@ -1,5 +1,7 @@
 #include "Basic/Diagnose.h"
 #include <sstream>
+#include <iostream>
+#include <cmath>
 
 namespace ckx {
 namespace Diag {
@@ -45,10 +47,34 @@ FormatDiagMessage(DiagMessageTemplate messageTemplate,
 DiagnosticEngine::DiagnosticInfo&
 DiagnosticEngine::Diag(DiagnosticInfoRank rank,
                        std::string &&message, SourceRange const& range) {
-  m_PendingDiags.emplace_back(rank);
+  m_PendingDiags.push_back(DiagnosticInfo(rank));
   DiagnosticInfo& theInfo = m_PendingDiags.back();
   theInfo.AddDesc(std::move(message), range);
   return theInfo;
+}
+
+bool DiagnosticEngine::HasPendingError() const noexcept {
+  for (DiagnosticInfo const& info : m_PendingDiags) {
+    if (info.m_Rank == DiagnosticInfoRank::DIR_Error) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool DiagnosticEngine::HasPendingDiags() const noexcept {
+  return m_PendingDiags.size() != 0;
+}
+
+void DiagnosticEngine::EmitDiags() {
+  for (DiagnosticInfo const& info : m_PendingDiags) {
+    info.Dump(m_FileName, m_CodeLines);
+  }
+  ClearDiags();
+}
+
+void DiagnosticEngine::ClearDiags() noexcept {
+  m_PendingDiags.clear();
 }
 
 DiagnosticEngine::DiagnosticInfo&
@@ -79,8 +105,77 @@ void DiagnosticEngine::DiagnosticInfo::AddSubDiagnose(
   m_SourceRanges.push_back(range);
 }
 
-void DiagnosticEngine::DiagnosticInfo::Dump() const noexcept {
-  /// @todo
+static size_t CountDigits(unsigned i) {
+    return i > 0 ? (int) std::log10 ((double) i) + 1 : 1;
+}
+
+static void PrintSourceCode(const std::vector<std::string>& codeLines,
+                            SourceRange const& range) {
+  using std::cerr;
+  using std::endl;
+
+  sona_assert(codeLines.size() >= range.GetStartLine() - 1);
+  cerr << " " << range.GetStartLine() << "| " <<
+          codeLines[range.GetStartLine() - 1] << endl;
+
+  for (size_t i = 0; i < CountDigits(range.GetStartLine()) + 3; i++) {
+    cerr.put(' ');
+  }
+
+  for (size_t i = 0; i < range.GetStartCol()-1; i++) {
+    cerr.put(' ');
+  }
+  for (size_t i = range.GetStartCol()-1; i < range.GetEndCol()-1; i++) {
+    cerr.put('^');
+  }
+
+  cerr << endl;
+}
+
+void
+DiagnosticEngine::DiagnosticInfo::Dump(
+    const std::string& fileName,
+    const std::vector<std::string>& codeLines) const noexcept {
+  using std::cerr;
+  using std::endl;
+
+  cerr << "At file " << fileName
+       << "(" << m_SourceRanges.front().GetStartLine() << ','
+       << m_SourceRanges.front().GetStartCol() << "): ";
+
+  switch (m_Rank) {
+  case DIR_Error:
+    cerr << "error: "; break;
+  case DIR_Warning0: case DIR_Warning1: case DIR_Warning2:
+    cerr << "warning: "; break;
+  case DIR_Note:
+    cerr << "note: "; break;
+  }
+
+  cerr << m_Messages.front();
+  cerr << endl;
+
+  PrintSourceCode(codeLines, m_SourceRanges.front());
+
+  for (size_t i = 1; i < m_SDKs.size(); i++) {
+    switch (m_SDKs[i]) {
+    case SDK_Desc:
+      switch (m_Rank) {
+      case DIR_Error:
+        cerr << "error: "; break;
+      case DIR_Warning0: case DIR_Warning1: case DIR_Warning2:
+        cerr << "warning: "; break;
+      case DIR_Note:
+        cerr << "note: "; break;
+      }
+      break;
+    case SDK_Note: cerr << "note: "; break;
+    case SDK_Fixit: cerr << "fix hint: "; break;
+    }
+
+    cerr << m_Messages[i] << endl;
+    PrintSourceCode(codeLines, m_SourceRanges[i]);
+  }
 }
 
 } // namespace Diag

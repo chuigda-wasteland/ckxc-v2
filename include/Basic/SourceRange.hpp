@@ -36,7 +36,7 @@ private:
   Coord m_StartLine, m_StartCol, m_EndCol;
 };
 
-using SourceRange = sona::small_vector<SingleSourceRange, 2>;
+using SourceRange = SingleSourceRange;
 
 } // namespace ckx
 

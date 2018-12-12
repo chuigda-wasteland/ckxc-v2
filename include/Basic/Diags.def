@@ -2,6 +2,7 @@
 #define DIAG_TEMPLATE(ID, TMPSTR)
 #endif
 
-DIAG_TEMPLATE(Example, "'{}' was not found, did you mean '{}'?")
+DIAG_TEMPLATE(Example, "'{}' should not be used here, did you mean '{}'?")
+DIAG_TEMPLATE(Example2, "'{}' first used here:")
 
 #undef DIAG_TEMPLATE

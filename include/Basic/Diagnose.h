@@ -12,8 +12,9 @@ namespace ckx {
 namespace Diag {
 
 enum DiagMessageTemplate {
-#define DIAG_TEMPLATE(ID, TMPSTR) DMT_##ID
+#define DIAG_TEMPLATE(ID, TMPSTR) DMT_##ID ,
 #include "Basic/Diags.def"
+  DMT_End
 };
 
 std::string
@@ -29,12 +30,17 @@ public:
     DIR_Error, DIR_Warning0, DIR_Warning1, DIR_Warning2, DIR_Note
   };
 
+  DiagnosticEngine(std::string const& fileName,
+                   std::vector<std::string> const& codeLines)
+    : m_FileName(fileName), m_CodeLines(codeLines) {}
+
   DiagnosticInfo& Diag(DiagnosticInfoRank rank,
                        std::string &&message,
                        SourceRange const& range);
 
-  bool HasError() const noexcept;
-  bool HasDiagInfo() const noexcept;
+  bool HasPendingError() const noexcept;
+  bool HasPendingDiags() const noexcept;
+  void EmitDiags();
   void ClearDiags() noexcept;
 
 private:
@@ -43,8 +49,6 @@ private:
 
   public:
     enum SubDiagnoseKind { SDK_Desc, SDK_Note, SDK_Fixit };
-
-    DiagnosticInfo(DiagnosticInfoRank rank) : m_Rank(rank) {}
 
     DiagnosticInfo& AddDesc(std::string &&desc,
                             SourceRange const& range);
@@ -56,10 +60,13 @@ private:
                              SourceRange const& range);
 
   private:
+    DiagnosticInfo(DiagnosticInfoRank rank) : m_Rank(rank) {}
+
     void AddSubDiagnose(SubDiagnoseKind sdk, std::string &&desc,
                         SourceRange const& range);
 
-    void Dump() const noexcept;
+    void Dump(std::string const& fileName,
+              std::vector<std::string> const& codeLines) const noexcept;
 
     DiagnosticInfoRank m_Rank;
     std::vector<SubDiagnoseKind> m_SDKs;
@@ -67,6 +74,8 @@ private:
     std::vector<SourceRange> m_SourceRanges;
   };
 
+  std::string m_FileName;
+  std::vector<std::string> const& m_CodeLines;
   std::vector<DiagnosticInfo> m_PendingDiags;
 };
 
