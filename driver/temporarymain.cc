@@ -1,8 +1,9 @@
-#include "sona/backtrace.hpp"
-#include "sona/linq.hpp"
-#include "sona/log.hpp"
-#include "sona/q_list.hpp"
-#include "sona/small_vector.hpp"
+#include "Syntax/CST.h"
+#include "Sema/Sema.h"
+#include "AST/ASTBase.hpp"
+#include "AST/Decl.hpp"
+#include "AST/Expr.hpp"
+#include "AST/Stmt.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -11,22 +12,7 @@
 int main() {
   using namespace std;
   using namespace sona;
+  using namespace ckx;
 
-  small_vector<int, 4> vec { 1, 2, 3, 4 };
-  small_vector<int, 4> another (std::move(vec));
-  q_list<int> list { 9, 9, 3, 4, 1, 7, 2 };
-
-  for (int x :
-       linq::from_container(vec).transform([](int v) { return v * 3 + 1; })) {
-    cout << x << ' ';
-  }
-  cout << endl;
-
-  std::sort(list.begin(), list.end());
-  for (int x :
-       linq::from_container(list).transform([](int v) { return v * 3 + 1; })) {
-    cout << x << ' ';
-  }
-
-  cout << endl;
+  return 0;
 }

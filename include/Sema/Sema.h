@@ -26,7 +26,7 @@ private:
   sona::ref_ptr<AST::Type const>
   ResolveType(sona::ref_ptr<Syntax::Type const> type);
 
-  sona::owner<AST::Decl>
+  sona::ref_ptr<AST::Decl>
   ActOnDecl(sona::ref_ptr<Syntax::Decl const> decl);
 
   sona::owner<AST::Stmt>
@@ -40,15 +40,15 @@ private:
   Resolve##name(sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
-  sona::owner<AST::Decl> \
+  sona::ref_ptr<AST::Decl> \
   ActOn##name(sona::ref_ptr<Syntax::name const> decl);
 
 #define CST_STMT(name) \
-  sona::owner<AST::Stmt> \
+  sona::ref_ptr<AST::Stmt> \
   ActOn##name(sona::ref_ptr<Syntax::name const> stmt);
 
 #define CST_EXPR(name) \
-  sona::owner<AST::Expr> \
+  sona::ref_ptr<AST::Expr> \
   ActOn##name(sona::ref_ptr<Syntax::name const> expr);
 
 #include "Syntax/CSTNodeDefs.def"

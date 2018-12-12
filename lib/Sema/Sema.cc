@@ -23,7 +23,7 @@ SemaClass::ResolveType(ref_ptr<Syntax::Type const> type) {
   }
 }
 
-owner<AST::Decl>
+ref_ptr<AST::Decl>
 SemaClass::ActOnDecl(ref_ptr<Syntax::Decl const> decl) {
   switch (decl->GetNodeKind()) {
 #define CST_DECL(name) \
@@ -150,7 +150,7 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
   return resolvedRootType;
 }
 
-owner<AST::Decl>
+ref_ptr<AST::Decl>
 SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   if (GetCurrentScope()->LookupType(decl->GetClassName()) != nullptr) {
     /// @todo report error
@@ -163,14 +163,11 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   PushDeclContext(classDecl);
 
   for (ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
-    owner<AST::Decl> translatedDecl = ActOnDecl(subDecl);
-    if (translatedDecl.borrow() == nullptr) {
-      continue;
-    }
-    GetCurrentDeclContext()->AddDecl(std::move(translatedDecl));
+    ActOnDecl(subDecl);
   }
 
   PopDeclContext();
+  GetCurrentDeclContext()->AddDecl(std::move(classDecl));
 
   AST::ClassType *classType =
       new AST::ClassType(decl->GetClassName(),
@@ -178,10 +175,11 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   m_ASTContext.AddUserDefinedType(owner<AST::Type>(classType));
   GetCurrentScope()->AddType(decl->GetClassName(),
                              ref_ptr<AST::Type>(classType));
-  return classDeclOwner;
+
+  return ref_ptr<AST::Decl>(classDecl);
 }
 
-owner<AST::Decl>
+ref_ptr<AST::Decl>
 SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
   if (GetCurrentScope()->LookupType(decl->GetName()) != nullptr) {
     /// @todo report error
@@ -190,7 +188,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
 
   AST::EnumDecl *enumDecl = new AST::EnumDecl(GetCurrentDeclContext(),
                                               decl->GetName());
-  owner<AST::Decl> enumDeclOwnewr(enumDecl);
+  owner<AST::Decl> enumDeclOwner(enumDecl);
   PushDeclContext(enumDecl);
 
   int64_t currentEnumValue = 0;
@@ -209,6 +207,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
   }
 
   PopDeclContext();
+  GetCurrentDeclContext()->AddDecl(std::move(enumDeclOwner));
 
   AST::EnumType *enumType =
       new AST::EnumType(decl->GetName(),
@@ -216,10 +215,10 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
   m_ASTContext.AddUserDefinedType(owner<AST::Type>(enumType));
   GetCurrentScope()->AddType(decl->GetName(),
                              ref_ptr<AST::Type>(enumType));
-  return enumDeclOwnewr;
+  return ref_ptr<AST::Decl>(enumDecl);
 }
 
-owner<AST::Decl>
+ref_ptr<AST::Decl>
 SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
   if (GetCurrentScope()->LookupVarDecl(decl->GetName()) != nullptr) {
     /// @todo report error
@@ -235,11 +234,12 @@ SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
                                            varType,
                                            AST::DeclSpec::DS_None,
                                            decl->GetName());
+  GetCurrentDeclContext()->AddDecl(owner<AST::Decl>(varDecl));
   GetCurrentScope()->AddVarDecl(ref_ptr<AST::VarDecl const>(varDecl));
-  return owner<AST::Decl>(varDecl);
+  return ref_ptr<AST::Decl>(varDecl);
 }
 
-owner<AST::Decl>
+ref_ptr<AST::Decl>
 SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
   ref_ptr<AST::Type const> retType = ResolveType(decl->GetReturnType());
   if (retType == nullptr) {
