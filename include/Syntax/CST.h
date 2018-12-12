@@ -558,24 +558,34 @@ private:
 
 class FuncDecl : public Decl {
 public:
-  FuncDecl(Identifier &&name,
+  FuncDecl(sona::string_ref const& name,
            std::vector<sona::owner<Type>> &&paramTypes,
            std::vector<sona::string_ref> &&paramNames,
+           sona::owner<Type> &&retType,
            sona::optional<sona::owner<Stmt>> &&funcBody,
            SingleSourceRange funcRange,
            SingleSourceRange nameRange) :
     Decl(NodeKind::CNK_FuncDecl),
-    m_Name(std::move(name)),
+    m_Name(name),
     m_ParamTypes(std::move(paramTypes)),
     m_ParamNames(std::move(paramNames)),
+    m_RetType(std::move(retType)),
     m_FuncBody(std::move(funcBody)),
     m_FuncRange(funcRange), m_NameRange(nameRange) {}
 
-  Identifier const& GetName() const noexcept { return m_Name; }
+  sona::string_ref const& GetName() const noexcept { return m_Name; }
 
   auto GetParamTypes() const noexcept {
     return sona::linq::from_container(m_ParamTypes).transform(
           [](sona::owner<Type> const& it) { return it.borrow(); });
+  }
+
+  std::vector<sona::string_ref> const& GetParamNames() const noexcept {
+    return m_ParamNames;
+  }
+
+  sona::ref_ptr<Type const> GetReturnType() const noexcept {
+    return m_RetType.borrow();
   }
 
   bool IsDefinition() const noexcept {
@@ -595,9 +605,10 @@ public:
   }
 
 private:
-  Identifier m_Name;
+  sona::string_ref m_Name;
   std::vector<sona::owner<Type>> m_ParamTypes;
   std::vector<sona::string_ref> m_ParamNames;
+  sona::owner<Type> m_RetType;
   sona::optional<sona::owner<Stmt>> m_FuncBody;
   SingleSourceRange m_FuncRange, m_NameRange;
 };

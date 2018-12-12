@@ -27,5 +27,6 @@ int main() {
        linq::from_container(list).transform([](int v) { return v * 3 + 1; })) {
     cout << x << ' ';
   }
+
   cout << endl;
 }

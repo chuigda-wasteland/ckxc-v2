@@ -54,6 +54,10 @@ public:
     return GetFlags() & scopeFlags;
   }
 
+  void AddVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) const noexcept;
+
+  void AddType(sona::ref_ptr<AST::Type const> type) const noexcept;
+
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDecl(sona::string_ref const& name) const noexcept;
 

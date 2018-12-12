@@ -29,6 +29,10 @@ ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
   }
 }
 
+void ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
+  m_UserDefinedTypes.push_back(std::move(type));
+}
+
 sona::ref_ptr<TupleType const>
 ASTContext::CreateTupleType(TupleType::TupleElements_t &&elems) {
   auto iter = m_TupleTypes.emplace(std::move(elems)).first;

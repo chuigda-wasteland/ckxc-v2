@@ -53,7 +53,7 @@ public:
       : Decl(DeclKind::DK_Class, context), DeclContext(DeclKind::DK_Class),
         m_ClassName(className) {}
 
-  sona::string_ref const &GetName() const { return m_ClassName; }
+  sona::string_ref const &GetName() const noexcept { return m_ClassName; }
 
 private:
   sona::string_ref m_ClassName;
@@ -76,35 +76,64 @@ class EnumeratorDecl : public Decl {
 public:
   EnumeratorDecl(sona::ref_ptr<DeclContext> context,
                  sona::string_ref const& enumeratorName,
-                 sona::owner<Expr> &&init)
+                 int64_t init)
       : Decl(DeclKind::DK_Enumerator, context),
-        m_EnumeratorName(enumeratorName), m_Init(std::move(init)) {}
+        m_EnumeratorName(enumeratorName), m_Init(init) {}
 
-  sona::string_ref const &GetEnumeratorName() const { return m_EnumeratorName; }
+  sona::string_ref const &GetEnumeratorName() const noexcept {
+    return m_EnumeratorName;
+  }
+
+  int64_t GetInit() const noexcept {
+    return m_Init;
+  }
 
 private:
   sona::string_ref m_EnumeratorName;
-  sona::owner<Expr> m_Init;
+  int64_t m_Init;
 };
 
 class FuncDecl : public Decl, public DeclContext {
 public:
   FuncDecl(sona::ref_ptr<DeclContext> context,
-           sona::string_ref const& functionName)
+           sona::string_ref const& functionName,
+           std::vector<sona::ref_ptr<Type const>> &&paramTypes,
+           std::vector<sona::string_ref> &&paramNames,
+           sona::ref_ptr<Type const> retType)
     : Decl(DeclKind::DK_Func, context), DeclContext(DeclKind::DK_Func),
-      m_FunctionName(functionName) {}
+      m_FunctionName(functionName),
+      m_ParamTypes(std::move(paramTypes)),
+      m_ParamNames(std::move(paramNames)),
+      m_RetType(retType) {}
 
   sona::string_ref const& GetName() const noexcept {
     return m_FunctionName;
   }
 
+  std::vector<sona::ref_ptr<Type const>> const&
+  GetParamTypes() const noexcept {
+    return m_ParamTypes;
+  }
+
+  std::vector<sona::string_ref> const& GetParamNames() const noexcept {
+    return m_ParamNames;
+  }
+
+  sona::ref_ptr<Type const> GetRetType() const noexcept {
+    return m_RetType;
+  }
+
 private:
   sona::string_ref m_FunctionName;
+  std::vector<sona::ref_ptr<Type const>> m_ParamTypes;
+  std::vector<sona::string_ref> m_ParamNames;
+  sona::ref_ptr<Type const> m_RetType;
 };
 
 class VarDecl : public Decl {
 public:
-  VarDecl(sona::ref_ptr<DeclContext> context, sona::ref_ptr<Type> type,
+  VarDecl(sona::ref_ptr<DeclContext> context,
+          sona::ref_ptr<Type const> type,
           DeclSpec spec, sona::string_ref const& varName)
       : Decl(DeclKind::DK_Var, context), m_Type(type), m_DeclSpec(spec),
         m_VarName(varName) {}
@@ -113,7 +142,7 @@ public:
   sona::string_ref const &GetVarName() const noexcept { return m_VarName; }
 
 private:
-  sona::ref_ptr<Type> m_Type;
+  sona::ref_ptr<Type const> m_Type;
   DeclSpec m_DeclSpec;
   sona::string_ref m_VarName;
 };

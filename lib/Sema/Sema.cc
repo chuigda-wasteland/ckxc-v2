@@ -124,7 +124,8 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
     return nullptr;
   }
 
-  for (Syntax::ComposedType::TypeSpecifier tySpec : type->GetTypeSpecifiers()) {
+  for (Syntax::ComposedType::TypeSpecifier tySpec
+       : type->GetTypeSpecifiers()) {
     /// @todo add proper diagnostics
     switch (tySpec) {
     case Syntax::ComposedType::TypeSpecifier::CTS_Const:
@@ -133,16 +134,143 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
       break;
     case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
       resolvedRootType =
-        m_ASTContext.CreatePointerType(resolvedRootType).get();
+          m_ASTContext.CreatePointerType(resolvedRootType).get();
+      break;
     case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
       resolvedRootType =
-        m_ASTContext.CreateLValueRefType(resolvedRootType).get();
+          m_ASTContext.CreateLValueRefType(resolvedRootType).get();
+      break;
     case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
       resolvedRootType =
-        m_ASTContext.CreateRValueRefType(resolvedRootType).get();
+          m_ASTContext.CreateRValueRefType(resolvedRootType).get();
+      break;
     }
   }
 
   return resolvedRootType;
 }
+
+owner<AST::Decl>
+SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
+  if (GetCurrentScope()->LookupType(decl->GetClassName()) != nullptr) {
+    /// @todo report error
+    return nullptr;
+  }
+
+  AST::ClassDecl *classDecl = new AST::ClassDecl(GetCurrentDeclContext(),
+                                                 decl->GetClassName());
+  owner<AST::Decl> classDeclOwner(classDecl);
+  PushDeclContext(classDecl);
+
+  for (ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
+    owner<AST::Decl> translatedDecl = ActOnDecl(subDecl);
+    if (translatedDecl.borrow() == nullptr) {
+      continue;
+    }
+    GetCurrentDeclContext()->AddDecl(std::move(translatedDecl));
+  }
+
+  PopDeclContext();
+
+  AST::ClassType *classType =
+      new AST::ClassType(decl->GetClassName(),
+                         ref_ptr<AST::ClassDecl>(classDecl));
+  m_ASTContext.AddUserDefinedType(owner<AST::Type>(classType));
+  GetCurrentScope()->AddType(ref_ptr<AST::Type>(classType));
+  return classDeclOwner;
+}
+
+owner<AST::Decl>
+SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
+  if (GetCurrentScope()->LookupType(decl->GetName()) != nullptr) {
+    /// @todo report error
+    return nullptr;
+  }
+
+  AST::EnumDecl *enumDecl = new AST::EnumDecl(GetCurrentDeclContext(),
+                                              decl->GetName());
+  owner<AST::Decl> enumDeclOwnewr(enumDecl);
+  PushDeclContext(enumDecl);
+
+  int64_t currentEnumValue = 0;
+  for (Syntax::EnumDecl::Enumerator const& enumerator
+       : decl->GetEnumerators()) {
+    if (enumerator.HasValue()) {
+      currentEnumValue = enumerator.GetValueUnsafe();
+    }
+
+    AST::EnumeratorDecl *enumeratorDecl =
+        new AST::EnumeratorDecl(GetCurrentDeclContext(),
+                                enumerator.GetName(),
+                                currentEnumValue);
+    GetCurrentDeclContext()->AddDecl(owner<AST::Decl>(enumeratorDecl));
+    currentEnumValue++;
+  }
+
+  PopDeclContext();
+
+  AST::EnumType *enumType =
+      new AST::EnumType(decl->GetName(),
+                        ref_ptr<AST::EnumDecl>(enumDecl));
+  m_ASTContext.AddUserDefinedType(owner<AST::Type>(enumType));
+  GetCurrentScope()->AddType(ref_ptr<AST::Type>(enumType));
+  return enumDeclOwnewr;
+}
+
+owner<AST::Decl>
+SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
+  if (GetCurrentScope()->LookupVarDecl(decl->GetName()) != nullptr) {
+    /// @todo report error
+    return nullptr;
+  }
+
+  ref_ptr<AST::Type const> varType = ResolveType(decl->GetType());
+  if (varType == nullptr) {
+    return nullptr;
+  }
+
+  AST::VarDecl *varDecl = new AST::VarDecl(GetCurrentDeclContext(),
+                                           varType,
+                                           AST::DeclSpec::DS_None,
+                                           decl->GetName());
+  GetCurrentScope()->AddVarDecl(ref_ptr<AST::VarDecl const>(varDecl));
+  return owner<AST::Decl>(varDecl);
+}
+
+owner<AST::Decl>
+SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
+  sona::ref_ptr<AST::Type const> retType = ResolveType(decl->GetReturnType());
+  if (retType == nullptr) {
+    return nullptr;
+  }
+
+  std::vector<ref_ptr<AST::Type const>> paramTypes;
+  for (ref_ptr<Syntax::Type const> concreteParamType : decl->GetParamTypes()) {
+    ref_ptr<AST::Type const> paramType = ResolveType(concreteParamType);
+    if (paramType != nullptr) {
+      paramTypes.push_back(paramType);
+    }
+  }
+
+  ref_ptr<AST::FunctionType const> funcType =
+      m_ASTContext.BuildFunctionType(paramTypes, retType);
+
+  for (ref_ptr<AST::FuncDecl const> existingFuncs :
+       sona::linq::from_container(
+         GetCurrentScope()->GetAllFuncs(decl->GetName())).
+           transform([](const auto& p) { return p.second.borrow(); })) {
+    ref_ptr<AST::FunctionType const> existingFuncType =
+        m_ASTContext.BuildFunctionType(existingFuncs->GetParamTypes(),
+                                       existingFuncs->GetRetType());
+    if (existingFuncType == funcType) {
+      /// @todo report error here
+      return nullptr;
+    }
+  }
+
+  /// @todo incomplete here
+
+  return nullptr;
+}
+
 

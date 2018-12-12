@@ -53,13 +53,12 @@ class DeclContext {
 public:
   DeclContext(Decl::DeclKind kind) : m_DeclKind(kind) {}
 
-  void AddDecl(sona::ref_ptr<Decl> decl);
-  void RemoveDecl(sona::ref_ptr<Decl> decl);
-  bool LookupDecl(sona::ref_ptr<Decl> decl);
+  void AddDecl(sona::owner<Decl> &&decl);
+  bool LookupDecl(sona::string_ref name);
 
 private:
   Decl::DeclKind m_DeclKind;
-  std::vector<sona::ref_ptr<Decl>> m_Decls;
+  std::vector<sona::owner<Decl>> m_Decls;
 };
 
 } // namespace AST

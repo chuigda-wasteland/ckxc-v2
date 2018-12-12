@@ -25,6 +25,10 @@ public:
   T& get() noexcept { return *ptr; }
   T const& get() const noexcept { return *ptr; }
 
+  friend bool operator== (ref_ptr<T> lhs, ref_ptr<T> rhs) {
+    return lhs.ptr == rhs.ptr;
+  }
+
   friend bool operator== (ref_ptr<T> lhs, T* rhs) {
     return lhs.ptr == rhs;
   }
