@@ -55,7 +55,7 @@ public:
 
   void AddDecl(sona::owner<Decl> &&decl);
   bool LookupDecl(sona::string_ref const& name);
-  bool LookupDeclLocal(sona::string_ref const& name);
+  bool LookupDeclLocally(sona::string_ref const& name);
 
 private:
   Decl::DeclKind m_DeclKind;

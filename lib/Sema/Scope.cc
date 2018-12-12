@@ -40,29 +40,45 @@ void Scope::AddFunction(sona::ref_ptr<const AST::FuncDecl> funcDecl) {
 
 sona::ref_ptr<AST::VarDecl const>
 Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
-  auto it = m_Variables.find(name);
-  if (it != m_Variables.cend()) {
-    return it->second;
+  for (sona::ref_ptr<Scope const> s = this; s != nullptr;
+       s = s->GetParentScope()) {
+    sona::ref_ptr<AST::VarDecl const> localResult =
+        s->LookupVarDeclLocally(name);
+    if (localResult != nullptr) {
+      return localResult;
+    }
   }
-
-  if (m_ParentScope != nullptr) {
-    return m_ParentScope->LookupVarDecl(name);
-  }
-
   return nullptr;
 }
 
 sona::ref_ptr<AST::Type const>
 Scope::LookupType(const sona::string_ref &name) const noexcept {
+  for (sona::ref_ptr<Scope const> s = this; s != nullptr;
+       s = s->GetParentScope()) {
+    sona::ref_ptr<AST::Type const> localResult =
+        s->LookupTypeLocally(name);
+    if (localResult != nullptr) {
+      return localResult;
+    }
+  }
+  return nullptr;
+}
+
+sona::ref_ptr<const AST::Type>
+Scope::LookupTypeLocally(const sona::string_ref& name) const noexcept {
   auto it = m_Types.find(name);
   if (it != m_Types.cend()) {
     return it->second;
   }
+  return nullptr;
+}
 
-  if (m_ParentScope != nullptr) {
-    return m_ParentScope->LookupType(name);
+sona::ref_ptr<const AST::VarDecl>
+Scope::LookupVarDeclLocally(const sona::string_ref& name) const noexcept {
+  auto it = m_Variables.find(name);
+  if (it != m_Variables.cend()) {
+    return it->second;
   }
-
   return nullptr;
 }
 

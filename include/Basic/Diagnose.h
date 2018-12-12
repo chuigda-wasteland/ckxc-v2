@@ -18,8 +18,8 @@ enum DiagMessageTemplate {
 };
 
 std::string
-FormatDiagMessage(DiagMessageTemplate messageTemplate,
-                  const std::vector<sona::string_ref>& paramStrings);
+Format(DiagMessageTemplate messageTemplate,
+       const std::vector<sona::string_ref>& paramStrings);
 
 class DiagnosticEngine {
 private:

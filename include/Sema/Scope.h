@@ -68,6 +68,12 @@ public:
   sona::ref_ptr<AST::Type const>
   LookupType(sona::string_ref const& name) const noexcept;
 
+  sona::ref_ptr<AST::Type const>
+  LookupTypeLocally(sona::string_ref const& name) const noexcept;
+
+  sona::ref_ptr<AST::VarDecl const>
+  LookupVarDeclLocally(sona::string_ref const& name) const noexcept;
+
   sona::iterator_range<FunctionSet::const_iterator>
   GetAllFuncsLocal(sona::string_ref const& name) const noexcept;
 

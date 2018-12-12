@@ -10,6 +10,8 @@ using namespace ckx;
 using namespace ckx::Sema;
 using namespace sona;
 
+SemaClass::SemaClass(Diag::DiagnosticEngine& diag) : m_Diag(diag) {}
+
 void SemaClass::PushScope(Scope::ScopeFlags flags) {
   m_ScopeChains.emplace_back(GetCurrentScope(), flags);
 }
@@ -113,7 +115,14 @@ SemaClass::ResolveBasicType(ref_ptr<Syntax::BasicType const> type) {
 
 ref_ptr<AST::Type const>
 SemaClass::ResolveUserDefinedType(ref_ptr<Syntax::UserDefinedType const> type) {
-  return m_ScopeChains.back().LookupType(type->GetName());
+  ref_ptr<AST::Type const> lookupResult =
+      m_ScopeChains.back().LookupType(type->GetName());
+  if (lookupResult == nullptr) {
+    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                Diag::Format(Diag::DMT_ErrNotDeclared, { type->GetName() }),
+                type->GetSourceRange());
+  }
+  return lookupResult;
 }
 
 ref_ptr<AST::Type const>
@@ -134,7 +143,6 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
 
   for (Syntax::ComposedType::TypeSpecifier tySpec
        : type->GetTypeSpecifiers()) {
-    /// @todo add proper diagnostics
     switch (tySpec) {
     case Syntax::ComposedType::TypeSpecifier::CTS_Const:
     case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
@@ -160,8 +168,11 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
 
 ref_ptr<AST::Decl>
 SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
-  if (GetCurrentScope()->LookupType(decl->GetClassName()) != nullptr) {
-    /// @todo report error
+  if (GetCurrentScope()->LookupTypeLocally(decl->GetClassName()) != nullptr) {
+    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                Diag::Format(
+                  Diag::DMT_ErrRedeclaration, {decl->GetClassName()}),
+                decl->GetNameRange());
     return nullptr;
   }
 
@@ -191,8 +202,10 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 
 ref_ptr<AST::Decl>
 SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
-  if (GetCurrentScope()->LookupType(decl->GetName()) != nullptr) {
-    /// @todo report error
+  if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
+    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
+                decl->GetNameSourceRange());
     return nullptr;
   }
 
@@ -209,8 +222,10 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
       currentEnumValue = enumerator.GetValueUnsafe();
     }
 
-    if (GetCurrentDeclContext()->LookupDeclLocal(enumerator.GetName())) {
-      /// @todo report error
+    if (GetCurrentDeclContext()->LookupDeclLocally(enumerator.GetName())) {
+      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition, { decl->GetName() }),
+                  decl->GetNameSourceRange());
       continue;
     }
 
@@ -237,8 +252,10 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
 
 ref_ptr<AST::Decl>
 SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
-  if (GetCurrentScope()->LookupVarDecl(decl->GetName()) != nullptr) {
-    /// @todo report error
+  if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
+    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
+                decl->GetNameSourceRange());
     return nullptr;
   }
 

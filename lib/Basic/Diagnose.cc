@@ -2,13 +2,14 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 
 namespace ckx {
 namespace Diag {
 
 std::string
-FormatDiagMessage(DiagMessageTemplate messageTemplate,
-                  std::vector<sona::string_ref> const& paramStrings) {
+Format(DiagMessageTemplate messageTemplate,
+       std::vector<sona::string_ref> const& paramStrings) {
   char const *templateStr = nullptr;
   switch (messageTemplate) {
   #define DIAG_TEMPLATE(ID, STR) \
@@ -105,20 +106,18 @@ void DiagnosticEngine::DiagnosticInfo::AddSubDiagnose(
   m_SourceRanges.push_back(range);
 }
 
-static size_t CountDigits(unsigned i) {
-    return i > 0 ? (int) std::log10 ((double) i) + 1 : 1;
-}
-
 static void PrintSourceCode(const std::vector<std::string>& codeLines,
                             SourceRange const& range) {
   using std::cerr;
   using std::endl;
+  using std::setw;
+  using std::setfill;
 
   sona_assert(codeLines.size() >= range.GetStartLine() - 1);
-  cerr << " " << range.GetStartLine() << "| " <<
-          codeLines[range.GetStartLine() - 1] << endl;
+  cerr << " " << setw(5) << setfill('0') << range.GetStartLine()
+       << " | " << codeLines[range.GetStartLine() - 1] << endl;
 
-  for (size_t i = 0; i < CountDigits(range.GetStartLine()) + 3; i++) {
+  for (size_t i = 0; i < 9; i++) {
     cerr.put(' ');
   }
 
@@ -139,7 +138,7 @@ DiagnosticEngine::DiagnosticInfo::Dump(
   using std::cerr;
   using std::endl;
 
-  cerr << "At file " << fileName
+  cerr << fileName << ':'
        << "(" << m_SourceRanges.front().GetStartLine() << ','
        << m_SourceRanges.front().GetStartCol() << "): ";
 
@@ -158,6 +157,10 @@ DiagnosticEngine::DiagnosticInfo::Dump(
   PrintSourceCode(codeLines, m_SourceRanges.front());
 
   for (size_t i = 1; i < m_SDKs.size(); i++) {
+    cerr << fileName << ':'
+         << "(" << m_SourceRanges[i].GetStartLine() << ','
+         << m_SourceRanges[i].GetStartCol() << "): ";
+
     switch (m_SDKs[i]) {
     case SDK_Desc:
       switch (m_Rank) {

@@ -390,10 +390,14 @@ private:
 class ClassDecl : public Decl {
 public:
   ClassDecl(sona::string_ref const& className,
-               std::vector<sona::owner<Decl>> &&subDecls)
+            std::vector<sona::owner<Decl>> &&subDecls,
+            SingleSourceRange const& classKwdRange,
+            SingleSourceRange const& classNameRange)
     : Decl(NodeKind::CNK_ClassDecl),
       m_ClassName(className),
-      m_SubDecls(std::move(subDecls)) {}
+      m_SubDecls(std::move(subDecls)),
+      m_ClassKwdRange(classKwdRange),
+      m_ClassNameRange(classNameRange) {}
 
   sona::string_ref const& GetClassName() const noexcept {
     return m_ClassName;
@@ -405,9 +409,19 @@ public:
                        { return it.borrow(); });
   }
 
+  SourceRange const& GetKeywordRange() const noexcept {
+    return m_ClassKwdRange;
+  }
+
+  SourceRange const& GetNameRange() const noexcept {
+    return m_ClassNameRange;
+  }
+
 private:
   sona::string_ref m_ClassName;
   std::vector<sona::owner<Decl>> m_SubDecls;
+  SourceRange m_ClassKwdRange;
+  SourceRange m_ClassNameRange;
 };
 
 class EnumDecl : public Decl {

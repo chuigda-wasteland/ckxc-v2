@@ -2,7 +2,15 @@
 #define DIAG_TEMPLATE(ID, TMPSTR)
 #endif
 
-DIAG_TEMPLATE(Example, "'{}' should not be used here, did you mean '{}'?")
-DIAG_TEMPLATE(Example2, "'{}' first used here:")
+DIAG_TEMPLATE(Example, "redefinition of '{}':")
+DIAG_TEMPLATE(Example2, "'{}' first defined here:")
+
+DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")
+DIAG_TEMPLATE(ErrNotDeclared, "'{}' used before declare")
+DIAG_TEMPLATE(ErrRedefinition, "redefinition of '{}':")
+DIAG_TEMPLATE(ErrRedeclaration, "redeclaration of '{}':")
+DIAG_TEMPLATE(NoteFirstDefined, "'{}' first defined here:")
+DIAG_TEMPLATE(NoteFirstDeclaredHere, "'{}' first declared here:")
+DIAG_TEMPLATE(ErrFuncCannotOverload, "two impls of '{}' cannot overload")
 
 #undef DIAG_TEMPLATE

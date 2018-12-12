@@ -7,16 +7,16 @@ int main() {
   using namespace ckx;
 
   vector<string> codeLines {
-    "this is a fire starting in my heart",
-    "that was an fire starting in my heart"
+    "int add(int a, int b) { return a + b; }",
+    "int add(int a, int b) { return a - b; }"
   };
 
-  Diag::DiagnosticEngine engine("lyric", codeLines);
+  Diag::DiagnosticEngine engine("main.cpp", codeLines);
   engine.Diag(Diag::DiagnosticEngine::DIR_Error,
-              Diag::FormatDiagMessage(Diag::DMT_Example, {"was", "is"}),
-              SourceRange(2, 6, 9)).
-      AddNote(Diag::FormatDiagMessage(Diag::DMT_Example2, {"is"}),
-              SourceRange(1, 6, 8));
+              Diag::Format(Diag::DMT_Example, {"add"}),
+              SourceRange(2, 5, 8)).
+      AddNote(Diag::Format(Diag::DMT_Example2, {"add"}),
+              SourceRange(1, 5, 8));
   engine.EmitDiags();
 
   return 0;

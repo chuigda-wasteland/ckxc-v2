@@ -3,6 +3,7 @@
 
 #include "Sema/Scope.h"
 
+#include "Basic/Diagnose.h"
 #include "Syntax/CSTFwd.h"
 #include "AST/DeclFwd.hpp"
 #include "AST/ExprFwd.hpp"
@@ -16,6 +17,8 @@ namespace Sema {
 
 class SemaClass final {
 public:
+  SemaClass(Diag::DiagnosticEngine &diag);
+
   sona::owner<AST::TransUnitDecl>
   ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit);
 
@@ -58,6 +61,8 @@ private:
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
   sona::ref_ptr<Scope> GetCurrentScope();
+
+  Diag::DiagnosticEngine &m_Diag;
 
   AST::ASTContext m_ASTContext;
   std::vector<sona::ref_ptr<AST::DeclContext>> m_DeclContexts;
