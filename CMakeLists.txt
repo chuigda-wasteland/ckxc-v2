@@ -17,6 +17,7 @@ endif ()
 
 include_directories (include)
 
+aux_source_directory (lib/Basic BASIC_SRC)
 aux_source_directory (lib/sona SONA_SRC)
 aux_source_directory (lib/AST AST_SRC)
 aux_source_directory (lib/Syntax SYNTAX_SRC)
@@ -26,6 +27,7 @@ add_library (sona ${SONA_SRC})
 add_library (AST ${AST_SRC})
 add_library (Syntax ${SYNTAX_SRC})
 add_library (Sema ${SEMA_SRC})
+add_library (Basic ${BASIC_SRC})
 
 add_executable (temporary driver/temporarymain.cc)
 target_link_libraries (temporary sona)
