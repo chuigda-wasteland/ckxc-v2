@@ -10,6 +10,14 @@ using namespace ckx;
 using namespace ckx::Sema;
 using namespace sona;
 
+void SemaClass::PushScope(Scope::ScopeFlags flags) {
+  m_ScopeChains.emplace_back(GetCurrentScope(), flags);
+}
+
+void SemaClass::PopScope() {
+  m_ScopeChains.pop_back();
+}
+
 ref_ptr<AST::Type const>
 SemaClass::ResolveType(ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
@@ -161,11 +169,13 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
                                                  decl->GetClassName());
   owner<AST::Decl> classDeclOwner(classDecl);
   PushDeclContext(classDecl);
+  PushScope(Scope::ScopeFlags::SF_Class);
 
   for (ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
     ActOnDecl(subDecl);
   }
 
+  PopScope();
   PopDeclContext();
   GetCurrentDeclContext()->AddDecl(std::move(classDecl));
 
@@ -190,6 +200,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
                                               decl->GetName());
   owner<AST::Decl> enumDeclOwner(enumDecl);
   PushDeclContext(enumDecl);
+  PushScope(Scope::ScopeFlags::SF_Enum);
 
   int64_t currentEnumValue = 0;
   for (Syntax::EnumDecl::Enumerator const& enumerator
@@ -206,6 +217,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
     currentEnumValue++;
   }
 
+  PopScope();
   PopDeclContext();
   GetCurrentDeclContext()->AddDecl(std::move(enumDeclOwner));
 
@@ -267,7 +279,6 @@ SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
     if (existingFuncType == funcType) {
       /// @todo check redeclaration, redefinition and more
     }
-
   }
 
   /// @todo implement the rest part

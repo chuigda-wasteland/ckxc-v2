@@ -57,7 +57,6 @@ private:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
-
   sona::ref_ptr<Scope> GetCurrentScope();
 
   AST::ASTContext m_ASTContext;
