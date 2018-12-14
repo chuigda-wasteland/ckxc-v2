@@ -5,6 +5,13 @@
 DIAG_TEMPLATE(Example, "redefinition of '{}':")
 DIAG_TEMPLATE(Example2, "'{}' first defined here:")
 
+/// Lexical issues
+DIAG_TEMPLATE(ErrExpectedDigit, "Expected digit here")
+DIAG_TEMPLATE(ErrUnexpectedChar, "Unexpected character '{}'")
+DIAG_TEMPLATE(ErrUnexpectedCharInContext,
+              "Unexpected character '{}' in {} context")
+
+/// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")
 DIAG_TEMPLATE(ErrNotDeclared, "'{}' used before declare")
 DIAG_TEMPLATE(ErrRedefinition, "redefinition of '{}':")

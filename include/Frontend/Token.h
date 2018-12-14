@@ -12,8 +12,9 @@ class Token {
 public:
   enum TokenKind {
     TK_KW_class, TK_KW_enum, TK_KW_def, TK_KW_func,
-    TK_KW_int16, TK_KW_int32, TK_KW_int64,
-    TK_KW_uint16, TK_KW_uint32, TK_KW_uint64,
+    TK_KW_int8, TK_KW_int16, TK_KW_int32, TK_KW_int64,
+    TK_KW_uint8, TK_KW_uint16, TK_KW_uint32, TK_KW_uint64,
+    TK_KW_float, TK_KW_double, TK_KW_bool,
 
     TK_SYM_LBRACE, TK_SYM_RBRACE, TK_SYM_LPAREN, TK_SYM_RPAREN,
     TK_SYM_SEMI, TK_SYM_COMMA,
@@ -75,8 +76,7 @@ public:
   }
 
   sona::string_ref const& GetStrValueUnsafe() const noexcept {
-    sona_assert(GetTokenKind() == TK_LIT_STR
-                || GetTokenKind() == TK_ID);
+    sona_assert(GetTokenKind() == TK_LIT_STR || GetTokenKind() == TK_ID);
     return m_StrValue;
   }
 
