@@ -28,6 +28,8 @@ private:
   void LexBinNumber();
   void LexHexNumber();
   void LexString();
+  void LexSymbol();
+  void SkipWhitespace();
 
   std::uint64_t ScanInt();
 

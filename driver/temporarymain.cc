@@ -12,6 +12,7 @@ int main() {
   };
 
   Diag::DiagnosticEngine engine("main.cpp", codeLines);
+
   engine.Diag(Diag::DiagnosticEngine::DIR_Error,
               Diag::Format(Diag::DMT_Example, {"add"}),
               SourceRange(2, 5, 8)).

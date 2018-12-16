@@ -10,6 +10,8 @@ DIAG_TEMPLATE(ErrExpectedDigit, "Expected digit here")
 DIAG_TEMPLATE(ErrUnexpectedChar, "Unexpected character '{}'")
 DIAG_TEMPLATE(ErrUnexpectedCharInContext,
               "Unexpected character '{}' in {} context")
+DIAG_TEMPLATE(WarnInvalidConversion,
+              "Invalid conversion sequence '\\{}'")
 
 /// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")

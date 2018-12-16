@@ -16,6 +16,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif ()
 
 include_directories (include)
+include_directories (test)
 
 aux_source_directory (lib/Basic BASIC_SRC)
 aux_source_directory (lib/sona SONA_SRC)
@@ -37,6 +38,8 @@ target_link_libraries (temporary sona)
 target_link_libraries (temporary AST)
 target_link_libraries (temporary Syntax)
 target_link_libraries (temporary Sema)
-
+target_link_libraries (temporary Frontend)
 target_link_libraries (Syntax sona)
 
+add_executable (TestLex test/Frontend/LexTest.cc)
+target_link_libraries (TestLex Frontend)
