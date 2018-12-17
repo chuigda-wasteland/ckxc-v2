@@ -35,5 +35,26 @@ bool Parser::ExpectAndConsume(Token::TokenKind tokenKind) noexcept {
   return false;
 }
 
+std::string Parser::PrettyPrintToken(Token const& token) const {
+  switch (token.GetTokenKind()) {
+    #define TOKEN_KWD(name, rep) \
+    case Token::TK_KW_##name: return rep;
+    #define TOKEN_SYM(name, rep) \
+    case Token::TK_SYM_##name: return rep;
+    
+    case Token::TK_ID: return "identifier " + token.GetStrValueUnsafe().get();
+    case Token::TK_LIT_INT: 
+      return "intergral literal " + std::to_string(token.GetIntValueUnsafe());
+    case Token::TK_LIT_UINT: 
+      return "unsigned literal " + std::to_string(token.GetUIntValueUnsafe());
+    case Token::TK_LIT_STR: 
+      return "string literal " + token.GetStrValueUnsafe().get();
+    case Token::TK_EOI:
+      return "end of input";
+  }
+  
+  sona_unreachable();
+}
+
 } // namespace Frontend
 } // namespace ckx

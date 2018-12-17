@@ -11,19 +11,12 @@ namespace Frontend {
 class Token {
 public:
   enum TokenKind {
-    TK_KW_class, TK_KW_enum, TK_KW_def, TK_KW_func,
-    TK_KW_int8, TK_KW_int16, TK_KW_int32, TK_KW_int64,
-    TK_KW_uint8, TK_KW_uint16, TK_KW_uint32, TK_KW_uint64,
-    TK_KW_float, TK_KW_double, TK_KW_bool,
-
-    TK_SYM_LBRACE, TK_SYM_RBRACE, TK_SYM_LPAREN, TK_SYM_RPAREN,
-    TK_SYM_SEMI, TK_SYM_COLON, TK_SYM_COMMA,
-
-    TK_ID,
-
-    TK_LIT_INT, TK_LIT_UINT, TK_LIT_FLOAT, TK_LIT_STR,
-
-    TK_EOI
+    #define TOKEN_KWD(name, rep) TK_KW_##name,
+    #define TOKEN_SYM(name, rep) TK_SYM_##name,
+    #define TOKEN_MISC(name, desc) TK_##name,
+    
+    #include "Frontend/Tokens.def"
+    TK_INVALID
   };
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange) :

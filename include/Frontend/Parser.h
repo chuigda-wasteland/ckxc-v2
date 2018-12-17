@@ -24,6 +24,8 @@ private:
   bool Expect(Token::TokenKind tokenKind) const noexcept;
   bool ExpectAndConsume(Token::TokenKind tokenKind) noexcept;
 
+  std::string PrettyPrintToken(Token const &token) const;
+
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;
   size_t m_Index;
 };

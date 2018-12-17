@@ -63,21 +63,9 @@ void Lexer::LexAllTokens() {
 
 void Lexer::LexIdOrKeyword() {
   static std::unordered_map<std::string, Token::TokenKind> KeywordMaps
-  { { "class", Token::TK_KW_class },
-    { "enum", Token::TK_KW_enum },
-    { "def", Token::TK_KW_def },
-    { "func", Token::TK_KW_func },
-    { "int8", Token::TK_KW_int8 },
-    { "int16", Token::TK_KW_int16 },
-    { "int32", Token::TK_KW_int32 },
-    { "int64", Token::TK_KW_int64 },
-    { "uint8", Token::TK_KW_uint8 },
-    { "uint16", Token::TK_KW_uint16 },
-    { "uint32", Token::TK_KW_uint32 },
-    { "uint64", Token::TK_KW_uint64 },
-    { "float", Token::TK_KW_float },
-    { "double", Token::TK_KW_double },
-    { "bool", Token::TK_KW_bool }
+  { 
+    #define TOKEN_KWD(name, rep) {rep, Token::TK_KW_##name},
+    {"$(40490fd0)$", Token::TK_INVALID}
   };
 
   std::stringstream stream;

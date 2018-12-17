@@ -1,34 +1,46 @@
-#ifndef TOKENDEF
-#define TOKENDEF(name, representation)
+#ifndef TOKEN_KWD
+#define TOKEN_KWD(name, representation)
 #endif
 
-TOKENDEF(KW_class, "class")
-TOKENDEF(KW_enum, "enum")
-TOKENDEF(KW_def, "def")
-TOKENDEF(KW_func, "func")
-TOKENDEF(KW_int8, "int8")
-TOKENDEF(KW_int16, "int16")
-TOKENDEF(KW_int32, "int32")
-TOKENDEF(KW_int64, "int64")
-TOKENDEF(KW_uint8, "uint8")
-TOKENDEF(KW_uint16, "uint16")
-TOKENDEF(KW_uint32, "uint32")
-TOKENDEF(KW_uint64, "uint64")
-TOKENDEF(KW_float, "float")
-TOKENDEF(KW_double, "double")
-TOKENDEF(KW_bool, "bool")
-TOKENDEF(SYM_LBRACE, "{")
-TOKENDEF(SYM_RBRACE, "}")
-TOKENDEF(SYM_LPAREN, "(")
-TOKENDEF(SYM_RPAREN, ")")
-TOKENDEF(SYM_SEMI, ";")
-TOKENDEF(SYM_COLON, ":")
-TOKENDEF(SYM_COMMA, ",")
-TOKENDEF(ID, "(identifier)")
-TOKENDEF(LIT_INT, "(integral literal)")
-TOKENDEF(LIT_UINT, "(uint literal)")
-TOKENDEF(LIT_FLOAT, "(floating literal))")
-TOKENDEF(LIT_STR, "(string literal)")
-TOKENDEF(EOI, "(end of input)")
+#ifndef TOKEN_SYM
+#define TOKEN_SYM(name, representation)
+#endif
 
-#undef TOKENDEF
+#ifndef TOKEN_MISC
+#define TOKEN_MISC(name, description)
+#endif
+
+TOKEN_KWD(class, "class")
+TOKEN_KWD(enum, "enum")
+TOKEN_KWD(def, "def")
+TOKEN_KWD(func, "func")
+TOKEN_KWD(int8, "int8")
+TOKEN_KWD(int16, "int16")
+TOKEN_KWD(int32, "int32")
+TOKEN_KWD(int64, "int64")
+TOKEN_KWD(uint8, "uint8")
+TOKEN_KWD(uint16, "uint16")
+TOKEN_KWD(uint32, "uint32")
+TOKEN_KWD(uint64, "uint64")
+TOKEN_KWD(float, "float")
+TOKEN_KWD(double, "double")
+TOKEN_KWD(bool, "bool")
+
+TOKEN_SYM(LBRACE, "{")
+TOKEN_SYM(RBRACE, "}")
+TOKEN_SYM(LPAREN, "(")
+TOKEN_SYM(RPAREN, ")")
+TOKEN_SYM(SEMI, ";")
+TOKEN_SYM(COLON, ":")
+TOKEN_SYM(COMMA, ",")
+
+TOKEN_MISC(ID, "identifier")
+TOKEN_MISC(LIT_INT, "integral literal")
+TOKEN_MISC(LIT_UINT, "uint literal")
+TOKEN_MISC(LIT_FLOAT, "floating literal")
+TOKEN_MISC(LIT_STR, "string literal")
+TOKEN_MISC(EOI, "end of input")
+
+#undef TOKEN_KWD
+#undef TOKEN_SYM
+#undef TOKEN_MISC
