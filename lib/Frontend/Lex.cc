@@ -65,6 +65,7 @@ void Lexer::LexIdOrKeyword() {
   static std::unordered_map<std::string, Token::TokenKind> KeywordMaps
   { 
     #define TOKEN_KWD(name, rep) {rep, Token::TK_KW_##name},
+    #include "Frontend/Tokens.def"
     {"$(40490fd0)$", Token::TK_INVALID}
   };
 
