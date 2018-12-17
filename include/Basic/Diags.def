@@ -13,6 +13,9 @@ DIAG_TEMPLATE(ErrUnexpectedCharInContext,
 DIAG_TEMPLATE(WarnInvalidConversion,
               "Invalid conversion sequence '\\{}'")
 
+/// Syntactic issues
+DIAG_TEMPLATE(ErrExpectedGot, "Unexpected {}, expected {}")
+
 /// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")
 DIAG_TEMPLATE(ErrNotDeclared, "'{}' used before declare")
