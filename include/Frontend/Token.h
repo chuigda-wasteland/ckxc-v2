@@ -17,7 +17,7 @@ public:
     TK_KW_float, TK_KW_double, TK_KW_bool,
 
     TK_SYM_LBRACE, TK_SYM_RBRACE, TK_SYM_LPAREN, TK_SYM_RPAREN,
-    TK_SYM_SEMI, TK_SYM_COMMA,
+    TK_SYM_SEMI, TK_SYM_COLON, TK_SYM_COMMA,
 
     TK_ID,
 

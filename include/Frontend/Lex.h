@@ -15,7 +15,9 @@ class Lexer {
 public:
   Lexer(std::string &&sourceCode,
         Diag::DiagnosticEngine &diag)
-    : m_SourceCode(std::move(sourceCode)), m_Diag(diag) {}
+    : m_SourceCode(std::move(sourceCode)), m_Diag(diag) {
+    LexAllTokens();
+  }
 
   std::vector<Token> GetAndReset() noexcept;
 

@@ -40,6 +40,7 @@ target_link_libraries (temporary Syntax)
 target_link_libraries (temporary Sema)
 target_link_libraries (temporary Frontend)
 target_link_libraries (Syntax sona)
+target_link_libraries (Frontend sona)
 
 add_executable (TestLex test/Frontend/LexTest.cc)
-target_link_libraries (TestLex Frontend)
+target_link_libraries (TestLex Frontend Basic)

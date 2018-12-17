@@ -50,7 +50,7 @@ void Lexer::LexAllTokens() {
       LexString();
       break;
 
-    case '{': case '}': case '(': case ')': case ',': case ';':
+    case '{': case '}': case '(': case ')': case ',': case ';': case ':':
       LexSymbol();
       break;
 
@@ -128,7 +128,7 @@ void Lexer::LexNumber() {
 
     NextChar();
     double r = ScanInt();
-    while (r > 0) {
+    while (r > 1) {
       r = r / 10;
     }
     floatingPart += r;
@@ -145,8 +145,9 @@ void Lexer::LexNumber() {
       return;
     }
 
+    NextChar();
     int exp = ScanInt();
-    floatingPart *= std::exp(exp);
+    floatingPart *= std::pow(10, exp);
   }
 
   m_TokenStream.emplace_back(Token::TK_LIT_FLOAT,
@@ -216,33 +217,34 @@ void Lexer::LexString() {
   std::uint64_t col1 = GetCol();
   NextChar();
 
-  std::stringstream stream;
+  std::string str;
   while (CurChar() != '\0' && CurChar() != '"') {
     if (CurChar() == '\\') {
       switch (PeekOneChar()) {
-      case 'a': stream.put('\a'); NextChar(); NextChar(); break;
-      case 'b': stream.put('\b'); NextChar(); NextChar(); break;
-      case 'n': stream.put('\n'); NextChar(); NextChar(); break;
-      case 'r': stream.put('\r'); NextChar(); NextChar(); break;
-      case 'v': stream.put('\v'); NextChar(); NextChar(); break;
-      case 't': stream.put('\t'); NextChar(); NextChar(); break;
-      case 'f': stream.put('\f'); NextChar(); NextChar(); break;
-      case '"': stream.put('"');  NextChar(); NextChar(); break;
-      case '0': stream.put('\0'); NextChar(); NextChar(); break;
-      case '\\': stream.put('\\'); NextChar(); NextChar(); break;
+      case 'a': str.push_back('\a'); NextChar(); NextChar(); break;
+      case 'b': str.push_back('\b'); NextChar(); NextChar(); break;
+      case 'n': str.push_back('\n'); NextChar(); NextChar(); break;
+      case 'r': str.push_back('\r'); NextChar(); NextChar(); break;
+      case 'v': str.push_back('\v'); NextChar(); NextChar(); break;
+      case 't': str.push_back('\t'); NextChar(); NextChar(); break;
+      case 'f': str.push_back('\f'); NextChar(); NextChar(); break;
+      case '"': str.push_back('"');  NextChar(); NextChar(); break;
+      case '0': str.push_back('\0'); NextChar(); NextChar(); break;
+      case '\\': str.push_back('\\'); NextChar(); NextChar(); break;
       default:
         m_Diag.Diag(Diag::DiagnosticEngine::DIR_Warning0,
                     Diag::Format(Diag::DMT_WarnInvalidConversion,
                                  { std::to_string(PeekOneChar()) }),
                     SourceRange(GetLine(), GetCol()+1, GetCol()+2));
-        stream.put(CurChar());
-        stream.put(PeekOneChar());
+        str.push_back(CurChar());
+        str.push_back(PeekOneChar());
         NextChar(); NextChar();
       }
       continue;
     }
 
-    stream.put(CurChar());
+    str.push_back(CurChar());
+    NextChar();
   }
 
   if (CurChar() == '\0') {
@@ -253,9 +255,6 @@ void Lexer::LexString() {
   else /* if (CurChar() == '"') */ {
     NextChar();
   }
-
-  std::string str;
-  stream >> str;
 
   m_TokenStream.emplace_back(Token::TK_LIT_STR,
                              SourceRange(GetLine(), col1, GetCol()), str);
@@ -292,7 +291,12 @@ void Lexer::LexSymbol() {
     m_TokenStream.emplace_back(Token::TK_SYM_SEMI,
                                SourceRange(GetLine(), GetCol(), GetCol()+1));
     break;
+
+  case ':':
+    m_TokenStream.emplace_back(Token::TK_SYM_COLON,
+                               SourceRange(GetLine(), GetCol(), GetCol()+1));
   }
+  NextChar();
 }
 
 void Lexer::SkipWhitespace() {
@@ -307,14 +311,6 @@ std::uint64_t Lexer::ScanInt() {
     ret *= 10;
     ret += CurChar() - '0';
     NextChar();
-  }
-
-  if (isalpha(CurChar()) || CurChar() == '_') {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
-                Diag::Format(Diag::DMT_ErrUnexpectedCharInContext,
-                { std::to_string(CurChar()), "dec number" }),
-                SourceRange(GetLine(), GetCol(), GetCol()+1));
-    /// @todo add proper skipping
   }
 
   return ret;

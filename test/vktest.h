@@ -54,7 +54,7 @@ static unsigned __g_passing_tests_section, __g_all_tests_section;
     __g_all_tests++; \
     __g_all_tests_section++; \
     std::fprintf(stderr, "Testing AssertNot(%s)... ", #condition); \
-    if (condition) { \
+    if (!condition) { \
       std::fprintf(stderr, "Passing\n"); \
       __g_passing_tests++; \
       __g_passing_tests_section++; \
