@@ -3,6 +3,7 @@
 
 #include "Basic/SourceRange.hpp"
 #include "sona/stringref.hpp"
+#include "sona/optional.hpp"
 #include <cstdint>
 
 namespace ckx {
@@ -20,7 +21,8 @@ public:
   };
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange) :
-    m_TokenKind(tokenKind), m_SourceRange(sourceRange) {}
+    m_TokenKind(tokenKind), m_SourceRange(sourceRange),
+    m_StrValue(sona::empty_optional()) {}
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
         std::int64_t IntValue)
@@ -70,7 +72,8 @@ public:
 
   sona::string_ref const& GetStrValueUnsafe() const noexcept {
     sona_assert(GetTokenKind() == TK_LIT_STR || GetTokenKind() == TK_ID);
-    return m_StrValue;
+    sona_assert(m_StrValue.has_value());
+    return m_StrValue.value();
   }
 
 private:
@@ -83,7 +86,7 @@ private:
     double FloatValue;
   } m_Value;
 
-  sona::string_ref m_StrValue = "";
+  sona::optional<sona::string_ref> m_StrValue;
 };
 
 } // namespace Frontend

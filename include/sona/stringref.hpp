@@ -35,12 +35,6 @@ public:
     return *this;
   }
 
-  string_ref& operator= (string_ref && that) noexcept {
-    pv = that.pv;
-    that.pv = 0;
-    return *this;
-  }
-
   ~string_ref() {
     pv->second--;
     if (pv->second == 0) {

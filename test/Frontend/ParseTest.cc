@@ -29,14 +29,16 @@ void test0() {
 
   std::vector<Frontend::Token> tokens = lexer.GetAndReset();
 
-  cerr << "Lexing success" << endl;
-
   testContext.SetParsingTokenStream(tokens);
-  owner<Syntax::Decl> varDecl = testContext.ParseVarDecl();
+  owner<Syntax::Decl> decl = testContext.ParseVarDecl();
 
-  cerr << "Parsing success" << endl;
-
-  diag.EmitDiags();
+  sona_assert(decl.borrow()->GetNodeKind() ==
+              Syntax::Node::NodeKind::CNK_VarDecl);
+  /// @todo add some casting assist
+  ref_ptr<Syntax::VarDecl> varDecl =
+      static_cast<Syntax::VarDecl*>(&(decl.borrow().get()));
+  VK_ASSERT_NOT(diag.HasPendingDiags());
+  VK_ASSERT_EQUALS("a", varDecl->GetName());
 
   VK_TEST_SECTION_END("Parsing test 1");
 }
