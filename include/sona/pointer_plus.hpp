@@ -25,6 +25,16 @@ public:
   T& get() noexcept { return *ptr; }
   T const& get() const noexcept { return *ptr; }
 
+  template <typename U>
+  ref_ptr<U> cast_unsafe() noexcept {
+    return ref_ptr<U>(static_cast<U*>(ptr));
+  }
+
+  template <typename U>
+  ref_ptr<U const> cast_unsafe() const noexcept {
+    return ref_ptr<U>(static_cast<U const*>(ptr));
+  }
+
   friend bool operator== (ref_ptr<T> lhs, ref_ptr<T> rhs) {
     return lhs.ptr == rhs.ptr;
   }
@@ -66,6 +76,20 @@ public:
 
   ref_ptr<T> borrow() noexcept { return ref_ptr<T>(*ptr); }
   ref_ptr<T const> borrow() const noexcept { return ref_ptr<T>(*ptr); }
+
+  template <typename U>
+  owner<U> cast_unsafe() noexcept {
+    owner<U> ret (static_cast<U*>(ptr));
+    this->ptr = nullptr;
+    return ret;
+  }
+
+  template <typename U>
+  owner<U const> cast_unsafe() const noexcept {
+    owner<U> ret (static_cast<U const*>(ptr));
+    this->ptr = nullptr;
+    return ret;
+  }
 
 private:
   T *ptr;

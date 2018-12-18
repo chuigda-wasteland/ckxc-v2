@@ -36,7 +36,7 @@ void test0() {
               Syntax::Node::NodeKind::CNK_VarDecl);
   /// @todo add some casting assist
   ref_ptr<Syntax::VarDecl> varDecl =
-      static_cast<Syntax::VarDecl*>(&(decl.borrow().get()));
+      decl.borrow().cast_unsafe<Syntax::VarDecl>();
   VK_ASSERT_NOT(diag.HasPendingDiags());
   VK_ASSERT_EQUALS("a", varDecl->GetName());
 
