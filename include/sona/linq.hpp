@@ -70,13 +70,13 @@ public:
   }
 
   self_type operator+(difference_type diff) const noexcept {
-    self_type t = iter;
+    self_type t = *this;
     t += diff;
     return t;
   }
 
   self_type operator-(difference_type diff) const noexcept {
-    self_type t = iter;
+    self_type t = *this;
     t -= diff;
     return t;
   }
