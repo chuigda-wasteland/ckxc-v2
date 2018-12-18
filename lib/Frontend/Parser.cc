@@ -200,6 +200,7 @@ ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
 
   if (CurrentToken().GetTokenKind() != Token::TK_SYM_EQ) {
     enumerators.emplace_back(name, nameRange);
+    return;
   }
 
   SourceRange eqRange = CurrentToken().GetSourceRange();

@@ -137,6 +137,8 @@ void test3() {
   VK_ASSERT_NOT(diag.HasPendingDiags());
   VK_ASSERT_NOT_EQUALS(nullptr, decl.borrow());
 
+  diag.EmitDiags();
+
   owner<Syntax::EnumDecl> enumDecl = decl.cast_unsafe<Syntax::EnumDecl>();
 
   VK_ASSERT_EQUALS("A", enumDecl.borrow()->GetName());
@@ -145,9 +147,9 @@ void test3() {
   ref_ptr<Syntax::EnumDecl::Enumerator const> e1 =
       *(enumDecl.borrow()->GetEnumerators().begin());
   ref_ptr<Syntax::EnumDecl::Enumerator const> e2 =
-      *(enumDecl.borrow()->GetEnumerators().begin());
+      *(enumDecl.borrow()->GetEnumerators().begin() + 1);
   ref_ptr<Syntax::EnumDecl::Enumerator const> e3 =
-      *(enumDecl.borrow()->GetEnumerators().begin());
+      *(enumDecl.borrow()->GetEnumerators().begin() + 2);
 
   VK_ASSERT_NOT(e1->HasValue());
   VK_ASSERT(e2->HasValue());
@@ -163,6 +165,7 @@ int main() {
   test0();
   test1();
   test2();
+  test3();
 
   VK_TEST_END;
 }
