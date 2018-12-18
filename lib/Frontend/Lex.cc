@@ -106,8 +106,7 @@ void Lexer::LexNumber() {
   double floatingPart = integralPart;
   if (CurChar() == '.') {
     if (!isdigit(PeekOneChar())) {
-      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
-                  Diag::Format(Diag::DMT_ErrExpectedDigit, {}),
+      m_Diag.Diag(Diag::DIR_Error, Diag::Format(Diag::DMT_ErrExpectedDigit, {}),
                   SourceRange(GetLine(), GetCol(), GetCol() + 1));
       m_TokenStream.emplace_back(Token::TK_LIT_FLOAT,
                                  SourceRange(GetLine(), col1, GetCol()),
@@ -125,7 +124,7 @@ void Lexer::LexNumber() {
 
   if (CurChar() == 'e' || CurChar() == 'E') {
     if (!isdigit(PeekOneChar())) {
-      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+      m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrExpectedDigit, {}),
                   SourceRange(GetLine(), GetCol(), GetCol() + 1));
       m_TokenStream.emplace_back(Token::TK_LIT_FLOAT,
@@ -158,7 +157,7 @@ void Lexer::LexBinNumber() {
   }
 
   if (isalnum(CurChar()) || CurChar() == '_') {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(
                   Diag::DMT_ErrUnexpectedCharInContext,
                   { std::to_string(CurChar()), "bin number" }),
@@ -189,7 +188,7 @@ void Lexer::LexHexNumber() {
   }
 
   if (isalpha(CurChar()) || CurChar() == '_') {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(
                   Diag::DMT_ErrUnexpectedCharInContext,
                   { std::to_string(CurChar()), "hex number" }),
@@ -221,7 +220,7 @@ void Lexer::LexString() {
       case '0': str.push_back('\0'); NextChar(); NextChar(); break;
       case '\\': str.push_back('\\'); NextChar(); NextChar(); break;
       default:
-        m_Diag.Diag(Diag::DiagnosticEngine::DIR_Warning0,
+        m_Diag.Diag(Diag::DIR_Warning0,
                     Diag::Format(Diag::DMT_WarnInvalidConversion,
                                  { std::to_string(PeekOneChar()) }),
                     SourceRange(GetLine(), GetCol()+1, GetCol()+2));
@@ -237,7 +236,7 @@ void Lexer::LexString() {
   }
 
   if (CurChar() == '\0') {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrUnexpectedChar, {"EOF", "string"}),
                 SourceRange(GetLine(), GetCol(), GetCol()+1));
   }

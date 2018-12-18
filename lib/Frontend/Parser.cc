@@ -81,7 +81,7 @@ owner<Syntax::Decl> Parser::ParseClassDecl() {
     case Token::TK_KW_class: decls.push_back(ParseClassDecl()); break;
     case Token::TK_KW_enum: decls.push_back(ParseEnumDecl()); break;
     default:
-      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+      m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrExpectedGot, {
                                  PrettyPrintToken(CurrentToken()),
                                  "field declaration"
@@ -186,7 +186,7 @@ owner<Syntax::Type> Parser::ParseType() {
   }
 
   if (ret.borrow() == nullptr) {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrExpectedGot, {
                                PrettyPrintToken(CurrentToken()),
                                "type"
@@ -261,7 +261,7 @@ bool Parser::Expect(Token::TokenKind tokenKind) const noexcept {
     return true;
   }
 
-  m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+  m_Diag.Diag(Diag::DIR_Error,
               Diag::Format(Diag::DMT_ErrExpectedGot, {
                              PrettyPrintToken(CurrentToken()),
                              PrettyPrintTokenKind(tokenKind)
@@ -303,13 +303,17 @@ string_ref Parser::PrettyPrintToken(Token const& token) const {
   case Token::TK_SYM_##name: return "'" + std::string(rep) + "'";
 #include "Frontend/Tokens.def"
 
-  case Token::TK_ID: return "identifier " + token.GetStrValueUnsafe().get();
+  case Token::TK_ID:
+    return "identifier '" + token.GetStrValueUnsafe().get() + "'";
   case Token::TK_LIT_INT:
-    return "intergral literal " + std::to_string(token.GetIntValueUnsafe());
+    return "intergral literal '"
+           + std::to_string(token.GetIntValueUnsafe()) + "'";
   case Token::TK_LIT_UINT:
-    return "unsigned literal " + std::to_string(token.GetUIntValueUnsafe());
+    return "unsigned literal '"
+           + std::to_string(token.GetUIntValueUnsafe()) + "'";
   case Token::TK_LIT_STR:
-    return "string literal " + token.GetStrValueUnsafe().get();
+    return "string literal \""
+           + token.GetStrValueUnsafe().get() + "\"";
   case Token::TK_EOI:
     return "end of input";
   default:

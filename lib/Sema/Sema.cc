@@ -118,7 +118,7 @@ SemaClass::ResolveUserDefinedType(ref_ptr<Syntax::UserDefinedType const> type) {
   ref_ptr<AST::Type const> lookupResult =
       m_ScopeChains.back().LookupType(type->GetName());
   if (lookupResult == nullptr) {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrNotDeclared, { type->GetName() }),
                 type->GetSourceRange());
   }
@@ -169,7 +169,7 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
 ref_ptr<AST::Decl>
 SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   if (GetCurrentScope()->LookupTypeLocally(decl->GetClassName()) != nullptr) {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(
                   Diag::DMT_ErrRedeclaration, {decl->GetClassName()}),
                 decl->GetNameRange());
@@ -203,7 +203,7 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 ref_ptr<AST::Decl>
 SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
   if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
                 decl->GetNameSourceRange());
     return nullptr;
@@ -223,7 +223,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
     }
 
     if (GetCurrentDeclContext()->LookupDeclLocally(enumerator.GetName())) {
-      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+      m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition, { decl->GetName() }),
                   decl->GetNameSourceRange());
       continue;
@@ -253,7 +253,7 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
 ref_ptr<AST::Decl>
 SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
   if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
-    m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+    m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
                 decl->GetNameSourceRange());
     return nullptr;

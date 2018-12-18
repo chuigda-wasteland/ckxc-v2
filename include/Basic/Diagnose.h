@@ -17,6 +17,10 @@ enum DiagMessageTemplate {
   DMT_End
 };
 
+enum DiagnosticInfoRank {
+  DIR_Error, DIR_Warning0, DIR_Warning1, DIR_Warning2, DIR_Note
+};
+
 std::string
 Format(DiagMessageTemplate messageTemplate,
        const std::vector<sona::string_ref>& paramStrings);
@@ -26,10 +30,6 @@ private:
   class DiagnosticInfo;
 
 public:
-  enum DiagnosticInfoRank {
-    DIR_Error, DIR_Warning0, DIR_Warning1, DIR_Warning2, DIR_Note
-  };
-
   DiagnosticEngine(std::string const& fileName,
                    std::vector<std::string> const& codeLines)
     : m_FileName(fileName), m_CodeLines(codeLines) {}

@@ -20,7 +20,7 @@ public:
 void test0() {
   VK_TEST_SECTION_BEGIN("Parsing test 1");
 
-  string file = R"aacaac(def a : int16;)aacaac";
+  string file = R"aacaac(def a fuck int16;)aacaac";
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("a.c", lines);
@@ -39,6 +39,8 @@ void test0() {
       decl.borrow().cast_unsafe<Syntax::VarDecl>();
   VK_ASSERT_NOT(diag.HasPendingDiags());
   VK_ASSERT_EQUALS("a", varDecl->GetName());
+
+  diag.EmitDiags();
 
   VK_TEST_SECTION_END("Parsing test 1");
 }
