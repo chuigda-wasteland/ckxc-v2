@@ -57,6 +57,13 @@ public:
   owner(owner const &) = delete;
   owner(owner &&that) : ptr(that.ptr) { that.ptr = nullptr; }
 
+  owner& operator=(owner const&) = delete;
+  owner& operator=(owner &&that) {
+    ptr = that.ptr;
+    that.ptr = nullptr;
+    return *this;
+  }
+
   ref_ptr<T> borrow() noexcept { return ref_ptr<T>(*ptr); }
   ref_ptr<T const> borrow() const noexcept { return ref_ptr<T>(*ptr); }
 

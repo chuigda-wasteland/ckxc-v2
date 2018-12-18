@@ -14,6 +14,21 @@ public:
   sona::owner<Syntax::TransUnit>
   ParseTransUnit(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
+  sona::owner<Syntax::Stmt>
+  ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream);
+
+protected:
+  /// @note Opening access to subclasses for test
+  sona::owner<Syntax::Decl> ParseDeclOrFndef();
+  sona::owner<Syntax::Decl> ParseVarDecl();
+  sona::owner<Syntax::Type> ParseType();
+
+  sona::owner<Syntax::Type> ParseBuiltinType();
+  sona::owner<Syntax::Type> ParseUserDefinedType();
+
+  void
+  SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);
+
 private:
   Diag::DiagnosticEngine &m_Diag;
 
@@ -24,7 +39,8 @@ private:
   bool Expect(Token::TokenKind tokenKind) const noexcept;
   bool ExpectAndConsume(Token::TokenKind tokenKind) noexcept;
 
-  std::string PrettyPrintToken(Token const &token) const;
+  sona::string_ref PrettyPrintToken(Token const &token) const;
+  sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) const;
 
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;
   size_t m_Index;

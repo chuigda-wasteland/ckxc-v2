@@ -12,7 +12,8 @@ endif ()
 # this is also temporary
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -Wall -Wextra -fno-delayed-template-parsing")
 endif ()
 
 include_directories (include)
@@ -44,3 +45,6 @@ target_link_libraries (Frontend sona)
 
 add_executable (TestLex test/Frontend/LexTest.cc)
 target_link_libraries (TestLex Frontend Basic)
+
+add_executable (TestParse test/Frontend/ParseTest.cc)
+target_link_libraries (TestParse Frontend Basic Syntax)
