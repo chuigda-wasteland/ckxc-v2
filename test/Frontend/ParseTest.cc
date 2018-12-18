@@ -61,6 +61,9 @@ void test1() {
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseFuncDecl();
   VK_ASSERT_NOT_EQUALS(nullptr, decl.borrow());
+  VK_ASSERT_NOT(diag.HasPendingDiags());
+
+  diag.EmitDiags();
 
   owner<Syntax::FuncDecl> funcDecl = decl.cast_unsafe<Syntax::FuncDecl>();
   VK_ASSERT_EQUALS("f", funcDecl.borrow()->GetName());
