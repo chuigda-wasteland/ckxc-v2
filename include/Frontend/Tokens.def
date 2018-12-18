@@ -33,6 +33,7 @@ TOKEN_SYM(RPAREN, ")")
 TOKEN_SYM(SEMI, ";")
 TOKEN_SYM(COLON, ":")
 TOKEN_SYM(COMMA, ",")
+TOKEN_SYM(EQ, "=")
 
 TOKEN_MISC(ID, "identifier")
 TOKEN_MISC(LIT_INT, "integral literal")

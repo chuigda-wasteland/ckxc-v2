@@ -21,7 +21,12 @@ protected:
   /// @note Opening access to subclasses for test
   sona::owner<Syntax::Decl> ParseDeclOrFndef();
   sona::owner<Syntax::Decl> ParseVarDecl();
+  sona::owner<Syntax::Decl> ParseClassDecl();
+  sona::owner<Syntax::Decl> ParseEnumDecl();
+  sona::owner<Syntax::Decl> ParseFuncDecl();
   sona::owner<Syntax::Type> ParseType();
+
+  void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
 
   sona::owner<Syntax::Type> ParseBuiltinType();
   sona::owner<Syntax::Type> ParseUserDefinedType();

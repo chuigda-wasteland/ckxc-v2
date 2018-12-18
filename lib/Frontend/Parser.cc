@@ -20,9 +20,9 @@ Parser::ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream) {
 owner<Syntax::Decl> Parser::ParseDeclOrFndef() {
   switch (CurrentToken().GetTokenKind()) {
   case Token::TK_KW_def: return ParseVarDecl();
-  case Token::TK_KW_class:
-  case Token::TK_KW_enum:
-  case Token::TK_KW_func:
+  case Token::TK_KW_class: return ParseClassDecl();
+  case Token::TK_KW_enum: return ParseEnumDecl();
+  case Token::TK_KW_func: return ParseFuncDecl();
     sona_unreachable1("not implemented");
   default:
     sona_unreachable();
@@ -48,6 +48,132 @@ owner<Syntax::Decl> Parser::ParseVarDecl() {
   owner<Syntax::Type> type = ParseType();
 
   return new Syntax::VarDecl(name, std::move(type), defRange, nameRange);
+}
+
+owner<Syntax::Decl> Parser::ParseClassDecl() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_class);
+  SourceRange classRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_ID)) {
+    /// add proper skipping
+    return nullptr;
+  }
+
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange nameRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
+    /// @todo add proper skipping
+    return nullptr;
+  }
+
+  std::vector<owner<Syntax::Decl>> decls;
+
+  while (CurrentToken().GetTokenKind() != Token::TK_EOI
+         && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
+    switch (CurrentToken().GetTokenKind()) {
+    case Token::TK_KW_def:
+      decls.push_back(ParseVarDecl());
+      ExpectAndConsume(Token::TK_SYM_SEMI);
+      break;
+    case Token::TK_KW_class: decls.push_back(ParseClassDecl()); break;
+    case Token::TK_KW_enum: decls.push_back(ParseEnumDecl()); break;
+    default:
+      m_Diag.Diag(Diag::DiagnosticEngine::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrExpectedGot, {
+                                 PrettyPrintToken(CurrentToken()),
+                                 "field declaration"
+                               }),
+                  CurrentToken().GetSourceRange());
+      continue;
+    }
+  }
+
+  ExpectAndConsume(Token::TK_SYM_RBRACE);
+  return new Syntax::ClassDecl(name, std::move(decls), classRange, nameRange);
+}
+
+owner<Syntax::Decl>
+Parser::ParseEnumDecl() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_enum);
+  SourceRange enumRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_ID)) {
+    /// add proper skipping
+    return nullptr;
+  }
+
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange nameRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
+    /// @todo add proper skipping
+    return nullptr;
+  }
+
+  std::vector<Syntax::EnumDecl::Enumerator> enumerators;
+
+  while (CurrentToken().GetTokenKind() != Token::TK_EOI
+         && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
+    ParseEnumerator(enumerators);
+    ExpectAndConsume(Token::TK_SYM_SEMI);
+  }
+
+  ExpectAndConsume(Token::TK_SYM_RBRACE);
+  return new Syntax::EnumDecl(name, std::move(enumerators),
+                              enumRange, nameRange);
+}
+
+sona::owner<Syntax::Decl> Parser::ParseFuncDecl() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_func);
+  SourceRange funcRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_ID)) {
+    return nullptr;
+  }
+
+  string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange nameRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  /// @todo I dont want to finish this right now
+
+  (void)funcRange;
+  (void)nameRange;
+  return nullptr;
+}
+
+void Parser::
+ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
+  if (!Expect(Token::TK_ID)) {
+    return;
+  }
+
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange nameRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (CurrentToken().GetTokenKind() != Token::TK_SYM_EQ) {
+    enumerators.emplace_back(name, nameRange);
+  }
+
+  SourceRange eqRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_LIT_INT)) {
+    return;
+  }
+
+  int64_t value = CurrentToken().GetIntValueUnsafe();
+  SourceRange valueRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  enumerators.emplace_back(name, value, nameRange, eqRange, valueRange);
 }
 
 owner<Syntax::Type> Parser::ParseType() {

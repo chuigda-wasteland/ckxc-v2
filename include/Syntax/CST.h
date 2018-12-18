@@ -431,14 +431,14 @@ public:
     Enumerator(sona::string_ref const& name,
                int64_t value,
                SingleSourceRange nameRange,
-               SourceLocation eqLoc,
+               SingleSourceRange eqLoc,
                SingleSourceRange valueRange)
       : m_Name(name), m_Value(value),
         m_NameRange(nameRange), m_EqLoc(eqLoc), m_ValueRange(valueRange) {}
 
     Enumerator(const sona::string_ref &name, SingleSourceRange nameRange)
       : m_Name(name), m_Value(sona::empty_optional()),
-        m_NameRange(nameRange), m_EqLoc(0, 0), m_ValueRange(0, 0, 0) {}
+        m_NameRange(nameRange), m_EqLoc(0, 0, 0), m_ValueRange(0, 0, 0) {}
 
     sona::string_ref const& GetName() const noexcept {
       return m_Name;
@@ -457,7 +457,7 @@ public:
       return m_Value.value();
     }
 
-    SourceLocation const& GetEqSourceLocUnsafe() const noexcept {
+    SingleSourceRange const& GetEqSourceLocUnsafe() const noexcept {
       sona_assert(HasValue());
       return m_EqLoc;
     }
@@ -471,7 +471,7 @@ public:
     sona::string_ref m_Name;
     sona::optional<int64_t> m_Value;
     SingleSourceRange m_NameRange;
-    SourceLocation m_EqLoc;
+    SingleSourceRange m_EqLoc;
     SingleSourceRange m_ValueRange;
   };
 

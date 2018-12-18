@@ -284,6 +284,11 @@ void Lexer::LexSymbol() {
   case ':':
     m_TokenStream.emplace_back(Token::TK_SYM_COLON,
                                SourceRange(GetLine(), GetCol(), GetCol()+1));
+    break;
+  case '=':
+    m_TokenStream.emplace_back(Token::TK_SYM_EQ,
+                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    break;
   }
   NextChar();
 }
@@ -301,7 +306,6 @@ std::uint64_t Lexer::ScanInt() {
     ret += CurChar() - '0';
     NextChar();
   }
-
   return ret;
 }
 
