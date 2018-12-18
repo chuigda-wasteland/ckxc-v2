@@ -7,13 +7,13 @@ namespace Frontend {
 
 owner<Syntax::TransUnit>
 Parser::ParseTransUnit(ref_ptr<std::vector<Token> const> tokenStream) {
-  m_ParsingTokenStream = tokenStream;
+  SetParsingTokenStream(tokenStream);
   return nullptr;
 }
 
 owner<Syntax::Stmt>
 Parser::ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream) {
-  m_ParsingTokenStream = tokenStream;
+  SetParsingTokenStream(tokenStream);
   return nullptr;
 }
 
@@ -35,8 +35,6 @@ owner<Syntax::Decl> Parser::ParseVarDecl() {
   SourceRange defRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  std::fprintf(stderr, "def parsed\n");
-
   if (!Expect(Token::TK_ID)) {
     /// add proper skipping
     return nullptr;
@@ -45,16 +43,9 @@ owner<Syntax::Decl> Parser::ParseVarDecl() {
   sona::string_ref name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
-
-  std::fprintf(stderr, "name parsed\n");
-
   ExpectAndConsume(Token::TK_SYM_COLON);
 
-  std::fprintf(stderr, "colon parsed\n");
-
   owner<Syntax::Type> type = ParseType();
-
-  std::fprintf(stderr, "type parsed\n");
 
   return new Syntax::VarDecl(name, std::move(type), defRange, nameRange);
 }
@@ -124,6 +115,7 @@ owner<Syntax::Type> Parser::ParseUserDefinedType() {
 void
 Parser::SetParsingTokenStream(ref_ptr<std::vector<Token> const> tokenStream) {
   m_ParsingTokenStream = tokenStream;
+  m_Index = 0;
 }
 
 Token const& Parser::CurrentToken() const noexcept {
