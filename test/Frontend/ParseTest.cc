@@ -20,7 +20,7 @@ public:
 void test0() {
   VK_TEST_SECTION_BEGIN("Parsing test 1");
 
-  string file = R"aacaac(def a fuck int16;)aacaac";
+  string file = R"aacaac(def a : int16;)aacaac";
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("a.c", lines);
