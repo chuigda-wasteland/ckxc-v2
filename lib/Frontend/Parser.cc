@@ -43,10 +43,12 @@ owner<Syntax::Decl> Parser::ParseVarDecl() {
   sona::string_ref name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
-  ExpectAndConsume(Token::TK_SYM_COLON);
+
+  if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
+    return nullptr;
+  }
 
   owner<Syntax::Type> type = ParseType();
-
   return new Syntax::VarDecl(name, std::move(type), defRange, nameRange);
 }
 
@@ -141,11 +143,49 @@ sona::owner<Syntax::Decl> Parser::ParseFuncDecl() {
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  /// @todo I dont want to finish this right now
+  if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
+    return nullptr;
+  }
 
-  (void)funcRange;
-  (void)nameRange;
-  return nullptr;
+  std::vector<string_ref> paramNames;
+  std::vector<owner<Syntax::Type>> paramTypes;
+
+  while (CurrentToken().GetTokenKind() != Token::TK_EOI) {
+    if (!Expect(Token::TK_ID)) {
+      continue;
+    }
+    string_ref paramName = CurrentToken().GetStrValueUnsafe();
+    ConsumeToken();
+
+    if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
+      continue;
+    }
+
+    owner<Syntax::Type> type = ParseType();
+    if (type.borrow() == nullptr) {
+      continue;
+    }
+
+    paramNames.push_back(paramName);
+    paramTypes.push_back(std::move(type));
+
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_COMMA) {
+      ConsumeToken();
+    }
+    else {
+      ExpectAndConsume(Token::TK_SYM_RPAREN);
+      break;
+    }
+  }
+
+  if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
+    return nullptr;
+  }
+
+  owner<Syntax::Type> retType = ParseType();
+  return new Syntax::FuncDecl(name, std::move(paramTypes),
+                              std::move(paramNames), std::move(retType),
+                              empty_optional(), funcRange, nameRange);
 }
 
 void Parser::
@@ -321,6 +361,24 @@ string_ref Parser::PrettyPrintToken(Token const& token) const {
   }
 
   return "";
+}
+
+void Parser::SkipTo(Token::TokenKind tokenKind) {
+  SkipToAnyOf({ tokenKind, Token::TK_EOI });
+}
+
+void
+Parser::SkipToAnyOf(const std::initializer_list<Token::TokenKind>& tokenKinds) {
+  SkipUntil([this, &tokenKinds] {
+    return std::find(tokenKinds.begin(), tokenKinds.end(),
+                     CurrentToken().GetTokenKind()) != tokenKinds.end();
+  });
+}
+
+template <typename Cond> void Parser::SkipUntil(Cond cond) {
+  while (!(cond())) {
+    ConsumeToken();
+  }
 }
 
 } // namespace Frontend

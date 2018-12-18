@@ -35,8 +35,6 @@ protected:
   SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
 private:
-  Diag::DiagnosticEngine &m_Diag;
-
   Token const& CurrentToken() const noexcept;
   Token const& PeekToken(size_t peekCount = 1) const noexcept;
   void ConsumeToken() noexcept;
@@ -44,9 +42,15 @@ private:
   bool Expect(Token::TokenKind tokenKind) const noexcept;
   bool ExpectAndConsume(Token::TokenKind tokenKind) noexcept;
 
+  void SkipTo(Token::TokenKind tokenKind);
+  void SkipToAnyOf(std::initializer_list<Token::TokenKind> const& tokenKinds);
+
+  template <typename Cond> void SkipUntil(Cond cond);
+
   sona::string_ref PrettyPrintToken(Token const &token) const;
   sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) const;
 
+  Diag::DiagnosticEngine &m_Diag;
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;
   size_t m_Index;
 };
