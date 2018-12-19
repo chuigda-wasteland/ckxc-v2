@@ -23,10 +23,13 @@ protected:
   sona::owner<Syntax::Decl> ParseVarDecl();
   sona::owner<Syntax::Decl> ParseClassDecl();
   sona::owner<Syntax::Decl> ParseEnumDecl();
+  sona::owner<Syntax::Decl> ParseADTDecl();
   sona::owner<Syntax::Decl> ParseFuncDecl();
   sona::owner<Syntax::Type> ParseType();
 
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
+  void ParseDataConstructor(
+      std::vector<Syntax::ADTDecl::DataConstructor>& dataConstructors);
 
   sona::owner<Syntax::Type> ParseBuiltinType();
   sona::owner<Syntax::Type> ParseUserDefinedType();

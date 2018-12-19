@@ -537,11 +537,13 @@ public:
 
   ADTDecl(sona::string_ref const& name,
           std::vector<DataConstructor> &&constructors,
-          SingleSourceRange const& enumClassRange,
+          SingleSourceRange const& enumRange,
+          SingleSourceRange const& classRange,
           SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_ADTDecl), m_Name(name),
       m_Constructors(std::move(constructors)),
-      m_EnumClassRange(enumClassRange),
+      m_EnumRange(enumRange),
+      m_ClassRange(classRange),
       m_NameRange(nameRange) {}
 
   sona::string_ref const& GetName() const noexcept {
@@ -552,8 +554,12 @@ public:
     return m_Constructors;
   }
 
-  SingleSourceRange const& GetKeywordSourceRange() const noexcept {
-    return m_EnumClassRange;
+  SingleSourceRange const& GetEnumRange() const noexcept {
+    return m_EnumRange;
+  }
+
+  SingleSourceRange const& GetClassRange() const noexcept {
+    return m_ClassRange;
   }
 
   SingleSourceRange const& GetNameSourceRange() const noexcept {
@@ -563,9 +569,9 @@ public:
 private:
   sona::string_ref m_Name;
   std::vector<DataConstructor> m_Constructors;
-  SingleSourceRange m_EnumClassRange;
+  SingleSourceRange m_EnumRange;
+  SingleSourceRange m_ClassRange;
   SingleSourceRange m_NameRange;
-
 };
 
 class FuncDecl : public Decl {
