@@ -57,6 +57,9 @@ void LexerImpl::LexAllTokens() {
       break;
     }
   }
+
+  m_TokenStream.emplace_back(Token::TK_EOI,
+                             SourceRange(GetLine(), GetCol(), GetCol()+1));
 }
 
 void LexerImpl::LexIdOrKeyword() {
@@ -291,7 +294,7 @@ void LexerImpl::LexSymbol() {
 }
 
 void LexerImpl::SkipWhitespace() {
-  while (isblank(CurChar())) {
+  while (isblank(CurChar()) || CurChar() == '\n') {
     NextChar();
   }
 }

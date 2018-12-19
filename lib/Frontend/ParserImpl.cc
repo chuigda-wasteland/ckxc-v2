@@ -8,7 +8,17 @@ namespace Frontend {
 owner<Syntax::TransUnit>
 ParserImpl::ParseTransUnit(ref_ptr<std::vector<Token> const> tokenStream) {
   SetParsingTokenStream(tokenStream);
-  return nullptr;
+
+  owner<Syntax::TransUnit> ret = new Syntax::TransUnit;
+  while (CurrentToken().GetTokenKind() != Token::TK_EOI) {
+    owner<Syntax::Decl> d = ParseDeclOrFndef();
+    if (d.borrow()->GetNodeKind() == Syntax::Node::NodeKind::CNK_VarDecl) {
+      ExpectAndConsume(Token::TK_SYM_SEMI);
+    }
+    ret.borrow()->Declare(std::move(d));
+  }
+
+  return ret;
 }
 
 owner<Syntax::Stmt>
@@ -89,6 +99,7 @@ owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
                                  "field declaration"
                                }),
                   CurrentToken().GetSourceRange());
+      ConsumeToken();
       continue;
     }
   }
@@ -182,6 +193,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
   }
 
   owner<Syntax::Type> retType = ParseType();
+  ExpectAndConsume(Token::TK_SYM_SEMI);
   return new Syntax::FuncDecl(name, std::move(paramTypes),
                               std::move(paramNames), std::move(retType),
                               empty_optional(), funcRange, nameRange);
@@ -278,8 +290,8 @@ owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
   return new Syntax::UserDefinedType(typeStr, range);
 }
 
-void
-ParserImpl::SetParsingTokenStream(ref_ptr<std::vector<Token> const> tokenStream) {
+void ParserImpl::
+SetParsingTokenStream(ref_ptr<std::vector<Token> const> tokenStream) {
   m_ParsingTokenStream = tokenStream;
   m_Index = 0;
 }
@@ -320,7 +332,6 @@ bool ParserImpl::ExpectAndConsume(Token::TokenKind tokenKind) noexcept {
 }
 
 string_ref ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
-  static sona::string_ref emptyStrRef("");
   switch (tokenKind) {
 #define TOKEN_KWD(name, rep) \
   case Token::TK_KW_##name: return "'" + std::string(rep) + "'";
@@ -332,7 +343,7 @@ string_ref ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
   case Token::TK_INVALID: sona_unreachable();
   }
   sona_unreachable();
-  return emptyStrRef;
+  return "";
 }
 
 string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
@@ -367,8 +378,8 @@ void ParserImpl::SkipTo(Token::TokenKind tokenKind) {
   SkipToAnyOf({ tokenKind, Token::TK_EOI });
 }
 
-void
-ParserImpl::SkipToAnyOf(const std::initializer_list<Token::TokenKind>& tokenKinds) {
+void ParserImpl::
+SkipToAnyOf(const std::initializer_list<Token::TokenKind>& tokenKinds) {
   SkipUntil([this, &tokenKinds] {
     return std::find(tokenKinds.begin(), tokenKinds.end(),
                      CurrentToken().GetTokenKind()) != tokenKinds.end();

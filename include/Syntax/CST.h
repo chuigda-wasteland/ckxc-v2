@@ -30,7 +30,7 @@ public:
   };
 
   Node(NodeKind nodeKind) : m_NodeKind(nodeKind) {}
-  virtual ~Node() = 0;
+  virtual ~Node() {}
 
   NodeKind GetNodeKind() const noexcept {
     return m_NodeKind;

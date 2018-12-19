@@ -36,6 +36,9 @@ add_library (Frontend ${FRONTEND_SRC})
 add_executable (temporary driver/temporarymain.cc)
 target_link_libraries (temporary AST Syntax Sema Frontend Basic sona)
 
+add_executable (ckx-syntax driver/SynCheck.cc)
+target_link_libraries (ckx-syntax AST Syntax Sema Frontend Basic sona)
+
 add_executable (TestLex test/Frontend/LexTest.cc)
 target_link_libraries (TestLex Frontend Basic sona)
 
