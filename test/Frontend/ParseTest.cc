@@ -1,6 +1,6 @@
 #include "vktest.h"
 #include "Frontend/Lex.h"
-#include "Frontend/Parser.h"
+#include "Frontend/ParserImpl.h"
 
 #include <iostream>
 #include <string>
@@ -9,15 +9,15 @@ using namespace sona;
 using namespace ckx;
 using namespace std;
 
-class ParserTest : public Frontend::Parser {
+class ParserTest : public Frontend::ParserImpl {
 public:
-  ParserTest(Diag::DiagnosticEngine &diag) : Parser(diag) {}
+  ParserTest(Diag::DiagnosticEngine &diag) : ParserImpl(diag) {}
 
-  using Parser::SetParsingTokenStream;
-  using Parser::ParseVarDecl;
-  using Parser::ParseClassDecl;
-  using Parser::ParseEnumDecl;
-  using Parser::ParseFuncDecl;
+  using ParserImpl::SetParsingTokenStream;
+  using ParserImpl::ParseVarDecl;
+  using ParserImpl::ParseClassDecl;
+  using ParserImpl::ParseEnumDecl;
+  using ParserImpl::ParseFuncDecl;
 };
 
 void test0() {
