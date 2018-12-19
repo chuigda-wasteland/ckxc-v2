@@ -6,8 +6,6 @@
 
 #include <Basic/SourceRange.hpp>
 
-#include <Syntax/CSTVisitor.h>
-
 #include <sona/range.hpp>
 #include <sona/linq.hpp>
 #include <sona/pointer_plus.hpp>
