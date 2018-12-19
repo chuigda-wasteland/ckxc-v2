@@ -89,6 +89,11 @@ void LexerImpl::LexIdOrKeyword() {
     return;
   }
 
+  if (CurChar() == '!') {
+    str.push_back(CurChar());
+    NextChar();
+  }
+
   m_TokenStream.emplace_back(Token::TK_ID,
                              SourceRange(GetLine(), col1, col2), str);
 }

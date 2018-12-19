@@ -51,7 +51,7 @@ void test0() {
 void test1() {
   VK_TEST_SECTION_BEGIN("Parsing function declaration");
 
-  string file = R"aacaac(func f(a : int16, b : uint16) : int16;)aacaac";
+  string file = R"aacaac(func f!(a : int16, b : uint16) : int16;)aacaac";
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("a.c", lines);
@@ -68,7 +68,7 @@ void test1() {
   diag.EmitDiags();
 
   owner<Syntax::FuncDecl> funcDecl = decl.cast_unsafe<Syntax::FuncDecl>();
-  VK_ASSERT_EQUALS("f", funcDecl.borrow()->GetName());
+  VK_ASSERT_EQUALS("f!", funcDecl.borrow()->GetName());
   VK_ASSERT_EQUALS(2, funcDecl.borrow()->GetParamNames().size());
   VK_ASSERT_EQUALS("a", funcDecl.borrow()->GetParamNames()[0]);
   VK_ASSERT_EQUALS("b", funcDecl.borrow()->GetParamNames()[1]);
