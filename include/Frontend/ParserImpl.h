@@ -27,6 +27,8 @@ protected:
   sona::owner<Syntax::Decl> ParseFuncDecl();
   sona::owner<Syntax::Type> ParseType();
 
+  sona::owner<Syntax::Expr> ParseExpr();
+
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
   void ParseDataConstructor(
       std::vector<Syntax::ADTDecl::DataConstructor>& dataConstructors);

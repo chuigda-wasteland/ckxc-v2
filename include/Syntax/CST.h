@@ -662,6 +662,94 @@ private:
   SingleSourceRange m_DefRange, m_NameRange;
 };
 
+class LiteralExpr : public Expr {
+public:
+  LiteralExpr(std::int64_t intValue, BasicType::TypeKind ofType,
+              SourceRange const& range)
+    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
+    m_Value.IntValue = intValue;
+  }
+
+  LiteralExpr(std::uint64_t uIntValue, BasicType::TypeKind ofType,
+              SourceRange const& range)
+    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
+    m_Value.UIntValue = uIntValue;
+  }
+
+  LiteralExpr(double floatValue, BasicType::TypeKind ofType,
+              SourceRange const& range)
+    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
+    m_Value.FloatValue = floatValue;
+  }
+
+  BasicType::TypeKind GetLiteralTypeKind() const noexcept {
+    return m_TypeKind;
+  }
+
+  std::int64_t GetAsIntUnsafe() const noexcept {
+    sona_assert(m_TypeKind == BasicType::TypeKind::TK_Int8
+                || m_TypeKind == BasicType::TypeKind::TK_Int16
+                || m_TypeKind == BasicType::TypeKind::TK_Int32
+                || m_TypeKind == BasicType::TypeKind::TK_Int64);
+    return m_Value.IntValue;
+  }
+
+  std::uint64_t GetAsUIntUnsafe() const noexcept {
+    sona_assert(m_TypeKind == BasicType::TypeKind::TK_UInt8
+                || m_TypeKind == BasicType::TypeKind::TK_UInt16
+                || m_TypeKind == BasicType::TypeKind::TK_UInt32
+                || m_TypeKind == BasicType::TypeKind::TK_UInt64);
+    return m_Value.UIntValue;
+  }
+
+  double GetAsFloatUnsafe() const noexcept {
+    sona_assert(m_TypeKind == BasicType::TypeKind::TK_Float
+                || m_TypeKind == BasicType::TypeKind::TK_Double);
+    return m_Value.FloatValue;
+  }
+
+  SourceRange const& GetSourceRange() const noexcept {
+    return m_Range;
+  }
+
+  /// @todo move these out from our class, make it part of Parser
+  static BasicType::TypeKind EvaluateIntTypeKind(std::int64_t i) noexcept;
+
+  static BasicType::TypeKind EvaluateUIntTypeKind(std::uint64_t u) noexcept;
+
+  static BasicType::TypeKind EvaluateFloatTypeKind(double d) noexcept;
+
+private:
+  union {
+    std::int64_t IntValue;
+    std::uint64_t UIntValue;
+    double FloatValue;
+  } m_Value;
+  BasicType::TypeKind m_TypeKind;
+  SourceRange m_Range;
+};
+
+class StringLiteralExpr : public Expr {
+public:
+  StringLiteralExpr(sona::string_ref const& strValue, SourceRange const& range)
+    : Expr(NodeKind::CNK_StringLiteralExpr),
+      m_StrValue(strValue), m_Range(range) {}
+
+  sona::string_ref const& GetValue() const noexcept {
+    return m_StrValue;
+  }
+
+  SourceRange const& GetRange() const noexcept {
+    return m_Range;
+  }
+
+private:
+  sona::string_ref m_StrValue;
+  SourceRange m_Range;
+};
+
+class IdRefExpr : public Expr {};
+
 class TransUnit : public Node {
 public:
   TransUnit() : Node(NodeKind::CNK_TransUnit) {}
