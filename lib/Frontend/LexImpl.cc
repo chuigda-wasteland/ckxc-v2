@@ -290,11 +290,18 @@ void LexerImpl::LexSymbol() {
     m_TokenStream.emplace_back(Token::TK_SYM_COLON,
                                SourceRange(GetLine(), GetCol(), GetCol()+1));
     break;
+
   case '=':
     m_TokenStream.emplace_back(Token::TK_SYM_EQ,
                                SourceRange(GetLine(), GetCol(), GetCol()+1));
     break;
+
+  case '.':
+    m_TokenStream.emplace_back(Token::TK_SYM_DOT,
+                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    break;
   }
+
   NextChar();
 }
 

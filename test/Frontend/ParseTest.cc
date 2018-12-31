@@ -18,6 +18,7 @@ public:
   using ParserImpl::ParseClassDecl;
   using ParserImpl::ParseEnumDecl;
   using ParserImpl::ParseFuncDecl;
+  using ParserImpl::ParseLiteralExpr;
 };
 
 void test0() {
@@ -159,6 +160,36 @@ void test3() {
   VK_TEST_SECTION_END("Parsing enum declaration");
 }
 
+void test4() {
+  VK_TEST_SECTION_BEGIN("Parsing int literal expr");
+
+  string file = R"aacaac( 123123 )aacaac";
+  vector<string> lines = { file };
+
+  Diag::DiagnosticEngine diag("a.c", lines);
+  Frontend::Lexer lexer(move(file), diag);
+  ParserTest testContext(diag);
+  std::vector<Frontend::Token> tokens = lexer.GetAndReset();
+  testContext.SetParsingTokenStream(tokens);
+  sona::owner<Syntax::Expr> e = testContext.ParseLiteralExpr();
+
+  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_LiteralExpr,
+                   e.borrow()->GetNodeKind());
+  VK_ASSERT_NOT(diag.HasPendingDiags());
+
+  diag.EmitDiags();
+
+  sona::owner<Syntax::LiteralExpr> literalExpr =
+      e.cast_unsafe<Syntax::LiteralExpr>();
+
+  VK_ASSERT_EQUALS(Syntax::BasicType::TypeKind::TK_Int32,
+                   literalExpr.borrow()->GetLiteralTypeKind());
+  VK_ASSERT_EQUALS(123123,
+                   literalExpr.borrow()->GetAsIntUnsafe());
+
+  VK_TEST_SECTION_END("Parsing int literal expr");
+}
+
 int main() {
   VK_TEST_BEGIN;
 
@@ -166,6 +197,7 @@ int main() {
   test1();
   test2();
   test3();
+  test4();
 
   VK_TEST_END;
 }

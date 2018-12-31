@@ -712,13 +712,6 @@ public:
     return m_Range;
   }
 
-  /// @todo move these out from our class, make it part of Parser
-  static BasicType::TypeKind EvaluateIntTypeKind(std::int64_t i) noexcept;
-
-  static BasicType::TypeKind EvaluateUIntTypeKind(std::uint64_t u) noexcept;
-
-  static BasicType::TypeKind EvaluateFloatTypeKind(double d) noexcept;
-
 private:
   union {
     std::int64_t IntValue;
@@ -748,7 +741,39 @@ private:
   SourceRange m_Range;
 };
 
-class IdRefExpr : public Expr {};
+class IdRefExpr : public Expr {
+public:
+  IdRefExpr(sona::owner<Identifier> id)
+    : Expr(NodeKind::CNK_IdRefExpr), m_Id(std::move(id)) {}
+
+  sona::ref_ptr<Identifier const> GetId() const noexcept {
+    return m_Id.borrow();
+  }
+
+private:
+  sona::owner<Identifier> m_Id;
+};
+
+class FuncCallExpr : public Expr {
+public:
+  FuncCallExpr(sona::owner<Expr> &&callee,
+               std::vector<sona::owner<Expr>> &&args)
+    : Expr(NodeKind::CNK_FuncCallExpr),
+      m_Callee(std::move(callee)), m_Args(std::move(args)) {}
+
+  sona::ref_ptr<Expr const> GetCallee() const noexcept {
+    return m_Callee.borrow();
+  }
+
+  auto GetArgs() const noexcept {
+    return sona::linq::from_container(m_Args).
+        transform([](sona::owner<Expr> const& e) { return e.borrow(); });
+  }
+
+private:
+  sona::owner<Expr> m_Callee;
+  std::vector<sona::owner<Expr>> m_Args;
+};
 
 class TransUnit : public Node {
 public:

@@ -28,6 +28,10 @@ protected:
   sona::owner<Syntax::Type> ParseType();
 
   sona::owner<Syntax::Expr> ParseExpr();
+  sona::owner<Syntax::Expr> ParseLiteralExpr();
+  sona::owner<Syntax::Expr> ParseIdRefExpr();
+  sona::owner<Syntax::Expr>
+  ParseFuncCallExpr(sona::owner<Syntax::Expr> &&parsedCallee);
 
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
   void ParseDataConstructor(
@@ -54,6 +58,13 @@ private:
 
   sona::string_ref PrettyPrintToken(Token const &token) const;
   sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) const;
+
+  static Syntax::BasicType::TypeKind
+  EvaluateIntTypeKind(std::int64_t i) noexcept;
+  static Syntax::BasicType::TypeKind
+  EvaluateUIntTypeKind(std::uint64_t u) noexcept;
+  static Syntax::BasicType::TypeKind
+  EvaluateFloatTypeKind(double d) noexcept;
 
   Diag::DiagnosticEngine &m_Diag;
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;

@@ -318,6 +318,103 @@ owner<Syntax::Type> ParserImpl::ParseType() {
   return ret;
 }
 
+sona::owner<Syntax::Expr> ParserImpl::ParseExpr() {
+  /// @todo
+  return nullptr;
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseLiteralExpr() {
+  sona::owner<Syntax::Expr> ret = nullptr;
+  switch (CurrentToken().GetTokenKind()) {
+  case Token::TK_LIT_INT:
+    ret = new Syntax::LiteralExpr(
+            CurrentToken().GetIntValueUnsafe(),
+            EvaluateIntTypeKind(CurrentToken().GetIntValueUnsafe()),
+            CurrentToken().GetSourceRange());
+    break;
+  case Token::TK_LIT_UINT:
+    ret = new Syntax::LiteralExpr(
+            CurrentToken().GetUIntValueUnsafe(),
+            EvaluateUIntTypeKind(CurrentToken().GetUIntValueUnsafe()),
+            CurrentToken().GetSourceRange());
+    break;
+  case Token::TK_LIT_FLOAT:
+    ret = new Syntax::LiteralExpr(
+            CurrentToken().GetFloatValueUnsafe(),
+            EvaluateFloatTypeKind(CurrentToken().GetFloatValueUnsafe()),
+            CurrentToken().GetSourceRange());
+    break;
+  case Token::TK_LIT_STR:
+    return new Syntax::StringLiteralExpr(CurrentToken().GetStrValueUnsafe(),
+                                         CurrentToken().GetSourceRange());
+    break;
+  default:
+    sona_unreachable();
+  }
+  ConsumeToken();
+  return ret;
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseIdRefExpr() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
+
+  std::vector<sona::string_ref> parsedParts;
+  std::vector<SourceRange> parsedPartRanges;
+
+  parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
+  parsedPartRanges.push_back(CurrentToken().GetSourceRange());
+
+  for (;;) {
+    if (CurrentToken().GetTokenKind() != Token::TK_SYM_DOT) {
+      break;
+    }
+    ExpectAndConsume(Token::TK_SYM_DOT);
+    if (!Expect(Token::TK_ID)) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrExpectedGot, {
+                                 PrettyPrintTokenKind(Token::TK_ID),
+                                 PrettyPrintToken(CurrentToken())
+                               }),
+                       CurrentToken().GetSourceRange());
+      continue;
+    }
+  }
+
+  sona::string_ref idItself = parsedParts.back();
+  SourceRange idItselfRange = parsedPartRanges.back();
+  parsedParts.pop_back();
+  parsedPartRanges.pop_back();
+
+  return new Syntax::IdRefExpr(
+        new Syntax::Identifier(
+            std::move(parsedParts),idItself,
+          std::move(parsedPartRanges), idItselfRange));
+}
+
+sona::owner<Syntax::Expr>
+ParserImpl::ParseFuncCallExpr(sona::owner<Syntax::Expr>&& parsedCallee) {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_SYM_LPAREN);
+  ConsumeToken();
+
+  std::vector<sona::owner<Syntax::Expr>> args;
+
+  if (CurrentToken().GetTokenKind() == Token::TK_SYM_RPAREN) {
+    ConsumeToken();
+    return new Syntax::FuncCallExpr(std::move(parsedCallee), std::move(args));
+  }
+
+  for (;;) {
+    args.push_back(ParseExpr());
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_RPAREN) {
+      ConsumeToken();
+      break;
+    }
+    ExpectAndConsume(Token::TK_SYM_COMMA);
+  }
+
+  return new Syntax::FuncCallExpr(std::move(parsedCallee), std::move(args));
+}
+
 owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   Syntax::BasicType::TypeKind kind;
   switch (CurrentToken().GetTokenKind()) {
@@ -413,6 +510,49 @@ string_ref ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
   }
   sona_unreachable();
   return "";
+}
+
+Syntax::BasicType::TypeKind
+ParserImpl::EvaluateIntTypeKind(int64_t i) noexcept {
+  if (i <= std::numeric_limits<int8_t>::max()
+      && i >= std::numeric_limits<int8_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_Int8;
+  }
+  else if (i < std::numeric_limits<int16_t>::max()
+           && i >= std::numeric_limits<int16_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_Int16;
+  }
+  else if (i < std::numeric_limits<int32_t>::max()
+           && i >= std::numeric_limits<int32_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_Int32;
+  }
+  else {
+    return Syntax::BasicType::TypeKind::TK_Int64;
+  }
+}
+
+Syntax::BasicType::TypeKind
+ParserImpl::EvaluateUIntTypeKind(uint64_t u) noexcept {
+  if (u <= std::numeric_limits<uint8_t>::max()
+      && u >= std::numeric_limits<uint8_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_UInt8;
+  }
+  else if (u < std::numeric_limits<uint16_t>::max()
+           && u >= std::numeric_limits<uint16_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_UInt16;
+  }
+  else if (u < std::numeric_limits<uint32_t>::max()
+           && u >= std::numeric_limits<uint32_t>::min()) {
+    return Syntax::BasicType::TypeKind::TK_UInt32;
+  }
+  else {
+    return Syntax::BasicType::TypeKind::TK_UInt64;
+  }
+}
+
+Syntax::BasicType::TypeKind
+ParserImpl::EvaluateFloatTypeKind(double) noexcept {
+  return Syntax::BasicType::TypeKind::TK_Double;
 }
 
 string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
