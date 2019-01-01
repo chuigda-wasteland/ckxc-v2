@@ -775,6 +775,45 @@ private:
   std::vector<sona::owner<Expr>> m_Args;
 };
 
+class ArraySubscriptExpr : public Expr {
+public:
+  ArraySubscriptExpr(sona::owner<Expr> &&array, sona::owner<Expr> &&index)
+    : Expr(NodeKind::CNK_ArraySubscriptExpr),
+      m_Array(std::move(array)), m_Index(std::move(index)) {}
+
+  sona::ref_ptr<Expr const> GetArrayPart() const noexcept {
+    return m_Array.borrow();
+  }
+
+  sona::ref_ptr<Expr const> GetIndexPart() const noexcept {
+    return m_Index.borrow();
+  }
+
+private:
+  sona::owner<Expr> m_Array;
+  sona::owner<Expr> m_Index;
+};
+
+class MemberAccessExpr : public Expr {
+public:
+  MemberAccessExpr(sona::owner<Syntax::Expr> &&baseExpr,
+                   sona::owner<Syntax::Identifier> &&member)
+    : Expr(Node::NodeKind::CNK_MemberAccessExpr),
+      m_BaseExpr(std::move(baseExpr)), m_Member(std::move(member)) {}
+
+  sona::ref_ptr<Syntax::Expr const> GetBaseExpr() const noexcept {
+    return m_BaseExpr.borrow();
+  }
+
+  sona::ref_ptr<Syntax::Identifier const> GetMember() const noexcept {
+    return m_Member.borrow();
+  }
+
+private:
+  sona::owner<Syntax::Expr> m_BaseExpr;
+  sona::owner<Syntax::Identifier> m_Member;
+};
+
 class TransUnit : public Node {
 public:
   TransUnit() : Node(NodeKind::CNK_TransUnit) {}

@@ -15,6 +15,7 @@ DIAG_TEMPLATE(WarnInvalidConversion,
 
 /// Syntactic issues
 DIAG_TEMPLATE(ErrExpectedGot, "Unexpected {}, expected {}")
+DIAG_TEMPLATE(ErrUnexpectedInContext, "Unexpected token '{}' in {} context")
 
 /// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")

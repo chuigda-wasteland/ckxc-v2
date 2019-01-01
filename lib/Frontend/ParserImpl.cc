@@ -356,39 +356,45 @@ sona::owner<Syntax::Expr> ParserImpl::ParseLiteralExpr() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseIdRefExpr() {
-  sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
+  return new Syntax::IdRefExpr(ParseIdentifier());
+}
 
-  std::vector<sona::string_ref> parsedParts;
-  std::vector<SourceRange> parsedPartRanges;
+sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
+  switch (CurrentToken().GetTokenKind()) {
+  case Token::TK_LIT_INT:
+  case Token::TK_LIT_UINT:
+  case Token::TK_LIT_FLOAT:
+  case Token::TK_LIT_STR:
+    return ParseLiteralExpr();
 
-  parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
-  parsedPartRanges.push_back(CurrentToken().GetSourceRange());
+  case Token::TK_ID:
+    return ParseIdRefExpr();
+
+  default:
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrUnexpectedCharInContext, {
+                               PrettyPrintToken(CurrentToken()),
+                               "unary expression"}),
+                CurrentToken().GetSourceRange());
+    return nullptr;
+  }
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParsePostfixExpr() {
+  sona::owner<Syntax::Expr> parsed = ParseUnaryExpr();
 
   for (;;) {
-    if (CurrentToken().GetTokenKind() != Token::TK_SYM_DOT) {
-      break;
-    }
-    ExpectAndConsume(Token::TK_SYM_DOT);
-    if (!Expect(Token::TK_ID)) {
-      m_Diag.Diag(Diag::DIR_Error,
-                  Diag::Format(Diag::DMT_ErrExpectedGot, {
-                                 PrettyPrintTokenKind(Token::TK_ID),
-                                 PrettyPrintToken(CurrentToken())
-                               }),
-                       CurrentToken().GetSourceRange());
-      continue;
+    switch (CurrentToken().GetTokenKind()) {
+    case Token::TK_SYM_LPAREN:
+      parsed = ParseFuncCallExpr(std::move(parsed)); break;
+    case Token::TK_SYM_LBRACKET:
+      parsed = ParseArraySubscriptExpr(std::move(parsed)); break;
+    case Token::TK_SYM_DOT:
+      parsed = ParseMemberAccessExpr(std::move(parsed)); break;
+    default:
+      return parsed;
     }
   }
-
-  sona::string_ref idItself = parsedParts.back();
-  SourceRange idItselfRange = parsedPartRanges.back();
-  parsedParts.pop_back();
-  parsedPartRanges.pop_back();
-
-  return new Syntax::IdRefExpr(
-        new Syntax::Identifier(
-            std::move(parsedParts),idItself,
-          std::move(parsedPartRanges), idItselfRange));
 }
 
 sona::owner<Syntax::Expr>
@@ -413,6 +419,25 @@ ParserImpl::ParseFuncCallExpr(sona::owner<Syntax::Expr>&& parsedCallee) {
   }
 
   return new Syntax::FuncCallExpr(std::move(parsedCallee), std::move(args));
+}
+
+sona::owner<Syntax::Expr>
+ParserImpl::ParseArraySubscriptExpr(sona::owner<Syntax::Expr>&& arr) {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_SYM_LBRACKET);
+  ConsumeToken();
+
+  sona::owner<Syntax::Expr> index = ParseExpr();
+  ExpectAndConsume(Token::TK_SYM_RBRACKET);
+
+  return new Syntax::ArraySubscriptExpr(std::move(arr), std::move(index));
+}
+
+sona::owner<Syntax::Expr>
+ParserImpl::ParseMemberAccessExpr(sona::owner<Syntax::Expr>&& base) {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_SYM_DOT);
+  ConsumeToken();
+  sona::owner<Syntax::Identifier> member = ParseIdentifier();
+  return new Syntax::MemberAccessExpr(std::move(base), std::move(member));
 }
 
 owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
@@ -454,6 +479,39 @@ owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
   SourceRange range = CurrentToken().GetSourceRange();
   ConsumeToken();
   return new Syntax::UserDefinedType(typeStr, range);
+}
+
+sona::owner<Syntax::Identifier> ParserImpl::ParseIdentifier() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
+
+  std::vector<sona::string_ref> parsedParts;
+  std::vector<SourceRange> parsedPartRanges;
+
+  parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
+  parsedPartRanges.push_back(CurrentToken().GetSourceRange());
+
+  for (;;) {
+    if (CurrentToken().GetTokenKind() != Token::TK_SYM_DOT) {
+      break;
+    }
+    ExpectAndConsume(Token::TK_SYM_DOT);
+    if (!Expect(Token::TK_ID)) {
+      ConsumeToken();
+      continue;
+    }
+
+    parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
+    parsedPartRanges.push_back(CurrentToken().GetSourceRange());
+    ConsumeToken();
+  }
+
+  sona::string_ref idItself = parsedParts.back();
+  SourceRange idItselfRange = parsedPartRanges.back();
+  parsedParts.pop_back();
+  parsedPartRanges.pop_back();
+
+  return new Syntax::Identifier(std::move(parsedParts),idItself,
+                                std::move(parsedPartRanges), idItselfRange);
 }
 
 void ParserImpl::

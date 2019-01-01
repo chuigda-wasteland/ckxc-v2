@@ -48,7 +48,7 @@ void LexerImpl::LexAllTokens() {
       break;
 
     case '{': case '}': case '(': case ')': case ',': case ';': case ':':
-    case '=':
+    case '[': case ']': case '=':
       LexSymbol();
       break;
 
@@ -263,6 +263,16 @@ void LexerImpl::LexSymbol() {
 
   case '}':
     m_TokenStream.emplace_back(Token::TK_SYM_RBRACE,
+                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    break;
+
+  case '[':
+    m_TokenStream.emplace_back(Token::TK_SYM_LBRACKET,
+                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    break;
+
+  case ']':
+    m_TokenStream.emplace_back(Token::TK_SYM_RBRACKET,
                                SourceRange(GetLine(), GetCol(), GetCol()+1));
     break;
 
