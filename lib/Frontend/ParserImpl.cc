@@ -361,6 +361,21 @@ sona::owner<Syntax::Expr> ParserImpl::ParseIdRefExpr() {
 
 sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
   switch (CurrentToken().GetTokenKind()) {
+  case Token::TK_KW_sizeof:
+    return ParseSizeofExpr();
+
+  case Token::TK_KW_alignof:
+    return ParseAlignofExpr();
+
+  case Token::TK_KW_static_cast:
+  case Token::TK_KW_bitcast:
+  case Token::TK_KW_const_cast:
+    return ParseCastExpr();
+
+  case Token::TK_SYM_PLUS:
+  case Token::TK_SYM_MINUS:
+    return ParseAlgebraicUnaryExpr();
+
   case Token::TK_LIT_INT:
   case Token::TK_LIT_UINT:
   case Token::TK_LIT_FLOAT:

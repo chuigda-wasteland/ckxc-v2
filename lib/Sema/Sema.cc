@@ -25,7 +25,7 @@ SemaClass::ResolveType(ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
-    return Resolve##name(static_cast<Syntax::name const&>(type.get()));
+    return Resolve##name(type.cast_unsafe<Syntax::name const>());
 #include "Syntax/CSTNodeDefs.def"
   default:
     sona_unreachable();
@@ -38,7 +38,7 @@ SemaClass::ActOnDecl(ref_ptr<Syntax::Decl const> decl) {
   switch (decl->GetNodeKind()) {
 #define CST_DECL(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
-    return ActOn##name(static_cast<Syntax::name const&>(decl.get()));
+    return ActOn##name(decl.cast_unsafe<Syntax::name const>());
 #include "Syntax/CSTNodeDefs.def"
   default:
     sona_unreachable();
@@ -53,7 +53,7 @@ SemaClass::ActOnStmt(ref_ptr<Syntax::Stmt const> stmt) {
   switch (stmt->GetNodeKind()) {
 #define CST_STMT(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
-    return ActOn##name(static_cast<Syntax::name const&>(stmt.get()));
+    return ActOn##name(stmt.cast_unsafe<Syntax::name const>());
 #include "Syntax/CSTNodeDefs.def"
   default:
     sona_unreachable();
