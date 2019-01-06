@@ -41,6 +41,7 @@
 \#*\#
 
 # Microsoft Visual Studio garbes
+.vs
 *.ipch
 *.db
 *.suo
