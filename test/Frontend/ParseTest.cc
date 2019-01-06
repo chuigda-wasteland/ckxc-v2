@@ -200,4 +200,6 @@ int main() {
   test4();
 
   VK_TEST_END;
+
+  getchar();
 }

@@ -71,13 +71,13 @@ void LexerImpl::LexIdOrKeyword() {
   };
 
   std::stringstream stream;
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
   while (std::isdigit(CurChar()) || std::isalpha(CurChar())
          || CurChar() == '_' || CurChar() == '$') {
     stream.put(CurChar());
     NextChar();
   }
-  std::uint64_t col2 = GetCol();
+  std::uint16_t col2 = GetCol();
 
   std::string str;
   stream >> str;
@@ -99,7 +99,7 @@ void LexerImpl::LexIdOrKeyword() {
 }
 
 void LexerImpl::LexNumber() {
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
   int64_t integralPart = ScanInt();
 
   if (CurChar() != '.' && CurChar() != 'E' && CurChar() != 'e') {
@@ -109,7 +109,7 @@ void LexerImpl::LexNumber() {
     return;
   }
 
-  double floatingPart = integralPart;
+  double floatingPart = static_cast<double>(integralPart);
   if (CurChar() == '.') {
     if (!isdigit(PeekOneChar())) {
       m_Diag.Diag(Diag::DIR_Error, Diag::Format(Diag::DMT_ErrExpectedDigit, {}),
@@ -121,7 +121,7 @@ void LexerImpl::LexNumber() {
     }
 
     NextChar();
-    double r = ScanInt();
+    double r = static_cast<double>(ScanInt());
     while (r > 1) {
       r = r / 10;
     }
@@ -140,7 +140,7 @@ void LexerImpl::LexNumber() {
     }
 
     NextChar();
-    int exp = ScanInt();
+    uint64_t exp = ScanInt();
     floatingPart *= std::pow(10, exp);
   }
 
@@ -152,7 +152,7 @@ void LexerImpl::LexNumber() {
 void LexerImpl::LexBinNumber() {
   sona_assert(CurChar() == '0' &&
               (PeekOneChar() == 'x' || PeekOneChar() == 'X'));
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
   NextChar();
   NextChar();
 
@@ -178,7 +178,7 @@ void LexerImpl::LexBinNumber() {
 void LexerImpl::LexHexNumber() {
   sona_assert(CurChar() == '0' &&
               (PeekOneChar() == 'b' || PeekOneChar() == 'B'));
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
   NextChar();
   NextChar();
 
@@ -208,7 +208,7 @@ void LexerImpl::LexHexNumber() {
 
 void LexerImpl::LexString() {
   sona_assert(CurChar() == '"');
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
   NextChar();
 
   std::string str;
@@ -333,7 +333,7 @@ std::uint64_t LexerImpl::ScanInt() {
 
 void LexerImpl::LexIdentifier() {
   std::stringstream stream;
-  std::uint64_t col1 = GetCol();
+  std::uint16_t col1 = GetCol();
 
   while (std::isdigit(CurChar()) || std::isalpha(CurChar())
          || CurChar() == '_' || CurChar() == '$') {
@@ -377,11 +377,11 @@ char LexerImpl::PeekOneChar() const noexcept {
   return m_SourceCode[m_Index + 1];
 }
 
-uint64_t LexerImpl::GetLine() const noexcept {
+uint16_t LexerImpl::GetLine() const noexcept {
   return m_Line;
 }
 
-uint64_t LexerImpl::GetCol() const noexcept {
+uint16_t LexerImpl::GetCol() const noexcept {
   return m_Col;
 }
 

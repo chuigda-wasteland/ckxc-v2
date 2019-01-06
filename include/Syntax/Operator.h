@@ -31,8 +31,8 @@ enum class MixFixOperator {
 };
 
 std::uint16_t PrecOf(BinaryOperator bop) noexcept;
-UnaryOperator TokenToUnary(Frontend::Token const& token) noexcept;
-BinaryOperator TokenToBinary(Frontend::Token const& token) noexcept;
+UnaryOperator TokenToUnary(Frontend::Token::TokenKind tokenKind) noexcept;
+BinaryOperator TokenToBinary(Frontend::Token::TokenKind tokenKind) noexcept;
 
 } // namespace Syntax
 } // namespace ckx

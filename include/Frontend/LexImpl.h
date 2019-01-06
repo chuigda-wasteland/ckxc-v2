@@ -38,14 +38,14 @@ private:
   void NextChar() noexcept;
   char PeekOneChar() const noexcept;
 
-  std::uint64_t GetLine() const noexcept;
-  std::uint64_t GetCol() const noexcept;
+  std::uint16_t GetLine() const noexcept;
+  std::uint16_t GetCol() const noexcept;
 
   std::string m_SourceCode;
   Diag::DiagnosticEngine &m_Diag;
 
-  std::uint64_t m_Index = 0;
-  std::uint64_t m_Line = 1, m_Col = 1;
+  std::uint16_t m_Index = 0;
+  std::uint16_t m_Line = 1, m_Col = 1;
   std::vector<Token> m_TokenStream;
 };
 

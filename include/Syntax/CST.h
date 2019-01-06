@@ -754,6 +754,12 @@ private:
   sona::owner<Identifier> m_Id;
 };
 
+class SizeofExpr : public Expr {
+public:
+private:
+
+};
+
 class FuncCallExpr : public Expr {
 public:
   FuncCallExpr(sona::owner<Expr> &&callee,

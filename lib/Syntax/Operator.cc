@@ -39,10 +39,27 @@ std::uint16_t PrecOf(BinaryOperator bop) noexcept {
   }
 }
 
-UnaryOperator TokenToUnary(const Frontend::Token& token) noexcept {
+UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept {
+  switch (token) {
+  case Frontend::Token::TK_SYM_PLUS: return UnaryOperator::UOP_Positive;
+  case Frontend::Token::TK_SYM_MINUS: return UnaryOperator::UOP_Negative;
+  case Frontend::Token::TK_SYM_ASTER: return UnaryOperator::UOP_Deref;
+  case Frontend::Token::TK_SYM_AMP: return UnaryOperator::UOP_PointerTo;
+
+  default:
+    sona_unreachable();
+  }
 }
 
-BinaryOperator TokenToBinary(const Frontend::Token& token) noexcept {
+BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept {
+  switch (token) {
+  case Frontend::Token::TK_SYM_PLUS:  return BinaryOperator::BOP_Add;
+  case Frontend::Token::TK_SYM_MINUS: return BinaryOperator::BOP_Sub;
+  case Frontend::Token::TK_SYM_ASTER: return BinaryOperator::BOP_Mul;
+
+  default:
+    sona_unreachable();
+  }
 }
 
 } // namespace Syntax

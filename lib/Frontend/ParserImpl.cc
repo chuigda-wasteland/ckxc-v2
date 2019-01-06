@@ -395,6 +395,32 @@ sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
   }
 }
 
+sona::owner<Syntax::Expr> ParserImpl::ParseAlgebraicUnaryExpr() {
+  return nullptr;
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseSizeofExpr() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_sizeof);
+  ConsumeToken();
+
+  if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
+    return nullptr;
+  }
+
+  sona::owner<Syntax::Expr> containedExpr = ParseExpr();
+
+  ExpectAndConsume(Token::TK_SYM_RPAREN);
+  return nullptr;
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseAlignofExpr() {
+  return nullptr;
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseCastExpr() {
+  return nullptr;
+}
+
 sona::owner<Syntax::Expr> ParserImpl::ParsePostfixExpr() {
   sona::owner<Syntax::Expr> parsed = ParseUnaryExpr();
 

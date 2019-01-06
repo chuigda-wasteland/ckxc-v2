@@ -39,3 +39,11 @@
 # Emacs backups
 *~
 \#*\#
+
+# Microsoft Visual Studio garbes
+*.ipch
+*.db
+*.suo
+*.opendb
+*.json
+*.sqlite
