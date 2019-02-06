@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <limits>
 #include <type_traits>
@@ -68,10 +69,8 @@ public:
     AddTestCase();
     fprintf(stderr, "Testing AssertEquals(%s, %s)...",
             lhsString, rhsString);
-    if (FloatEquals<double>(lhs, rhs))
-      AddPassingCase();
-    else
-      AddFailingCase();
+    if (FloatEquals<double>(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
   }
 
   void AssertNotEquals(double lhs, double rhs,
@@ -79,10 +78,8 @@ public:
     AddTestCase();
     fprintf(stderr, "Testing AssertEquals(%s, %s)...",
             lhsString, rhsString);
-    if (!FloatEquals<double>(lhs, rhs))
-      AddPassingCase();
-    else
-      AddFailingCase();
+    if (!FloatEquals<double>(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
   }
 
   void AssertEquals(float lhs, float rhs,
@@ -90,10 +87,8 @@ public:
     AddTestCase();
     fprintf(stderr, "Testing AssertEquals(%s, %s)...",
             lhsString, rhsString);
-    if (FloatEquals<float>(lhs, rhs))
-      AddPassingCase();
-    else
-      AddFailingCase();
+    if (FloatEquals<float>(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
   }
 
   void AssertNotEquals(float lhs, float rhs,
@@ -101,10 +96,26 @@ public:
     AddTestCase();
     fprintf(stderr, "Testing AssertEquals(%s, %s)...",
             lhsString, rhsString);
-    if (!FloatEquals<float>(lhs, rhs))
-      AddPassingCase();
-    else
-      AddFailingCase();
+    if (!FloatEquals<float>(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
+  }
+
+  void AssertEquals(char const* lhs, char const* rhs,
+                    char const *lhsString, char const* rhsString) {
+    AddTestCase();
+    fprintf(stderr, "Testing AssertEquals(%s, %s)...",
+            lhsString, rhsString);
+    if (!strcmp(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
+  }
+
+  void AssertNotEquals(char const* lhs, char const* rhs,
+                       char const *lhsString, char const* rhsString) {
+    AddTestCase();
+    fprintf(stderr, "Testing AssertEquals(%s, %s)...",
+            lhsString, rhsString);
+    if (strcmp(lhs, rhs)) AddPassingCase();
+    else AddFailingCase();
   }
 
   static void PreInitialize() {
