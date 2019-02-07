@@ -73,6 +73,8 @@ CST_ABSTRACT(Node)
     CST_EXPR(MemberAccessExpr)
     CST_EXPR(CastExpr)
     CST_EXPR(UnaryAlgebraicExpr)
+    CST_EXPR(SizeOfExpr)
+    CST_EXPR(AlignOfExpr)
     CST_EXPR(BinaryExpr)
     CST_EXPR(MixFixExpr)
 

@@ -32,18 +32,21 @@ protected:
   sona::owner<Syntax::Expr> ParseIdRefExpr();
 
   sona::owner<Syntax::Expr> ParseUnaryExpr();
-  sona::owner<Syntax::Expr> ParseAlgebraicUnaryExpr();
+  sona::owner<Syntax::Expr> ParseUnaryAlgebraicExpr();
   sona::owner<Syntax::Expr> ParseSizeofExpr();
   sona::owner<Syntax::Expr> ParseAlignofExpr();
   sona::owner<Syntax::Expr> ParseCastExpr();
-
   sona::owner<Syntax::Expr> ParsePostfixExpr();
+
   sona::owner<Syntax::Expr>
   ParseFuncCallExpr(sona::owner<Syntax::Expr> &&parsedCallee);
   sona::owner<Syntax::Expr>
   ParseArraySubscriptExpr(sona::owner<Syntax::Expr> &&arr);
   sona::owner<Syntax::Expr>
   ParseMemberAccessExpr(sona::owner<Syntax::Expr> &&base);
+
+  sona::owner<Syntax::Expr>
+  ParseBinaryExpr(std::uint16_t previousRank, sona::owner<Syntax::Expr> &&lhs);
 
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
   void ParseDataConstructor(

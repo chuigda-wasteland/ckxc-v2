@@ -30,9 +30,15 @@ enum class MixFixOperator {
   MOP_Conditional
 };
 
+/// @todo Is there a better way of implementing Cast "operator"s?
+enum class CastOperator {
+  COP_StaticCast, COP_ConstCast, COP_BitCast
+};
+
 std::uint16_t PrecOf(BinaryOperator bop) noexcept;
-UnaryOperator TokenToUnary(Frontend::Token::TokenKind tokenKind) noexcept;
-BinaryOperator TokenToBinary(Frontend::Token::TokenKind tokenKind) noexcept;
+UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept;
+BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept;
+CastOperator TokenToCastOp(Frontend::Token::TokenKind token) noexcept;
 
 } // namespace Syntax
 } // namespace ckx

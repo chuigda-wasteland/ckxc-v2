@@ -64,5 +64,17 @@ BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept {
   }
 }
 
+CastOperator TokenToCastOp(Frontend::Token::TokenKind token) noexcept {
+  switch (token) {
+  case Frontend::Token::TK_KW_static_cast: return CastOperator::COP_StaticCast;
+  case Frontend::Token::TK_KW_bitcast: return CastOperator::COP_BitCast;
+  case Frontend::Token::TK_KW_const_cast: return CastOperator::COP_ConstCast;
+
+  default:
+    sona_unreachable();
+    return CastOperator::COP_BitCast;
+  }
+}
+
 } // namespace Syntax
 } // namespace ckx

@@ -5,6 +5,7 @@
 #include <string>
 
 #include <Basic/SourceRange.hpp>
+#include <Syntax/Operator.h>
 
 #include <sona/range.hpp>
 #include <sona/linq.hpp>
@@ -743,7 +744,7 @@ private:
 
 class IdRefExpr : public Expr {
 public:
-  IdRefExpr(sona::owner<Identifier> id)
+  IdRefExpr(sona::owner<Identifier> &&id)
     : Expr(NodeKind::CNK_IdRefExpr), m_Id(std::move(id)) {}
 
   sona::ref_ptr<Identifier const> GetId() const noexcept {
@@ -754,10 +755,46 @@ private:
   sona::owner<Identifier> m_Id;
 };
 
-class SizeofExpr : public Expr {
+class SizeOfExpr : public Expr {
 public:
-private:
+  SizeOfExpr(sona::owner<Syntax::Expr> &&containedExpr,
+             SourceRange const& sizeOfRange)
+    : Expr(NodeKind::CNK_SizeOfExpr),
+      m_ContainedExpr(std::move(containedExpr)),
+      m_SizeOfRange(sizeOfRange) {}
 
+  sona::ref_ptr<Syntax::Expr const> GetContainedExpr() const noexcept {
+    return m_ContainedExpr.borrow();
+  }
+
+  SourceRange const& GetSizeOfrange() const noexcept {
+    return m_SizeOfRange;
+  }
+
+private:
+  sona::owner<Syntax::Expr> m_ContainedExpr;
+  SourceRange m_SizeOfRange;
+};
+
+class AlignOfExpr : public Expr {
+public:
+  AlignOfExpr(sona::owner<Syntax::Expr> &&containedExpr,
+              SourceRange const& alignOfRange)
+    : Expr(NodeKind::CNK_SizeOfExpr),
+      m_ContainedExpr(std::move(containedExpr)),
+      m_AlignOfRange(alignOfRange) {}
+
+  sona::ref_ptr<Syntax::Expr const> GetContainedExpr() const noexcept {
+    return m_ContainedExpr.borrow();
+  }
+
+  SourceRange const& GetAlignOfLocation() const noexcept {
+    return m_AlignOfRange;
+  }
+
+private:
+  sona::owner<Syntax::Expr> m_ContainedExpr;
+  SourceRange m_AlignOfRange;
 };
 
 class FuncCallExpr : public Expr {
@@ -818,6 +855,52 @@ public:
 private:
   sona::owner<Syntax::Expr> m_BaseExpr;
   sona::owner<Syntax::Identifier> m_Member;
+};
+
+class UnaryAlgebraicExpr : public Expr {
+public:
+  UnaryAlgebraicExpr(UnaryOperator op, sona::owner<Syntax::Expr> &&baseExpr,
+                     SourceRange opRange)
+    : Expr(Node::NodeKind::CNK_UnaryAlgebraicExpr),
+      m_Operator(op), m_BaseExpr(std::move(baseExpr)),
+      m_OpRange(opRange) {}
+
+  UnaryOperator GetOperator() const noexcept { return m_Operator; }
+
+  sona::ref_ptr<Syntax::Expr const> GetBaseExpr() const noexcept {
+    return m_BaseExpr.borrow();
+  }
+
+  SourceRange const& GetOpRange() const noexcept { return m_OpRange; }
+
+private:
+  UnaryOperator m_Operator;
+  sona::owner<Syntax::Expr> m_BaseExpr;
+  SourceRange m_OpRange;
+};
+
+class CastExpr : public Expr {
+public:
+  CastExpr(CastOperator castop, sona::owner<Syntax::Expr> &&castedExpr,
+           SourceRange const& castOpRange)
+    : Expr(Node::NodeKind::CNK_CastExpr),
+      m_CastOp(castop), m_CastedExpr(std::move(castedExpr)),
+      m_CastOpRange(castOpRange) {}
+
+  CastOperator GetOperator() const noexcept { return m_CastOp; }
+
+  sona::ref_ptr<Syntax::Expr const> GetCastedExpr() const noexcept {
+    return m_CastedExpr.borrow();
+  }
+
+  SourceRange const& GetCastOpRange() const noexcept {
+    return m_CastOpRange;
+  }
+
+private:
+  CastOperator m_CastOp;
+  sona::owner<Syntax::Expr> m_CastedExpr;
+  SourceRange m_CastOpRange;
 };
 
 class TransUnit : public Node {

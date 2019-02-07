@@ -374,7 +374,7 @@ sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
 
   case Token::TK_SYM_PLUS:
   case Token::TK_SYM_MINUS:
-    return ParseAlgebraicUnaryExpr();
+    return ParseUnaryAlgebraicExpr();
 
   case Token::TK_LIT_INT:
   case Token::TK_LIT_UINT:
@@ -395,13 +395,19 @@ sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
   }
 }
 
-sona::owner<Syntax::Expr> ParserImpl::ParseAlgebraicUnaryExpr() {
-  sona_unreachable1("not implemented");
-  return nullptr;
+sona::owner<Syntax::Expr> ParserImpl::ParseUnaryAlgebraicExpr() {
+  Syntax::UnaryOperator uop =
+      Syntax::TokenToUnary(CurrentToken().GetTokenKind());
+  SourceRange uopRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  sona::owner<Syntax::Expr> e = ParseUnaryExpr();
+  return new Syntax::UnaryAlgebraicExpr(uop, std::move(e), uopRange);
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseSizeofExpr() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_sizeof);
+  SourceRange sizeofRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
   if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
@@ -409,19 +415,39 @@ sona::owner<Syntax::Expr> ParserImpl::ParseSizeofExpr() {
   }
 
   sona::owner<Syntax::Expr> containedExpr = ParseExpr();
-
   ExpectAndConsume(Token::TK_SYM_RPAREN);
-  return nullptr;
+
+  return new Syntax::SizeOfExpr(std::move(containedExpr), sizeofRange);
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseAlignofExpr() {
-  sona_unreachable1("not implemented");
-  return nullptr;
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_alignof);
+  SourceRange alignofRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
+    return nullptr;
+  }
+
+  sona::owner<Syntax::Expr> containedExpr = ParseExpr();
+  ExpectAndConsume(Token::TK_SYM_RPAREN);
+
+  return new Syntax::SizeOfExpr(std::move(containedExpr), alignofRange);
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseCastExpr() {
-  sona_unreachable1("not implemented");
-  return nullptr;
+  Syntax::CastOperator cop =
+      Syntax::TokenToCastOp(CurrentToken().GetTokenKind());
+  SourceRange castOpRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
+    return nullptr;
+  }
+  sona::owner<Syntax::Expr> castedExpr = ParseExpr();
+  ExpectAndConsume(Token::TK_SYM_RPAREN);
+
+  return new Syntax::CastExpr(cop, std::move(castedExpr), castOpRange);
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParsePostfixExpr() {
@@ -482,6 +508,13 @@ ParserImpl::ParseMemberAccessExpr(sona::owner<Syntax::Expr>&& base) {
   ConsumeToken();
   sona::owner<Syntax::Identifier> member = ParseIdentifier();
   return new Syntax::MemberAccessExpr(std::move(base), std::move(member));
+}
+
+sona::owner<Syntax::Expr>
+ParserImpl::ParseBinaryExpr(uint16_t previousRank,
+                            sona::owner<Syntax::Expr>&& lhs) {
+  sona_unreachable1("not implemented");
+  return nullptr;
 }
 
 owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
