@@ -48,6 +48,7 @@ UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept {
 
   default:
     sona_unreachable();
+    return UnaryOperator::UOP_Positive; // For silencing compiler warnings
   }
 }
 
@@ -59,6 +60,7 @@ BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept {
 
   default:
     sona_unreachable();
+    return BinaryOperator::BOP_Add; // For silencing compiler warnings
   }
 }
 

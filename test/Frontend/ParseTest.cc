@@ -1,4 +1,4 @@
-#include "vktest.h"
+#include "VKTestCXX.hpp"
 #include "Frontend/Lex.h"
 #include "Frontend/ParserImpl.h"
 
@@ -22,7 +22,7 @@ public:
 };
 
 void test0() {
-  VK_TEST_SECTION_BEGIN("Parsing variable declaration");
+  VkTestSectionStart("Parsing variable declaration");
 
   string file = R"aacaac(def a : int16;)aacaac";
   vector<string> lines = { file };
@@ -36,21 +36,19 @@ void test0() {
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseVarDecl();
 
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_VarDecl,
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl,
                    decl.borrow()->GetNodeKind());
 
   ref_ptr<Syntax::VarDecl> varDecl =
       decl.borrow().cast_unsafe<Syntax::VarDecl>();
-  VK_ASSERT_NOT(diag.HasPendingDiags());
-  VK_ASSERT_EQUALS("a", varDecl->GetName());
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertEquals("a", varDecl->GetName());
 
   diag.EmitDiags();
-
-  VK_TEST_SECTION_END("Parsing variable declaration");
 }
 
 void test1() {
-  VK_TEST_SECTION_BEGIN("Parsing function declaration");
+  VkTestSectionStart("Parsing function declaration");
 
   string file = R"aacaac(func f!(a : int16, b : uint16) : int16;)aacaac";
   vector<string> lines = { file };
@@ -63,22 +61,20 @@ void test1() {
 
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseFuncDecl();
-  VK_ASSERT_NOT_EQUALS(nullptr, decl.borrow());
-  VK_ASSERT_NOT(diag.HasPendingDiags());
+  VkAssertNotEquals(nullptr, decl.borrow());
+  VkAssertFalse(diag.HasPendingDiags());
 
   diag.EmitDiags();
 
   owner<Syntax::FuncDecl> funcDecl = decl.cast_unsafe<Syntax::FuncDecl>();
-  VK_ASSERT_EQUALS("f!", funcDecl.borrow()->GetName());
-  VK_ASSERT_EQUALS(2, funcDecl.borrow()->GetParamNames().size());
-  VK_ASSERT_EQUALS("a", funcDecl.borrow()->GetParamNames()[0]);
-  VK_ASSERT_EQUALS("b", funcDecl.borrow()->GetParamNames()[1]);
-
-  VK_TEST_SECTION_END("Parsing function declaration")
+  VkAssertEquals("f!", funcDecl.borrow()->GetName());
+  VkAssertEquals(2uL, funcDecl.borrow()->GetParamNames().size());
+  VkAssertEquals("a", funcDecl.borrow()->GetParamNames()[0]);
+  VkAssertEquals("b", funcDecl.borrow()->GetParamNames()[1]);
 }
 
 void test2() {
-  VK_TEST_SECTION_BEGIN("Parsing class declaration");
+  VkTestSectionStart("Parsing class declaration");
 
   string file = R"aacaac( class A { def a : int32; def b : float; } )aacaac";
   vector<string> lines = { file };
@@ -91,37 +87,35 @@ void test2() {
 
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseClassDecl();
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_ClassDecl,
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_ClassDecl,
                    decl.borrow()->GetNodeKind());
 
-  VK_ASSERT_NOT(diag.HasPendingDiags());
-  VK_ASSERT_NOT_EQUALS(nullptr, decl.borrow());
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertNotEquals(nullptr, decl.borrow());
 
   owner<Syntax::ClassDecl> classDecl = decl.cast_unsafe<Syntax::ClassDecl>();
-  VK_ASSERT_EQUALS("A", classDecl.borrow()->GetClassName());
-  VK_ASSERT_EQUALS(2, classDecl.borrow()->GetSubDecls().size());
+  VkAssertEquals("A", classDecl.borrow()->GetClassName());
+  VkAssertEquals(2uL, classDecl.borrow()->GetSubDecls().size());
 
   ref_ptr<Syntax::Decl const> d1 =
       *(classDecl.borrow()->GetSubDecls().begin());
   ref_ptr<Syntax::Decl const> d2 =
       *(classDecl.borrow()->GetSubDecls().begin() + 1);
 
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_VarDecl, d1->GetNodeKind());
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_VarDecl, d2->GetNodeKind());
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl, d1->GetNodeKind());
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl, d2->GetNodeKind());
 
   ref_ptr<Syntax::VarDecl const> varD1 =
       d1.cast_unsafe<Syntax::VarDecl const>();
   ref_ptr<Syntax::VarDecl const> varD2 =
       d2.cast_unsafe<Syntax::VarDecl const>();
 
-  VK_ASSERT_EQUALS("a", varD1->GetName());
-  VK_ASSERT_EQUALS("b", varD2->GetName());
-
-  VK_TEST_SECTION_END("Parsing class declaration");
+  VkAssertEquals("a", varD1->GetName());
+  VkAssertEquals("b", varD2->GetName());
 }
 
 void test3() {
-  VK_TEST_SECTION_BEGIN("Parsing enum declaration");
+  VkTestSectionStart("Parsing enum declaration");
 
   string file = R"aacaac( enum A { a; b = 3; c; } )aacaac";
   vector<string> lines = { file };
@@ -132,18 +126,18 @@ void test3() {
   std::vector<Frontend::Token> tokens = lexer.GetAndReset();
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseEnumDecl();
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_EnumDecl,
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_EnumDecl,
                    decl.borrow()->GetNodeKind());
 
-  VK_ASSERT_NOT(diag.HasPendingDiags());
-  VK_ASSERT_NOT_EQUALS(nullptr, decl.borrow());
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertNotEquals(nullptr, decl.borrow());
 
   diag.EmitDiags();
 
   owner<Syntax::EnumDecl> enumDecl = decl.cast_unsafe<Syntax::EnumDecl>();
 
-  VK_ASSERT_EQUALS("A", enumDecl.borrow()->GetName());
-  VK_ASSERT_EQUALS(3, enumDecl.borrow()->GetEnumerators().size());
+  VkAssertEquals("A", enumDecl.borrow()->GetName());
+  VkAssertEquals(3uL, enumDecl.borrow()->GetEnumerators().size());
 
   ref_ptr<Syntax::EnumDecl::Enumerator const> e1 =
       *(enumDecl.borrow()->GetEnumerators().begin());
@@ -152,16 +146,14 @@ void test3() {
   ref_ptr<Syntax::EnumDecl::Enumerator const> e3 =
       *(enumDecl.borrow()->GetEnumerators().begin() + 2);
 
-  VK_ASSERT_NOT(e1->HasValue());
-  VK_ASSERT(e2->HasValue());
-  VK_ASSERT_EQUALS(3, e2->GetValueUnsafe());
-  VK_ASSERT_NOT(e3->HasValue());
-
-  VK_TEST_SECTION_END("Parsing enum declaration");
+  VkAssertFalse(e1->HasValue());
+  VkAssertTrue(e2->HasValue());
+  VkAssertEquals(3L, e2->GetValueUnsafe());
+  VkAssertFalse(e3->HasValue());
 }
 
 void test4() {
-  VK_TEST_SECTION_BEGIN("Parsing int literal expr");
+  VkTestSectionStart("Parsing int literal expr");
 
   string file = R"aacaac( 123123 )aacaac";
   vector<string> lines = { file };
@@ -173,25 +165,23 @@ void test4() {
   testContext.SetParsingTokenStream(tokens);
   sona::owner<Syntax::Expr> e = testContext.ParseLiteralExpr();
 
-  VK_ASSERT_EQUALS(Syntax::Node::NodeKind::CNK_LiteralExpr,
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_LiteralExpr,
                    e.borrow()->GetNodeKind());
-  VK_ASSERT_NOT(diag.HasPendingDiags());
+  VkAssertFalse(diag.HasPendingDiags());
 
   diag.EmitDiags();
 
   sona::owner<Syntax::LiteralExpr> literalExpr =
       e.cast_unsafe<Syntax::LiteralExpr>();
 
-  VK_ASSERT_EQUALS(Syntax::BasicType::TypeKind::TK_Int32,
-                   literalExpr.borrow()->GetLiteralTypeKind());
-  VK_ASSERT_EQUALS(123123,
-                   literalExpr.borrow()->GetAsIntUnsafe());
-
-  VK_TEST_SECTION_END("Parsing int literal expr");
+  VkAssertEquals(Syntax::BasicType::TypeKind::TK_Int32,
+                 literalExpr.borrow()->GetLiteralTypeKind());
+  VkAssertEquals(123123,
+                 literalExpr.borrow()->GetAsIntUnsafe());
 }
 
 int main() {
-  VK_TEST_BEGIN;
+  VkTestStart();
 
   test0();
   test1();
@@ -199,7 +189,5 @@ int main() {
   test3();
   test4();
 
-  VK_TEST_END;
-
-  getchar();
+  VkTestFinish();
 }

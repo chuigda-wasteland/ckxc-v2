@@ -146,13 +146,13 @@ private:
   }
 
   std::string m_TestName;
-  std::size_t m_TotalCase, m_PassingCase;
+  int m_TotalCase, m_PassingCase;
 
-  static std::size_t m_GlobalTotalCase, m_GlobalPassingCase;
+  static int m_GlobalTotalCase, m_GlobalPassingCase;
 };
 
-std::size_t VKTestStackMarker::m_GlobalTotalCase;
-std::size_t VKTestStackMarker::m_GlobalPassingCase;
+int VKTestStackMarker::m_GlobalTotalCase;
+int VKTestStackMarker::m_GlobalPassingCase;
 
 #define VkTestSectionStart(name) VKTestStackMarker vkInternStkMarker(name)
 #define VkAssertTrue(cond) vkInternStkMarker.AssertTrue(cond, #cond)
