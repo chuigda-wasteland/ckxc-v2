@@ -22,7 +22,9 @@ enum class BinaryOperator {
   BOP_Add, BOP_Sub, BOP_Mul, BOP_Div, BOP_Mod,
   BOP_LogicAnd, BOP_LogicOr, BOP_LogicNot, BOP_LogicXor,
   BOP_BitAnd, BOP_BitOr, BOP_BitNot, BOP_BitXor,
-  BOP_Lt, BOP_Gt, BOP_Eq, BOP_LEq, BOP_GEq, BOP_NEq
+  BOP_Lt, BOP_Gt, BOP_Eq, BOP_LEq, BOP_GEq, BOP_NEq,
+
+  BOP_Invalid
 };
 
 /// @todo I'm not sure whether this will be used in further days
@@ -36,9 +38,6 @@ enum class CastOperator {
 };
 
 std::uint16_t PrecOf(BinaryOperator bop) noexcept;
-UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept;
-BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept;
-CastOperator TokenToCastOp(Frontend::Token::TokenKind token) noexcept;
 
 } // namespace Syntax
 } // namespace ckx

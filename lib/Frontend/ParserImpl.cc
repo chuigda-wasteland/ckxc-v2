@@ -396,8 +396,7 @@ sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseUnaryAlgebraicExpr() {
-  Syntax::UnaryOperator uop =
-      Syntax::TokenToUnary(CurrentToken().GetTokenKind());
+  Syntax::UnaryOperator uop = TokenToUnary(CurrentToken().GetTokenKind());
   SourceRange uopRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -436,8 +435,7 @@ sona::owner<Syntax::Expr> ParserImpl::ParseAlignofExpr() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseCastExpr() {
-  Syntax::CastOperator cop =
-      Syntax::TokenToCastOp(CurrentToken().GetTokenKind());
+  Syntax::CastOperator cop = TokenToCastOp(CurrentToken().GetTokenKind());
   SourceRange castOpRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -511,10 +509,24 @@ ParserImpl::ParseMemberAccessExpr(sona::owner<Syntax::Expr>&& base) {
 }
 
 sona::owner<Syntax::Expr>
-ParserImpl::ParseBinaryExpr(uint16_t previousRank,
-                            sona::owner<Syntax::Expr>&& lhs) {
-  sona_unreachable1("not implemented");
-  return nullptr;
+ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
+  sona::owner<Syntax::Expr> e0 = ParseUnaryExpr();
+  if (e0.borrow() == nullptr) {
+    return nullptr;
+  }
+
+  Syntax::BinaryOperator op = TokenToBinary(CurrentToken().GetTokenKind());
+
+  while (op != Syntax::BinaryOperator::BOP_Invalid
+         && Syntax::PrecOf(op) >= prevPrec) {
+    SourceRange opRange = CurrentToken().GetSourceRange();
+    ConsumeToken();
+
+    sona::owner<Syntax::Expr> e1 = ParseBinaryExpr(Syntax::PrecOf(op) + 1);
+    e0 = new Syntax::BinaryExpr(op, std::move(e0), std::move(e1), opRange);
+  }
+
+  return e0;
 }
 
 owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
@@ -733,6 +745,49 @@ SkipToAnyOf(const std::initializer_list<Token::TokenKind>& tokenKinds) {
 template <typename Cond> void ParserImpl::SkipUntil(Cond cond) {
   while (!(cond())) {
     ConsumeToken();
+  }
+}
+
+Syntax::UnaryOperator
+TokenToUnary(Frontend::Token::TokenKind token) noexcept {
+  using namespace Syntax;
+  switch (token) {
+  case Frontend::Token::TK_SYM_PLUS: return UnaryOperator::UOP_Positive;
+  case Frontend::Token::TK_SYM_MINUS: return UnaryOperator::UOP_Negative;
+  case Frontend::Token::TK_SYM_ASTER: return UnaryOperator::UOP_Deref;
+  case Frontend::Token::TK_SYM_AMP: return UnaryOperator::UOP_PointerTo;
+
+  default:
+    sona_unreachable();
+    return UnaryOperator::UOP_Positive; // For silencing compiler warnings
+  }
+}
+
+Syntax::BinaryOperator
+TokenToBinary(Frontend::Token::TokenKind token) noexcept {
+  using namespace Syntax;
+  switch (token) {
+  case Frontend::Token::TK_SYM_PLUS:  return BinaryOperator::BOP_Add;
+  case Frontend::Token::TK_SYM_MINUS: return BinaryOperator::BOP_Sub;
+  case Frontend::Token::TK_SYM_ASTER: return BinaryOperator::BOP_Mul;
+
+  default:
+    sona_unreachable();
+    return BinaryOperator::BOP_Invalid;
+  }
+}
+
+Syntax::CastOperator
+TokenToCastOp(Frontend::Token::TokenKind token) noexcept {
+  using namespace Syntax;
+  switch (token) {
+  case Frontend::Token::TK_KW_static_cast: return CastOperator::COP_StaticCast;
+  case Frontend::Token::TK_KW_bitcast: return CastOperator::COP_BitCast;
+  case Frontend::Token::TK_KW_const_cast: return CastOperator::COP_ConstCast;
+
+  default:
+    sona_unreachable();
+    return CastOperator::COP_BitCast;
   }
 }
 

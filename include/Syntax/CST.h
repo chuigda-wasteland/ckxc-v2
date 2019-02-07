@@ -879,6 +879,34 @@ private:
   SourceRange m_OpRange;
 };
 
+class BinaryExpr : public Expr {
+public:
+  BinaryExpr(BinaryOperator op, sona::owner<Syntax::Expr> &&lhs,
+             sona::owner<Syntax::Expr> &&rhs, SourceRange const& opRange)
+    : Expr(Node::NodeKind::CNK_BinaryExpr),
+      m_Operator(op), m_LeftHandSide(std::move(lhs)),
+      m_RightHandSide(std::move(rhs)), m_OpRange(opRange) {}
+
+  BinaryOperator GetOperator() const noexcept { return m_Operator; }
+
+  sona::ref_ptr<Syntax::Expr const> GetLeftHandSide() const noexcept {
+    return m_LeftHandSide.borrow();
+  }
+
+  sona::ref_ptr<Syntax::Expr const> GetRightHandSide() const noexcept {
+    return m_RightHandSide.borrow();
+  }
+
+  SourceRange const& GetOpRange() const noexcept {
+    return m_OpRange;
+  }
+
+private:
+  BinaryOperator m_Operator;
+  sona::owner<Syntax::Expr> m_LeftHandSide, m_RightHandSide;
+  SourceRange m_OpRange;
+};
+
 class CastExpr : public Expr {
 public:
   CastExpr(CastOperator castop, sona::owner<Syntax::Expr> &&castedExpr,

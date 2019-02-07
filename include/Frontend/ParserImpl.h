@@ -45,8 +45,7 @@ protected:
   sona::owner<Syntax::Expr>
   ParseMemberAccessExpr(sona::owner<Syntax::Expr> &&base);
 
-  sona::owner<Syntax::Expr>
-  ParseBinaryExpr(std::uint16_t previousRank, sona::owner<Syntax::Expr> &&lhs);
+  sona::owner<Syntax::Expr> ParseBinaryExpr(std::uint16_t prevPrec);
 
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
   void ParseDataConstructor(
@@ -86,6 +85,10 @@ private:
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;
   size_t m_Index;
 };
+
+Syntax::UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept;
+Syntax::BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept;
+Syntax::CastOperator TokenToCastOp(Frontend::Token::TokenKind token) noexcept;
 
 } // namespace Frontend
 } // namespace ckx
