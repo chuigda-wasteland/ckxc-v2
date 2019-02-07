@@ -396,6 +396,7 @@ sona::owner<Syntax::Expr> ParserImpl::ParseUnaryExpr() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseAlgebraicUnaryExpr() {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
@@ -414,10 +415,12 @@ sona::owner<Syntax::Expr> ParserImpl::ParseSizeofExpr() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseAlignofExpr() {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseCastExpr() {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
