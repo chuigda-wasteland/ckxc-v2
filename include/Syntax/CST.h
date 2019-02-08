@@ -931,6 +931,8 @@ private:
   SourceRange m_CastOpRange;
 };
 
+class MixFixExpr : public Expr {};
+
 class TransUnit : public Node {
 public:
   TransUnit() : Node(NodeKind::CNK_TransUnit) {}

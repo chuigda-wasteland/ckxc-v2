@@ -41,7 +41,7 @@ void Scope::AddFunction(sona::ref_ptr<const AST::FuncDecl> funcDecl) {
 sona::ref_ptr<AST::VarDecl const>
 Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;
-       s = s->GetParentScope()) {
+       s = s->GetParentScope().get()) {
     sona::ref_ptr<AST::VarDecl const> localResult =
         s->LookupVarDeclLocally(name);
     if (localResult != nullptr) {
@@ -54,7 +54,7 @@ Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
 sona::ref_ptr<AST::Type const>
 Scope::LookupType(const sona::string_ref &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;
-       s = s->GetParentScope()) {
+       s = s->GetParentScope().get()) {
     sona::ref_ptr<AST::Type const> localResult =
         s->LookupTypeLocally(name);
     if (localResult != nullptr) {

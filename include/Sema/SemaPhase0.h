@@ -4,7 +4,7 @@
 #include "Sema/Scope.h"
 
 #include "Basic/Diagnose.h"
-#include "Syntax/CSTFwd.h"
+#include "Syntax/CST.h"
 #include "AST/DeclFwd.hpp"
 #include "AST/ExprFwd.hpp"
 #include "AST/StmtFwd.hpp"
@@ -15,9 +15,64 @@
 namespace ckx {
 namespace Sema {
 
-class SemaClass final {
+class InScopeIdentifier final {
 public:
-  SemaClass(Diag::DiagnosticEngine &diag);
+  class IdScope {
+  public:
+    enum ScopeKind {
+      ISK_InEnum,
+      ISK_InStruct,
+      ISK_InModule,
+      ISK_InADT,
+      ISK_Any
+    };
+
+    IdScope(sona::string_ref scopeName, ScopeKind scopeKind)
+      : m_ScopeName(scopeName), m_ScopeKind(scopeKind) {}
+
+    sona::string_ref const& GetScopeName() const noexcept {
+      return m_ScopeName;
+    }
+
+    ScopeKind GetScopeKind() const noexcept {
+      return m_ScopeKind;
+    }
+
+  private:
+    sona::string_ref m_ScopeName;
+    ScopeKind m_ScopeKind;
+  };
+
+  InScopeIdentifier(std::vector<IdScope> &&scope, sona::string_ref id)
+    : m_Scope(std::move(scope)), m_Id(id) {}
+
+  std::vector<IdScope> const& GetScope() const noexcept {
+    return m_Scope;
+  }
+
+  sona::string_ref const& GetId() const noexcept {
+    return m_Id;
+  }
+
+private:
+  std::vector<IdScope> m_Scope;
+  sona::string_ref m_Id;
+};
+
+class UnresolvedDeclaration final {
+public:
+  enum DependencyKind { UDK_Strong, UDK_Weak };
+  using Dependency = std::pair<InScopeIdentifier, DependencyKind>;
+
+private:
+  std::vector<Dependency> m_Dependencies;
+  std::shared_ptr<Scope> m_Scope;
+  sona::ref_ptr<AST::DeclContext> m_InContext;
+};
+
+class SemaPhase0 final {
+public:
+  SemaPhase0(Diag::DiagnosticEngine &diag);
 
   sona::owner<AST::TransUnitDecl>
   ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit);
@@ -52,10 +107,12 @@ private:
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> decl);
 
+  /*
 #define CST_STMT(name) \
   sona::ref_ptr<AST::Stmt> \
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> stmt);
+              */
 
 #define CST_EXPR(name) \
   sona::ref_ptr<AST::Expr> \
@@ -68,7 +125,7 @@ private:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
-  sona::ref_ptr<Scope> GetCurrentScope();
+  std::shared_ptr<Scope> GetCurrentScope();
 
   Diag::DiagnosticEngine &m_Diag;
 

@@ -80,6 +80,18 @@ public:
   sona::iterator_range<FunctionSet::const_iterator>
   GetAllFuncs(sona::string_ref const& name) const noexcept;
 
+  void SetDeclContext(sona::ref_ptr<AST::DeclContext> declContext) noexcept {
+    m_UnderlyingDeclContext = declContext;
+  }
+
+  sona::ref_ptr<AST::DeclContext> GetDeclContext() noexcept {
+    return m_UnderlyingDeclContext;
+  }
+
+  sona::ref_ptr<AST::DeclContext const> GetDeclContext() const noexcept {
+    return m_UnderlyingDeclContext;
+  }
+
 private:
   std::shared_ptr<Scope> m_ParentScope;
   sona::ref_ptr<Scope> m_EnclosingFunctionScope;
@@ -92,6 +104,9 @@ private:
   m_Types;
 
   FunctionSet m_Functions;
+
+  /// @todo I'm also not sure if this will be used, letus keep it for sometime
+  sona::ref_ptr<AST::DeclContext> m_UnderlyingDeclContext = nullptr;
 };
 
 } // namespace Sema
