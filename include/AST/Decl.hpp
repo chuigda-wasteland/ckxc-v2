@@ -15,8 +15,8 @@ namespace AST {
 class TransUnitDecl : public Decl, public DeclContext {
 public:
   TransUnitDecl()
-      : Decl(DeclKind::DK_TransUnit, *this),
-        DeclContext(DeclKind::DK_TransUnit) {}
+    : Decl(DeclKind::DK_TransUnit, *this),
+      DeclContext(DeclKind::DK_TransUnit) {}
 
   sona::ref_ptr<ASTContext> GetASTContext() noexcept { return m_Context; }
 

@@ -19,7 +19,7 @@ void test0() {
   vector<Frontend::Token> tokens = lexer.GetAndReset();
 
   VkAssertFalse(diag.HasPendingDiags());
-  VkAssertEquals(8, tokens.size());
+  VkAssertEquals(8uL, tokens.size());
   VkAssertEquals(Frontend::Token::TK_KW_def, tokens[0].GetTokenKind());
   VkAssertEquals(Frontend::Token::TK_ID, tokens[1].GetTokenKind());
   VkAssertEquals("a", tokens[1].GetStrValueUnsafe());
@@ -47,7 +47,7 @@ void test1() {
 
   VkAssertFalse(diag.HasPendingDiags());
   diag.EmitDiags();
-  VkAssertEquals(6, tokens.size());
+  VkAssertEquals(6uL, tokens.size());
   VkAssertEquals(Frontend::Token::TK_LIT_INT, tokens[0].GetTokenKind());
   VkAssertEquals(33, tokens[0].GetIntValueUnsafe());
   VkAssertEquals(Frontend::Token::TK_LIT_FLOAT, tokens[1].GetTokenKind());

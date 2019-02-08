@@ -3,12 +3,12 @@
 using namespace ckx;
 using namespace ckx::Sema;
 
-Scope::Scope(sona::ref_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
+Scope::Scope(std::shared_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
   : m_ParentScope(parentScope), m_EnclosingFunctionScope(nullptr),
     m_EnclosingLoopScope(nullptr), m_ScopeFlags(scopeFlags) {
   for (sona::ref_ptr<Scope> scope = this;
        scope != nullptr;
-       scope = scope->GetParentScope()) {
+       scope = scope->GetParentScope().get()) {
     if (scope->HasFlags(SF_InLoop)) {
       m_EnclosingLoopScope = scope;
       break;
@@ -17,7 +17,7 @@ Scope::Scope(sona::ref_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
 
   for (sona::ref_ptr<Scope> scope = this;
        scope != nullptr;
-       scope = scope->GetParentScope()) {
+       scope = scope->GetParentScope().get()) {
     if (scope->HasFlags(SF_Function)) {
       m_EnclosingFunctionScope = scope;
       break;

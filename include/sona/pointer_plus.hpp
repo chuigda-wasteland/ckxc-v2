@@ -95,6 +95,8 @@ private:
   T *ptr;
 };
 
+template <typename T> using refcount = std::shared_ptr<T>;
+
 } // namespace sona
 
 #endif // POINTER_PLUS_HPP

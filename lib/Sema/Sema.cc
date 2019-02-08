@@ -13,7 +13,7 @@ using namespace sona;
 SemaClass::SemaClass(Diag::DiagnosticEngine& diag) : m_Diag(diag) {}
 
 void SemaClass::PushScope(Scope::ScopeFlags flags) {
-  m_ScopeChains.emplace_back(GetCurrentScope(), flags);
+  m_ScopeChains.push_back(std::make_shared<Scope>(GetCurrentScope(), flags));
 }
 
 void SemaClass::PopScope() {
@@ -21,11 +21,12 @@ void SemaClass::PopScope() {
 }
 
 ref_ptr<AST::Type const>
-SemaClass::ResolveType(ref_ptr<Syntax::Type const> type) {
+SemaClass::ResolveType(std::shared_ptr<Scope> scope,
+                       ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
-    return Resolve##name(type.cast_unsafe<Syntax::name const>());
+    return Resolve##name(scope, type.cast_unsafe<Syntax::name const>());
 #include "Syntax/CSTNodeDefs.def"
   default:
     sona_unreachable();
@@ -34,11 +35,12 @@ SemaClass::ResolveType(ref_ptr<Syntax::Type const> type) {
 }
 
 ref_ptr<AST::Decl>
-SemaClass::ActOnDecl(ref_ptr<Syntax::Decl const> decl) {
+SemaClass::ActOnDecl(std::shared_ptr<Scope> scope,
+                     ref_ptr<Syntax::Decl const> decl) {
   switch (decl->GetNodeKind()) {
 #define CST_DECL(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
-    return ActOn##name(decl.cast_unsafe<Syntax::name const>());
+    return ActOn##name(scope, decl.cast_unsafe<Syntax::name const>());
 #include "Syntax/CSTNodeDefs.def"
   default:
     sona_unreachable();
@@ -77,7 +79,8 @@ SemaClass::ActOnExpr(ref_ptr<Syntax::Expr const> expr) {
 */
 
 ref_ptr<AST::Type const>
-SemaClass::ResolveBasicType(ref_ptr<Syntax::BasicType const> type) {
+SemaClass::ResolveBasicType(std::shared_ptr<Scope>,
+                            ref_ptr<Syntax::BasicType const> type) {
   AST::BuiltinType::BuiltinTypeId btid;
   switch (type->GetTypeKind()) {
   case Syntax::BasicType::TypeKind::TK_Int8:
@@ -114,9 +117,10 @@ SemaClass::ResolveBasicType(ref_ptr<Syntax::BasicType const> type) {
 }
 
 ref_ptr<AST::Type const>
-SemaClass::ResolveUserDefinedType(ref_ptr<Syntax::UserDefinedType const> type) {
+SemaClass::ResolveUserDefinedType(std::shared_ptr<Scope> scope,
+                                  ref_ptr<Syntax::UserDefinedType const> type) {
   ref_ptr<AST::Type const> lookupResult =
-      m_ScopeChains.back().LookupType(type->GetName());
+      scope->LookupType(type->GetName());
   if (lookupResult == nullptr) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrNotDeclared, { type->GetName() }),
@@ -126,16 +130,19 @@ SemaClass::ResolveUserDefinedType(ref_ptr<Syntax::UserDefinedType const> type) {
 }
 
 ref_ptr<AST::Type const>
-SemaClass::ResolveTemplatedType(ref_ptr<Syntax::TemplatedType const> type) {
+SemaClass::ResolveTemplatedType(std::shared_ptr<Scope> scope,
+                                ref_ptr<Syntax::TemplatedType const> type) {
+  (void)scope;
   (void)type;
   sona_unreachable1("not implemented");
   return nullptr;
 }
 
 ref_ptr<AST::Type const>
-SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
+SemaClass::ResolveComposedType(std::shared_ptr<Scope> scope,
+                               ref_ptr<Syntax::ComposedType const> type) {
   ref_ptr<Syntax::Type const> rootType = type->GetRootType();
-  ref_ptr<AST::Type const> resolvedRootType = ResolveType(rootType);
+  ref_ptr<AST::Type const> resolvedRootType = ResolveType(scope, rootType);
 
   if (resolvedRootType == nullptr) {
     return nullptr;
@@ -167,7 +174,8 @@ SemaClass::ResolveComposedType(ref_ptr<Syntax::ComposedType const> type) {
 }
 
 ref_ptr<AST::Decl>
-SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
+SemaClass::ActOnClassDecl(std::shared_ptr<Scope> scope,
+                          sona::ref_ptr<Syntax::ClassDecl const> decl) {
   if (GetCurrentScope()->LookupTypeLocally(decl->GetClassName()) != nullptr) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(
@@ -183,7 +191,7 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   PushScope(Scope::ScopeFlags::SF_Class);
 
   for (ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
-    ActOnDecl(subDecl);
+    ActOnDecl(scope, subDecl);
   }
 
   PopScope();
@@ -201,8 +209,9 @@ SemaClass::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 }
 
 ref_ptr<AST::Decl>
-SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
-  if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
+SemaClass::ActOnEnumDecl(std::shared_ptr<Scope> scope,
+                         ref_ptr<Syntax::EnumDecl const> decl) {
+  if (scope->LookupTypeLocally(decl->GetName()) != nullptr) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
                 decl->GetNameSourceRange());
@@ -245,13 +254,14 @@ SemaClass::ActOnEnumDecl(ref_ptr<Syntax::EnumDecl const> decl) {
       new AST::EnumType(decl->GetName(),
                         ref_ptr<AST::EnumDecl>(enumDecl));
   m_ASTContext.AddUserDefinedType(owner<AST::Type>(enumType));
-  GetCurrentScope()->AddType(decl->GetName(),
-                             ref_ptr<AST::Type>(enumType));
+  scope->AddType(decl->GetName(),
+                 ref_ptr<AST::Type>(enumType));
   return ref_ptr<AST::Decl>(enumDecl);
 }
 
 ref_ptr<AST::Decl>
-SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
+SemaClass::ActOnVarDecl(std::shared_ptr<Scope> scope,
+                        ref_ptr<Syntax::VarDecl const> decl) {
   if (GetCurrentScope()->LookupTypeLocally(decl->GetName()) != nullptr) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrRedeclaration, { decl->GetName() }),
@@ -259,7 +269,7 @@ SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
     return nullptr;
   }
 
-  ref_ptr<AST::Type const> varType = ResolveType(decl->GetType());
+  ref_ptr<AST::Type const> varType = ResolveType(scope, decl->GetType());
   if (varType == nullptr) {
     return nullptr;
   }
@@ -269,20 +279,21 @@ SemaClass::ActOnVarDecl(ref_ptr<Syntax::VarDecl const> decl) {
                                            AST::DeclSpec::DS_None,
                                            decl->GetName());
   GetCurrentDeclContext()->AddDecl(owner<AST::Decl>(varDecl));
-  GetCurrentScope()->AddVarDecl(ref_ptr<AST::VarDecl const>(varDecl));
+  scope->AddVarDecl(ref_ptr<AST::VarDecl const>(varDecl));
   return ref_ptr<AST::Decl>(varDecl);
 }
 
 ref_ptr<AST::Decl>
-SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
-  ref_ptr<AST::Type const> retType = ResolveType(decl->GetReturnType());
+SemaClass::ActOnFuncDecl(std::shared_ptr<Scope> scope,
+                         ref_ptr<Syntax::FuncDecl const> decl) {
+  ref_ptr<AST::Type const> retType = ResolveType(scope, decl->GetReturnType());
   if (retType == nullptr) {
     return nullptr;
   }
 
   std::vector<ref_ptr<AST::Type const>> paramTypes;
   for (ref_ptr<Syntax::Type const> concreteParamType : decl->GetParamTypes()) {
-    ref_ptr<AST::Type const> paramType = ResolveType(concreteParamType);
+    ref_ptr<AST::Type const> paramType = ResolveType(scope, concreteParamType);
     if (paramType != nullptr) {
       paramTypes.push_back(paramType);
     }
@@ -293,7 +304,7 @@ SemaClass::ActOnFuncDecl(ref_ptr<Syntax::FuncDecl const> decl) {
 
   for (ref_ptr<AST::FuncDecl const> existingFunc :
        sona::linq::from_container(
-         GetCurrentScope()->GetAllFuncs(decl->GetName())).
+         scope->GetAllFuncs(decl->GetName())).
            transform([](const auto& p) { return p.second; })) {
     ref_ptr<AST::FunctionType const> existingFuncType =
         m_ASTContext.BuildFunctionType(existingFunc->GetParamTypes(),

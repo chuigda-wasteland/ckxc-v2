@@ -27,32 +27,40 @@ private:
   void PopScope();
 
   sona::ref_ptr<AST::Type const>
-  ResolveType(sona::ref_ptr<Syntax::Type const> type);
+  ResolveType(std::shared_ptr<Scope> scope,
+              sona::ref_ptr<Syntax::Type const> type);
 
   sona::ref_ptr<AST::Decl>
-  ActOnDecl(sona::ref_ptr<Syntax::Decl const> decl);
+  ActOnDecl(std::shared_ptr<Scope> scope,
+            sona::ref_ptr<Syntax::Decl const> decl);
 
   sona::owner<AST::Stmt>
-  ActOnStmt(sona::ref_ptr<Syntax::Stmt const> stmt);
+  ActOnStmt(std::shared_ptr<Scope> scope,
+            sona::ref_ptr<Syntax::Stmt const> stmt);
 
   sona::owner<AST::Expr>
-  ActOnExpr(sona::ref_ptr<Syntax::Expr const> expr);
+  ActOnExpr(std::shared_ptr<Scope> scope,
+            sona::ref_ptr<Syntax::Expr const> expr);
 
 #define CST_TYPE(name) \
   sona::ref_ptr<AST::Type const> \
-  Resolve##name(sona::ref_ptr<Syntax::name const> type);
+  Resolve##name(std::shared_ptr<Scope> scope, \
+                sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
   sona::ref_ptr<AST::Decl> \
-  ActOn##name(sona::ref_ptr<Syntax::name const> decl);
+  ActOn##name(std::shared_ptr<Scope> scope, \
+              sona::ref_ptr<Syntax::name const> decl);
 
 #define CST_STMT(name) \
   sona::ref_ptr<AST::Stmt> \
-  ActOn##name(sona::ref_ptr<Syntax::name const> stmt);
+  ActOn##name(std::shared_ptr<Scope> scope, \
+              sona::ref_ptr<Syntax::name const> stmt);
 
 #define CST_EXPR(name) \
   sona::ref_ptr<AST::Expr> \
-  ActOn##name(sona::ref_ptr<Syntax::name const> expr);
+  ActOn##name(std::shared_ptr<Scope> scope, \
+              sona::ref_ptr<Syntax::name const> expr);
 
 #include "Syntax/CSTNodeDefs.def"
 
@@ -66,7 +74,7 @@ private:
 
   AST::ASTContext m_ASTContext;
   std::vector<sona::ref_ptr<AST::DeclContext>> m_DeclContexts;
-  std::vector<Scope> m_ScopeChains;
+  std::vector<std::shared_ptr<Scope>> m_ScopeChains;
   std::vector<Syntax::Export> m_Exports;
 };
 

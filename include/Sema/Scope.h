@@ -28,10 +28,10 @@ public:
     SF_Unsafe        = 0x0100
   };
 
-  Scope(sona::ref_ptr<Scope> parentScope = nullptr,
+  Scope(std::shared_ptr<Scope> parentScope = nullptr,
         ScopeFlags scopeFlags = SF_None);
 
-  sona::ref_ptr<Scope> GetParentScope() const noexcept {
+  std::shared_ptr<Scope> GetParentScope() const noexcept {
     return m_ParentScope;
   }
 
@@ -81,7 +81,7 @@ public:
   GetAllFuncs(sona::string_ref const& name) const noexcept;
 
 private:
-  sona::ref_ptr<Scope> m_ParentScope;
+  std::shared_ptr<Scope> m_ParentScope;
   sona::ref_ptr<Scope> m_EnclosingFunctionScope;
   sona::ref_ptr<Scope> m_EnclosingLoopScope;
   ScopeFlags m_ScopeFlags;
