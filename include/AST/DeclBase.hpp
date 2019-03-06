@@ -32,7 +32,8 @@ public:
     DK_Param,
     DK_Var,
     DK_Field,
-    DK_Enumerator
+    DK_Enumerator,
+    DK_Unresolved
   };
 
   DeclKind GetDeclKind() const { return m_DeclKind; }
@@ -56,6 +57,13 @@ public:
   void AddDecl(sona::owner<Decl> &&decl);
   bool LookupDecl(sona::string_ref const& name);
   bool LookupDeclLocally(sona::string_ref const& name);
+
+  auto GetDecls() const noexcept {
+    return sona::linq::from_container(m_Decls).
+        transform([](sona::owner<Decl> const& decl) {
+      return decl.borrow();
+    });
+  }
 
 private:
   Decl::DeclKind m_DeclKind;

@@ -2,6 +2,7 @@
 #define SEMA_H
 
 #include "Sema/Scope.h"
+#include "Sema/UnresolvedDecl.hpp"
 
 #include "Basic/Diagnose.h"
 #include "Syntax/CST.h"
@@ -11,64 +12,10 @@
 #include "AST/TypeFwd.hpp"
 
 #include "sona/pointer_plus.hpp"
+#include "sona/either.hpp"
 
 namespace ckx {
 namespace Sema {
-
-class InScopeIdentifier final {
-public:
-  class IdScope {
-  public:
-    enum ScopeKind {
-      ISK_InEnum,
-      ISK_InStruct,
-      ISK_InModule,
-      ISK_InADT,
-      ISK_Any
-    };
-
-    IdScope(sona::string_ref scopeName, ScopeKind scopeKind)
-      : m_ScopeName(scopeName), m_ScopeKind(scopeKind) {}
-
-    sona::string_ref const& GetScopeName() const noexcept {
-      return m_ScopeName;
-    }
-
-    ScopeKind GetScopeKind() const noexcept {
-      return m_ScopeKind;
-    }
-
-  private:
-    sona::string_ref m_ScopeName;
-    ScopeKind m_ScopeKind;
-  };
-
-  InScopeIdentifier(std::vector<IdScope> &&scope, sona::string_ref id)
-    : m_Scope(std::move(scope)), m_Id(id) {}
-
-  std::vector<IdScope> const& GetScope() const noexcept {
-    return m_Scope;
-  }
-
-  sona::string_ref const& GetId() const noexcept {
-    return m_Id;
-  }
-
-private:
-  std::vector<IdScope> m_Scope;
-  sona::string_ref m_Id;
-};
-
-class UnresolvedDeclaration final {
-public:
-  enum DependencyKind { UDK_Strong, UDK_Weak };
-  using Dependency = std::pair<InScopeIdentifier, DependencyKind>;
-
-private:
-  std::vector<Dependency> m_Dependencies;
-  std::shared_ptr<Scope> m_Scope;
-  sona::ref_ptr<AST::DeclContext> m_InContext;
-};
 
 class SemaPhase0 final {
 public:
@@ -80,44 +27,27 @@ public:
 private:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
+  std::shared_ptr<Scope> const& CurrentScope() const noexcept;
 
-  sona::ref_ptr<AST::Type const>
+  sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
+               std::vector<Syntax::Identifier>> // dependencies
   ResolveType(std::shared_ptr<Scope> scope,
               sona::ref_ptr<Syntax::Type const> type);
 
-  sona::ref_ptr<AST::Decl>
+  sona::owner<AST::Decl>
   ActOnDecl(std::shared_ptr<Scope> scope,
             sona::ref_ptr<Syntax::Decl const> decl);
 
-  sona::owner<AST::Stmt>
-  ActOnStmt(std::shared_ptr<Scope> scope,
-            sona::ref_ptr<Syntax::Stmt const> stmt);
-
-  sona::owner<AST::Expr>
-  ActOnExpr(std::shared_ptr<Scope> scope,
-            sona::ref_ptr<Syntax::Expr const> expr);
-
 #define CST_TYPE(name) \
-  sona::ref_ptr<AST::Type const> \
+  sona::either<sona::ref_ptr<AST::Type const>, \
+               std::vector<Syntax::Identifier>> \
   Resolve##name(std::shared_ptr<Scope> scope, \
                 sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
-  sona::ref_ptr<AST::Decl> \
+  sona::owner<AST::Decl> \
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> decl);
-
-  /*
-#define CST_STMT(name) \
-  sona::ref_ptr<AST::Stmt> \
-  ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const> stmt);
-              */
-
-#define CST_EXPR(name) \
-  sona::ref_ptr<AST::Expr> \
-  ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const> expr);
 
 #include "Syntax/CSTNodeDefs.def"
 
