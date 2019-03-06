@@ -92,5 +92,69 @@ SemaPhase0::ResolveBasicType(std::shared_ptr<Scope>,
   return m_ASTContext.GetBuiltinType(bid);
 }
 
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+SemaPhase0::
+ResolveUserDefinedType(std::shared_ptr<Scope> scope,
+                       sona::ref_ptr<Syntax::UserDefinedType const> uty) {
+  sona::ref_ptr<AST::Type const> lookupResult =
+      scope->LookupType(uty->GetName());
+  if (lookupResult != nullptr) {
+    return lookupResult;
+  }
+
+  std::vector<Syntax::Identifier> dependencies;
+  dependencies.emplace_back(uty->GetName(), uty->GetSourceRange());
+  return dependencies;
+}
+
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+SemaPhase0::
+ResolveTemplatedType(std::shared_ptr<Scope>,
+                     sona::ref_ptr<Syntax::TemplatedType const>) {
+  sona_unreachable1("not implemented");
+  return sona::ref_ptr<AST::Type const>(nullptr);
+}
+
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+SemaPhase0::
+ResolveComposedType(std::shared_ptr<Scope>,
+                    sona::ref_ptr<Syntax::ComposedType const>) {
+  /// @todo differ from strong dependency and weak dependency, and we may get on
+  /**
+  auto rootTypeResult = ResolveType(scope, cty->GetRootType());
+  if (rootTypeResult.contains_t1()
+      || std::any_of(
+           cty->GetTypeSpecifiers().begin(),
+           cty->GetTypeSpecifiers().end(),
+           [](Syntax::ComposedType::TypeSpecifier ts) {
+             return ts == Syntax::ComposedType::TypeSpecifier::CTS_Pointer;
+           }
+      )) {
+    sona::ref_ptr<AST::Type const> rootType = rootTypeResult.as_t1();
+    for (Syntax::ComposedType::TypeSpecifier ts : cty->GetTypeSpecifiers()) {
+      switch (ts) {
+      case Syntax::ComposedType::TypeSpecifier::CTS_Const:
+      case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
+        sona_unreachable1("not implemented");
+        break;
+      /// @todo need more checks
+      case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
+        rootType = new AST::PointerType(rootType);
+        break;
+      case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
+        rootType = new AST::LValueRefType(rootType);
+        break;
+      case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
+        rootType = new AST::RValueRefType(rootType);
+        break;
+      }
+    }
+    return rootType;
+  }
+  */
+  sona_unreachable1("not implemented");
+  return sona::ref_ptr<AST::Type const>(nullptr);
+}
+
 } // namespace Sema
 } // namespace ckx

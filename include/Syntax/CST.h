@@ -141,6 +141,7 @@ private:
 
 class UserDefinedType : public Type {
 public:
+  /// @todo use Syntax::Identifier for name
   UserDefinedType(sona::string_ref name, SingleSourceRange const& range)
     : Type(NodeKind::CNK_UserDefinedType),
       m_Name(name), m_Range(range) {}
