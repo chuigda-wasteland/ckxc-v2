@@ -77,7 +77,31 @@ public:
       sona_unreachable();
   }
 
+  ~either() noexcept {
+    if (status == has_t1) {
+      destroy_at<T1>(reinterpret_cast<T1*>(&storage));
+    }
+    else {
+      destroy_at<T2>(reinterpret_cast<T2*>(&storage));
+    }
+  }
+
+  template <typename T>
+  void set(T&& t) {
+    ~this();
+    mark_status_intern<T>();
+    construct<T>(reinterpret_cast<T1>(&storage), std::forward<T>(t));
+  }
+
 private:
+  template <typename T>
+  std::enable_if_t<std::is_same<T, T1>::value, void>
+  mark_status_intern() noexcept { status = has_t1; }
+
+  template <typename T>
+  std::enable_if_t<std::is_same<T, T2>::value, void>
+  mark_status_intern() noexcept { status = has_t2; }
+
   std::aligned_storage_t<std::max(sizeof(T1), sizeof(T2)),
                          std::max(alignof(T1), alignof(T2))>
       storage;

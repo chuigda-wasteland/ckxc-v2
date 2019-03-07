@@ -10,18 +10,39 @@ namespace Sema {
 
 class Dependency {
 public:
-  Dependency(Syntax::Identifier const& id)
-    : m_Dependency(id) {}
+  Dependency(Syntax::Identifier &&id, bool isStrong = false)
+    : m_Dependency(std::move(id)), m_IsStrong(isStrong) {}
 
-  Dependency(sona::ref_ptr<AST::Decl> decl)
-    : m_Dependency(decl) {}
+  Dependency(sona::ref_ptr<AST::Decl> decl, bool isStrong = false)
+    : m_Dependency(decl), m_IsStrong(isStrong) {}
 
   bool IsDependByname() const noexcept {
     return m_Dependency.contains_t1();
   }
 
+  void ReplaceNameWithDecl(sona::ref_ptr<AST::Decl> decl) noexcept {
+    m_Dependency.set(decl);
+  }
+
+  Syntax::Identifier const& GetIdUnsafe() const noexcept {
+    return m_Dependency.as_t1();
+  }
+
+  sona::ref_ptr<AST::Decl> GetDeclUnsafe() const noexcept {
+    return m_Dependency.as_t2();
+  }
+
+  bool IsStrong() const noexcept {
+    return m_IsStrong;
+  }
+
+  void SetStrong(bool strong = true) noexcept {
+    m_IsStrong = strong;
+  }
+
 private:
   sona::either<Syntax::Identifier, sona::ref_ptr<AST::Decl>> m_Dependency;
+  bool m_IsStrong;
 };
 
 } // namespace Sema

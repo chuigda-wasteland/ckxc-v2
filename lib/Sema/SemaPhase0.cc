@@ -102,7 +102,8 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
   }
 
   std::vector<Dependency> dependencies;
-  dependencies.emplace_back(uty->GetName(), uty->GetSourceRange());
+  dependencies.emplace_back(
+    Syntax::Identifier(uty->GetName(), uty->GetSourceRange()));
   return dependencies;
 }
 
