@@ -115,45 +115,46 @@ ResolveTemplatedType(std::shared_ptr<Scope>,
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
+static bool IsPtrOrRefType(sona::ref_ptr<Syntax::ComposedType const> cty) {
+  return std::any_of(
+        cty->GetTypeSpecifiers().begin(),
+        cty->GetTypeSpecifiers().end(),
+        [](Syntax::ComposedType::TypeSpecifier ts) {
+          return ts == Syntax::ComposedType::TypeSpecifier::CTS_Pointer
+                 || ts == Syntax::ComposedType::TypeSpecifier::CTS_Ref
+                 || ts == Syntax::ComposedType::TypeSpecifier::CTS_RvRef;
+  });
+}
+
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::
-ResolveComposedType(std::shared_ptr<Scope>,
-                    sona::ref_ptr<Syntax::ComposedType const>) {
-  /// @todo differ from strong dependency and weak dependency, and we may get on
-  /**
+ResolveComposedType(std::shared_ptr<Scope> scope,
+                    sona::ref_ptr<Syntax::ComposedType const> cty) {
   auto rootTypeResult = ResolveType(scope, cty->GetRootType());
-  if (rootTypeResult.contains_t1()
-      || std::any_of(
-           cty->GetTypeSpecifiers().begin(),
-           cty->GetTypeSpecifiers().end(),
-           [](Syntax::ComposedType::TypeSpecifier ts) {
-             return ts == Syntax::ComposedType::TypeSpecifier::CTS_Pointer;
-           }
-      )) {
-    sona::ref_ptr<AST::Type const> rootType = rootTypeResult.as_t1();
+  if (rootTypeResult.contains_t1()) {
+    auto ret = rootTypeResult.as_t1();
     for (Syntax::ComposedType::TypeSpecifier ts : cty->GetTypeSpecifiers()) {
       switch (ts) {
-      case Syntax::ComposedType::TypeSpecifier::CTS_Const:
-      case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
-        sona_unreachable1("not implemented");
-        break;
-      /// @todo need more checks
       case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
-        rootType = new AST::PointerType(rootType);
-        break;
+        ret = new AST::PointerType(ret); break;
       case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
-        rootType = new AST::LValueRefType(rootType);
-        break;
+        ret = new AST::LValueRefType(ret); break;
       case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
-        rootType = new AST::RValueRefType(rootType);
-        break;
+        ret = new AST::RValueRefType(ret); break;
+      default:
+        sona_unreachable1("not implemented");
       }
     }
-    return rootType;
+    return ret;
   }
-  */
-  sona_unreachable1("not implemented");
-  return sona::ref_ptr<AST::Type const>(nullptr);
+
+  auto dependencies = std::move(rootTypeResult.as_t2());
+  if (IsPtrOrRefType(cty)) {
+    for (Dependency &dependency : dependencies) {
+      dependency.SetStrong(false);
+    }
+  }
+  return dependencies;
 }
 
 } // namespace Sema

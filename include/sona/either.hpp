@@ -88,9 +88,11 @@ public:
 
   template <typename T>
   void set(T&& t) {
-    ~this();
-    mark_status_intern<T>();
-    construct<T>(reinterpret_cast<T1>(&storage), std::forward<T>(t));
+    using TPlain = std::remove_reference_t<T>;
+    this->~either<T1, T2>();
+    mark_status_intern<TPlain>();
+    construct<TPlain>(reinterpret_cast<TPlain*>(&storage),
+                      std::forward<T>(t));
   }
 
 private:
