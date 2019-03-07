@@ -3,6 +3,7 @@
 
 #include "Sema/Scope.h"
 #include "Sema/UnresolvedDecl.hpp"
+#include "Sema/Dependency.h"
 
 #include "Basic/Diagnose.h"
 #include "Syntax/CST.h"
@@ -30,7 +31,7 @@ private:
   std::shared_ptr<Scope> const& CurrentScope() const noexcept;
 
   sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
-               std::vector<Syntax::Identifier>> // dependencies
+               std::vector<Dependency>> // dependencies
   ResolveType(std::shared_ptr<Scope> scope,
               sona::ref_ptr<Syntax::Type const> type);
 
@@ -40,7 +41,7 @@ private:
 
 #define CST_TYPE(name) \
   sona::either<sona::ref_ptr<AST::Type const>, \
-               std::vector<Syntax::Identifier>> \
+               std::vector<Dependency>> \
   Resolve##name(std::shared_ptr<Scope> scope, \
                 sona::ref_ptr<Syntax::name const> type);
 

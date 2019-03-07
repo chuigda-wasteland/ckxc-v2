@@ -23,7 +23,7 @@ SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
   return transUnitDecl;
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::ResolveType(std::shared_ptr<Scope> scope,
                         sona::ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
@@ -34,8 +34,7 @@ SemaPhase0::ResolveType(std::shared_ptr<Scope> scope,
   default:
     sona_unreachable();
   }
-  return sona::either<sona::ref_ptr<AST::Type const>,
-                      std::vector<Syntax::Identifier>>(nullptr);
+  return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
 sona::owner<AST::Decl>
@@ -52,7 +51,7 @@ SemaPhase0::ActOnDecl(std::shared_ptr<Scope> scope,
   return nullptr;
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::ResolveBasicType(std::shared_ptr<Scope>,
                              sona::ref_ptr<Syntax::BasicType const> bty) {
   AST::BuiltinType::BuiltinTypeId bid;
@@ -92,7 +91,7 @@ SemaPhase0::ResolveBasicType(std::shared_ptr<Scope>,
   return m_ASTContext.GetBuiltinType(bid);
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::
 ResolveUserDefinedType(std::shared_ptr<Scope> scope,
                        sona::ref_ptr<Syntax::UserDefinedType const> uty) {
@@ -102,12 +101,12 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
     return lookupResult;
   }
 
-  std::vector<Syntax::Identifier> dependencies;
+  std::vector<Dependency> dependencies;
   dependencies.emplace_back(uty->GetName(), uty->GetSourceRange());
   return dependencies;
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::
 ResolveTemplatedType(std::shared_ptr<Scope>,
                      sona::ref_ptr<Syntax::TemplatedType const>) {
@@ -115,7 +114,7 @@ ResolveTemplatedType(std::shared_ptr<Scope>,
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Syntax::Identifier>>
+sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::
 ResolveComposedType(std::shared_ptr<Scope>,
                     sona::ref_ptr<Syntax::ComposedType const>) {

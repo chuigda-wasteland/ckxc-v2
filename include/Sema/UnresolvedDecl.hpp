@@ -29,6 +29,22 @@ private:
   sona::ref_ptr<AST::DeclContext> m_InContext;
 };
 
+class HalfwayDecl : public AST::Decl {
+public:
+  HalfwayDecl(sona::ref_ptr<AST::Decl> concreteDecl,
+              std::shared_ptr<Sema::Scope> const& scope,
+              sona::ref_ptr<AST::DeclContext> inContext)
+    : AST::Decl(DK_Halfway, inContext),
+      m_ConcreteDecl(concreteDecl),
+      m_Scope(scope) {}
+
+  void SelfReplace() const noexcept;
+
+private:
+  sona::ref_ptr<AST::Decl> m_ConcreteDecl;
+  std::shared_ptr<Sema::Scope> m_Scope;
+};
+
 }
 
 #endif // UNRESOLVEDDECL_HPP

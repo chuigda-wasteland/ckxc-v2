@@ -33,7 +33,8 @@ public:
     DK_Var,
     DK_Field,
     DK_Enumerator,
-    DK_Unresolved
+    DK_Unresolved,
+    DK_Halfway
   };
 
   DeclKind GetDeclKind() const { return m_DeclKind; }
