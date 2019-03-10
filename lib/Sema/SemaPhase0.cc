@@ -52,7 +52,7 @@ SemaPhase0::ActOnDecl(std::shared_ptr<Scope> scope,
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
-SemaPhase0::ResolveBasicType(std::shared_ptr<Scope>,
+SemaPhase0::ResolveBasicType(std::shared_ptr<Scope> /* unused */,
                              sona::ref_ptr<Syntax::BasicType const> bty) {
   AST::BuiltinType::BuiltinTypeId bid;
   /// @todo consider use tablegen to generate this, or unify the two

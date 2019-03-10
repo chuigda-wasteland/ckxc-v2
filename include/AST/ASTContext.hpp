@@ -15,7 +15,7 @@ public:
   ASTContext() = default;
   ~ASTContext() = default;
 
-  void AddUserDefinedType(sona::owner<AST::Type> &&type);
+  sona::ref_ptr<Type> AddUserDefinedType(sona::owner<AST::Type> &&type);
 
   sona::ref_ptr<TupleType const>
   CreateTupleType(TupleType::TupleElements_t &&elems);

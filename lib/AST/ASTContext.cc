@@ -5,6 +5,7 @@ namespace AST {
 
 sona::ref_ptr<Type const>
 ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
+  /// @todo consider use tablegen to generate this
 #define HANDLE_SINGLE_BUILTIN_TYPE(TYID)                                       \
   case BuiltinType::BuiltinTypeId::BTI_##TYID: {                               \
     static BuiltinType TYID##Type{ BuiltinType::BuiltinTypeId::BTI_##TYID };   \
@@ -29,8 +30,13 @@ ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
   }
 }
 
-void ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
+sona::ref_ptr<Type>
+ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
+  /// @note It's safe to use a vector, since all user defined types shall be
+  /// added exactly once.
+  sona::ref_ptr<Type> borrowed_value = type.borrow();
   m_UserDefinedTypes.push_back(std::move(type));
+  return borrowed_value;
 }
 
 sona::ref_ptr<TupleType const>

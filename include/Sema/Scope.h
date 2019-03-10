@@ -110,7 +110,7 @@ private:
   m_Variables;
   std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type const>>
   m_Types;
-  std::unordered_map<sona::string_ref, sona::ref_ptr<Sema::HalfwayDecl const>>
+  std::unordered_map<sona::string_ref, sona::owner<Sema::HalfwayDecl>>
   m_HalfwayDecls;
 
   FunctionSet m_Functions;
