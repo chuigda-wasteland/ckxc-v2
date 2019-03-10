@@ -3,16 +3,20 @@
 
 #include "Syntax/CSTFwd.h"
 #include "AST/DeclBase.hpp"
-#include "Sema/Scope.h"
 
 namespace ckx {
+namespace Sema {
 
-class UnresolvedDecl : public AST::Decl {
+class Scope;
+
+class UnresolvedVarDecl : public AST::Decl {
 public:
-  UnresolvedDecl(sona::ref_ptr<Syntax::Decl> concreteDecl,
+  UnresolvedVarDecl(sona::string_ref const& denotingName,
+                 sona::ref_ptr<Syntax::Decl> concreteDecl,
                  std::shared_ptr<Sema::Scope> const& scope,
                  sona::ref_ptr<AST::DeclContext> inContext)
     : AST::Decl(DK_Unresolved, inContext),
+      m_DenotingName(denotingName),
       m_ConcreteDecl(concreteDecl),
       m_Scope(scope),
       m_InContext(inContext) {}
@@ -21,9 +25,10 @@ public:
     return m_ConcreteDecl;
   }
 
-  void SelfReplace(sona::owner<AST::Decl> &&realDecl) const noexcept;
+  void SelfReplace(sona::owner<AST::VarDecl> &&realDecl);
 
 private:
+  sona::string_ref m_DenotingName;
   sona::ref_ptr<Syntax::Decl> m_ConcreteDecl;
   std::shared_ptr<Sema::Scope> m_Scope;
   sona::ref_ptr<AST::DeclContext> m_InContext;
@@ -31,20 +36,24 @@ private:
 
 class HalfwayDecl : public AST::Decl {
 public:
-  HalfwayDecl(sona::ref_ptr<AST::Decl> concreteDecl,
+  HalfwayDecl(sona::string_ref const& denotingName,
+              sona::ref_ptr<AST::Decl> halfwayDecl,
               std::shared_ptr<Sema::Scope> const& scope,
               sona::ref_ptr<AST::DeclContext> inContext)
     : AST::Decl(DK_Halfway, inContext),
-      m_ConcreteDecl(concreteDecl),
+      m_DenotingName(denotingName),
+      m_HalfwayDecl(halfwayDecl),
       m_Scope(scope) {}
 
-  void SelfReplace() const noexcept;
+  void SelfReplace();
 
 private:
-  sona::ref_ptr<AST::Decl> m_ConcreteDecl;
+  sona::string_ref m_DenotingName;
+  sona::ref_ptr<AST::Decl> m_HalfwayDecl;
   std::shared_ptr<Sema::Scope> m_Scope;
 };
 
-}
+} // namespace Sema
+} // namespace ckx
 
 #endif // UNRESOLVEDDECL_HPP

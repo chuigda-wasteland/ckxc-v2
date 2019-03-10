@@ -3,6 +3,7 @@
 
 #include "AST/Decl.hpp"
 #include "AST/Type.hpp"
+#include "Sema/UnresolvedDecl.hpp"
 
 #include <map>
 #include <cstdint>
@@ -92,6 +93,11 @@ public:
     return m_UnderlyingDeclContext;
   }
 
+  /// @note only used for replacing unresolved var declaration
+  /// into abstract declaraion
+  void ReplaceVarDecl(sona::string_ref const& denotingName,
+                      sona::ref_ptr<AST::VarDecl const> varDecl);
+
 private:
   std::shared_ptr<Scope> m_ParentScope;
   sona::ref_ptr<Scope> m_EnclosingFunctionScope;
@@ -104,6 +110,8 @@ private:
   m_Variables;
   std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type const>>
   m_Types;
+  std::unordered_map<sona::string_ref, sona::ref_ptr<Sema::HalfwayDecl const>>
+  m_HalfwayDecls;
 
   FunctionSet m_Functions;
 

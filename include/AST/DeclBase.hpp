@@ -66,6 +66,17 @@ public:
     });
   }
 
+  void ReplaceDecl(sona::ref_ptr<Decl> toReplace, sona::owner<Decl> &&decl) {
+    for (auto it = m_Decls.begin(); it != m_Decls.end(); ++it) {
+      if (it->borrow() == toReplace) {
+        sona::owner<Decl> wastebin = std::move(*it);
+        *it = std::move(decl);
+        return;
+      }
+    }
+    sona_unreachable();
+  }
+
 private:
   Decl::DeclKind m_DeclKind;
   std::vector<sona::owner<Decl>> m_Decls;

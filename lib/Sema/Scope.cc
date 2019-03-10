@@ -103,3 +103,10 @@ Scope::GetAllFuncs(const sona::string_ref &name) const noexcept {
   }
   return localResult;
 }
+
+void Scope::ReplaceVarDecl(const sona::string_ref& denotingName,
+                           sona::ref_ptr<const AST::VarDecl> varDecl) {
+  auto it = m_Variables.find(denotingName);
+  sona_assert(it != m_Variables.end());
+  it->second = varDecl;
+}
