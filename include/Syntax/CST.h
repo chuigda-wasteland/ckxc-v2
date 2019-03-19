@@ -576,6 +576,25 @@ private:
   SingleSourceRange m_NameRange;
 };
 
+class UsingDecl : public Decl {
+public:
+  UsingDecl(sona::string_ref const& name,
+            sona::owner<Type> &&aliasee,
+            SingleSourceRange usingRange,
+            SourceLocation eqLoc)
+    : Decl(Node::NodeKind::CNK_UsingDecl),
+      m_Name(name),
+      m_Aliasee(std::move(aliasee)),
+      m_UsingRange(usingRange),
+      m_EqLoc(eqLoc) {}
+
+private:
+  sona::string_ref m_Name;
+  sona::owner<Type> m_Aliasee;
+  SingleSourceRange m_UsingRange;
+  SourceLocation m_EqLoc;
+};
+
 class FuncDecl : public Decl {
 public:
   FuncDecl(sona::string_ref const& name,

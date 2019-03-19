@@ -48,6 +48,7 @@ CST_ABSTRACT(Node)
     CST_DECL(ClassDecl)
     CST_DECL(EnumDecl)
     CST_DECL(ADTDecl)
+    CST_DECL(UsingDecl)
     CST_DECL(FuncDecl)
     CST_DECL(VarDecl)
 
