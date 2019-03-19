@@ -1,4 +1,5 @@
 #include "AST/Type.hpp"
+#include "AST/Decl.hpp"
 #include "sona/util.hpp"
 
 #include <algorithm>
@@ -171,8 +172,7 @@ bool FunctionType::EqualTo(Type const &that) const noexcept {
   return false;
 }
 
-/// @todo remove magic numbers
-
+/// @todo remove magic numbers, use better hash algorithms
 std::size_t LValueRefType::GetHash() const noexcept {
   return GetReferencedType().get().GetHash() * 19260817;
 }
@@ -182,7 +182,7 @@ std::size_t RValueRefType::GetHash() const noexcept {
 }
 
 std::size_t UsingType::GetHash() const noexcept {
-  return m_Aliasee.get().GetHash() * 233;
+  return m_UsingDecl->GetAliasee()->GetHash() * 233;
 }
 
 bool RefType::EqualTo(Type const &that) const noexcept {
@@ -205,7 +205,7 @@ bool RValueRefType::EqualTo(Type const &that) const noexcept {
 bool UsingType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Using) {
     UsingType const &t = static_cast<UsingType const &>(that);
-    return GetAliasee().get().EqualTo(t);
+    return GetUsingDecl()->GetAliasee().get().EqualTo(t);
   }
   return false;
 }

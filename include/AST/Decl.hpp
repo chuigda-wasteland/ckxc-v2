@@ -72,6 +72,34 @@ private:
   sona::string_ref m_EnumName;
 };
 
+class UsingDecl : public Decl {
+public:
+  UsingDecl(sona::ref_ptr<DeclContext> context,
+            sona::string_ref const& aliasName,
+            sona::ref_ptr<AST::Type> aliasee)
+    : Decl(DeclKind::DK_Using, context),
+      m_AliasName(aliasName),
+      m_Aliasee(aliasee) {}
+
+  /// @note only use this for refilling after dependency resolution
+  void fillAliasee(sona::ref_ptr<AST::Type> aliasee) noexcept {
+    sona_assert(m_Aliasee == nullptr);
+    m_Aliasee = aliasee;
+  }
+
+  sona::string_ref const& GetAliasName() const noexcept {
+    return m_AliasName;
+  }
+
+  sona::ref_ptr<AST::Type const> GetAliasee() const noexcept {
+    return m_Aliasee;
+  }
+
+private:
+  sona::string_ref m_AliasName;
+  sona::ref_ptr<AST::Type> m_Aliasee;
+};
+
 class EnumeratorDecl : public Decl {
 public:
   EnumeratorDecl(sona::ref_ptr<DeclContext> context,

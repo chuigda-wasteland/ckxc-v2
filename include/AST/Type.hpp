@@ -218,16 +218,17 @@ private:
 
 class UsingType : public Type {
 public:
-  UsingType(sona::ref_ptr<Type> aliasee)
-      : Type(TypeId::TI_Using), m_Aliasee(aliasee) {}
+  UsingType(sona::ref_ptr<AST::UsingDecl> usingDecl)
+      : Type(TypeId::TI_Using), m_UsingDecl(usingDecl) {}
 
-  sona::ref_ptr<Type const> GetAliasee() const noexcept { return m_Aliasee; }
+  sona::ref_ptr<AST::UsingDecl const>
+  GetUsingDecl() const noexcept { return m_UsingDecl; }
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
 private:
-  sona::ref_ptr<Type> m_Aliasee;
+  sona::ref_ptr<AST::UsingDecl> m_UsingDecl;
 };
 
 } // namespace AST
