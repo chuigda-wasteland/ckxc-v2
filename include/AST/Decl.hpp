@@ -173,6 +173,7 @@ public:
 
   DeclSpec GetDeclSpec() const noexcept { return m_DeclSpec; }
   sona::string_ref const &GetVarName() const noexcept { return m_VarName; }
+  void SetType(sona::ref_ptr<Type const> type) noexcept { m_Type = type; }
 
 private:
   sona::ref_ptr<Type const> m_Type;

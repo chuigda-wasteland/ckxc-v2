@@ -31,11 +31,11 @@ private:
   std::shared_ptr<Scope> const& CurrentScope() const noexcept;
 
   sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
-               std::vector<Dependency>> // dependencies
+               std::vector<Dependency>>         // dependencies
   ResolveType(std::shared_ptr<Scope> scope,
               sona::ref_ptr<Syntax::Type const> type);
 
-  sona::owner<AST::Decl>
+  std::pair<sona::owner<AST::Decl>, bool>
   ActOnDecl(std::shared_ptr<Scope> scope,
             sona::ref_ptr<Syntax::Decl const> decl);
 
@@ -46,7 +46,7 @@ private:
                 sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
-  sona::owner<AST::Decl> \
+  std::pair<sona::owner<AST::Decl>, bool> \
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> decl);
 
@@ -64,6 +64,9 @@ private:
   std::vector<sona::ref_ptr<AST::DeclContext>> m_DeclContexts;
   std::vector<std::shared_ptr<Scope>> m_ScopeChains;
   std::vector<Syntax::Export> m_Exports;
+
+  std::vector<Sema::IncompleteVarDecl> m_IncompleteVars;
+  std::vector<Sema::IncompleteTagDecl> m_IncompleteTags;
 };
 
 } // namespace Sema

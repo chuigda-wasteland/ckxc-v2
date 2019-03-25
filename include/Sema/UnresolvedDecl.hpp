@@ -40,12 +40,17 @@ private:
 
 class IncompleteVarDecl : public IncompleteDecl {
 public:
-  IncompleteVarDecl(sona::ref_ptr<Syntax::VarDecl> concrete,
+  IncompleteVarDecl(sona::ref_ptr<AST::VarDecl> incomplete,
+                    sona::ref_ptr<Syntax::VarDecl const> concrete,
                     sona::ref_ptr<AST::DeclContext> inContext,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope),
-      m_Concrete(concrete), m_InContext(inContext) {}
+      m_Incomplete(incomplete), m_Concrete(concrete), m_InContext(inContext) {}
+
+  sona::ref_ptr<AST::VarDecl> GetIncomplete() noexcept {
+    return m_Incomplete;
+  }
 
   sona::ref_ptr<Syntax::VarDecl const> GetConcrete() const noexcept {
     return m_Concrete;
@@ -56,7 +61,8 @@ public:
   }
 
 private:
-  sona::ref_ptr<Syntax::VarDecl> m_Concrete ;
+  sona::ref_ptr<AST::VarDecl> m_Incomplete;
+  sona::ref_ptr<Syntax::VarDecl const> m_Concrete;
   sona::ref_ptr<AST::DeclContext> m_InContext;
 };
 

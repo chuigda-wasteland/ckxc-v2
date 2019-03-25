@@ -18,7 +18,7 @@ sona::owner<AST::TransUnitDecl>
 SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
   sona::owner<AST::TransUnitDecl> transUnitDecl = new AST::TransUnitDecl();
   for (ref_ptr<Syntax::Decl const> decl : transUnit->GetDecls()) {
-    transUnitDecl.borrow()->AddDecl(ActOnDecl(CurrentScope(), decl));
+    transUnitDecl.borrow()->AddDecl(ActOnDecl(CurrentScope(), decl).first);
   }
   return transUnitDecl;
 }
@@ -37,7 +37,7 @@ SemaPhase0::ResolveType(std::shared_ptr<Scope> scope,
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
-sona::owner<AST::Decl>
+std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnDecl(std::shared_ptr<Scope> scope,
                       sona::ref_ptr<const Syntax::Decl> decl) {
   switch (decl->GetNodeKind()) {
@@ -48,7 +48,7 @@ SemaPhase0::ActOnDecl(std::shared_ptr<Scope> scope,
   default:
     sona_unreachable();
   }
-  return nullptr;
+  return std::make_pair(nullptr, false);
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
@@ -104,8 +104,9 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
   std::vector<Dependency> dependencies;
   dependencies.emplace_back(
     Syntax::Identifier(uty->GetName(), uty->GetSourceRange()));
+
   return sona::either<sona::ref_ptr<AST::Type const>,
-		      std::vector<Dependency>>(std::move(dependencies));
+                      std::vector<Dependency>>(std::move(dependencies));
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
@@ -155,8 +156,58 @@ ResolveComposedType(std::shared_ptr<Scope> scope,
       dependency.SetStrong(false);
     }
   }
+
   return sona::either<sona::ref_ptr<AST::Type const>,
-		      std::vector<Dependency>>(std::move(dependencies));
+                      std::vector<Dependency>>(std::move(dependencies));
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnVarDecl(std::shared_ptr<Scope> scope,
+                         sona::ref_ptr<Syntax::VarDecl const> decl) {
+  auto typeResult = ResolveType(scope, decl->GetType());
+  if (typeResult.contains_t1()) {
+    return std::make_pair(
+        sona::owner<AST::Decl>(
+            new AST::VarDecl(GetCurrentDeclContext(), typeResult.as_t1(),
+                             AST::DeclSpec::DS_None /** @todo  */,
+                              decl->GetName())),
+            true);
+  }
+
+  sona::owner<AST::Decl> incomplete =
+      new AST::VarDecl(GetCurrentDeclContext(), nullptr,
+                       AST::DeclSpec::DS_None /*TODO*/, decl->GetName());
+  m_IncompleteVars.emplace_back(incomplete.borrow().cast_unsafe<AST::VarDecl>(),
+                                decl, GetCurrentDeclContext(),
+                                std::move(typeResult.as_t2()), scope);
+  return std::make_pair(std::move(incomplete), false);
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
+                           sona::ref_ptr<Syntax::ClassDecl const> decl) {
+  std::vector<Dependency> collectedDependencies;
+  sona::owner<AST::ClassDecl> classDecl =
+      new AST::ClassDecl(GetCurrentDeclContext(), decl->GetClassName());
+  PushDeclContext(classDecl.borrow().cast_unsafe<AST::DeclContext>());
+
+  for (sona::ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
+    auto p = ActOnDecl(scope, subDecl);
+    if (!p.second) {
+      collectedDependencies.emplace_back(p.first.borrow(), true);
+    }
+    GetCurrentDeclContext()->AddDecl(std::move(p.first));
+  }
+
+  PopDeclContext();
+
+  if (!collectedDependencies.empty()) {
+    m_IncompleteTags.emplace_back(classDecl.borrow().cast_unsafe<AST::Decl>(),
+                                  std::move(collectedDependencies), scope);
+  }
+
+  return std::make_pair(classDecl.cast_unsafe<AST::Decl>(),
+                        !collectedDependencies.empty());
 }
 
 } // namespace Sema
