@@ -104,7 +104,8 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
   std::vector<Dependency> dependencies;
   dependencies.emplace_back(
     Syntax::Identifier(uty->GetName(), uty->GetSourceRange()));
-  return dependencies;
+  return sona::either<sona::ref_ptr<AST::Type const>,
+		      std::vector<Dependency>>(std::move(dependencies));
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
@@ -154,7 +155,8 @@ ResolveComposedType(std::shared_ptr<Scope> scope,
       dependency.SetStrong(false);
     }
   }
-  return dependencies;
+  return sona::either<sona::ref_ptr<AST::Type const>,
+		      std::vector<Dependency>>(std::move(dependencies));
 }
 
 } // namespace Sema

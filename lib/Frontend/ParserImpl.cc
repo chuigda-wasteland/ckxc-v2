@@ -681,15 +681,15 @@ ParserImpl::EvaluateIntTypeKind(int64_t i) noexcept {
 Syntax::BasicType::TypeKind
 ParserImpl::EvaluateUIntTypeKind(uint64_t u) noexcept {
   if (u <= std::numeric_limits<uint8_t>::max()
-      && u >= std::numeric_limits<uint8_t>::min()) {
+      /* && u >= std::numeric_limits<uint8_t>::min() */) {
     return Syntax::BasicType::TypeKind::TK_UInt8;
   }
   else if (u < std::numeric_limits<uint16_t>::max()
-           && u >= std::numeric_limits<uint16_t>::min()) {
+           /* && u >= std::numeric_limits<uint16_t>::min() */) {
     return Syntax::BasicType::TypeKind::TK_UInt16;
   }
   else if (u < std::numeric_limits<uint32_t>::max()
-           && u >= std::numeric_limits<uint32_t>::min()) {
+           /* && u >= std::numeric_limits<uint32_t>::min() */) {
     return Syntax::BasicType::TypeKind::TK_UInt32;
   }
   else {
