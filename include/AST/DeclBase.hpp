@@ -54,25 +54,14 @@ public:
   DeclContext(Decl::DeclKind kind) : m_DeclKind(kind) {}
 
   void AddDecl(sona::owner<Decl> &&decl);
-  bool LookupDecl(sona::string_ref const& name);
-  bool LookupDeclLocally(sona::string_ref const& name);
+  bool LookupDecl(sona::string_ref const& name) const;
+  bool LookupDeclLocally(sona::string_ref const& name) const;
 
   auto GetDecls() const noexcept {
     return sona::linq::from_container(m_Decls).
         transform([](sona::owner<Decl> const& decl) {
       return decl.borrow();
     });
-  }
-
-  void ReplaceDecl(sona::ref_ptr<Decl> toReplace, sona::owner<Decl> &&decl) {
-    for (auto it = m_Decls.begin(); it != m_Decls.end(); ++it) {
-      if (it->borrow() == toReplace) {
-        sona::owner<Decl> wastebin = std::move(*it);
-        *it = std::move(decl);
-        return;
-      }
-    }
-    sona_unreachable();
   }
 
 private:
