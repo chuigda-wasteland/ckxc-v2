@@ -84,6 +84,21 @@ private:
   sona::ref_ptr<AST::Decl> m_Halfway;
 };
 
+class IncompleteEnumClassInternDecl : public IncompleteDecl {
+public:
+  IncompleteEnumClassInternDecl(sona::ref_ptr<AST::Decl> halfway,
+                                std::vector<Dependency> &&dependencies,
+                                std::shared_ptr<Scope> const& inScope)
+    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
+
+  sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
+    return m_Halfway;
+  }
+
+private:
+  sona::ref_ptr<AST::Decl> m_Halfway;
+};
+
 class IncompleteUsingDecl : public IncompleteDecl {
 public:
   IncompleteUsingDecl(sona::ref_ptr<AST::UsingDecl> halfway,

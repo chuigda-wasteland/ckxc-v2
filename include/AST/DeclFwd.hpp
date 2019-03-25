@@ -18,6 +18,8 @@ class TypeDecl;
 class TagDecl;
 class ClassDecl; // : public DeclContext
 class EnumDecl;  // : public DeclContext
+class EnumClassDecl;
+class EnumClassInternDecl;
 class UsingDecl;
 class ValuedDecl;
 class FuncDecl; // : public DeclContext

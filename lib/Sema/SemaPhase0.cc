@@ -210,5 +210,54 @@ SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
                         !collectedDependencies.empty());
 }
 
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnADTDecl(std::shared_ptr<Scope> scope,
+                         sona::ref_ptr<Syntax::ADTDecl const> decl) {
+  std::vector<Dependency> collectedDependencies;
+  sona::owner<AST::EnumClassDecl> enumClassDecl =
+    new AST::EnumClassDecl(GetCurrentDeclContext(), decl->GetName());
+  PushDeclContext(enumClassDecl.borrow().cast_unsafe<AST::DeclContext>());
+
+  for (sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> constructor
+       : decl->GetConstructors()) {
+    auto result = ActOnADTConstructor(scope, constructor);
+    if (!result.second) {
+      collectedDependencies.emplace_back(result.first.borrow(), true);
+    }
+    GetCurrentDeclContext()->AddDecl(std::move(result.first));
+  }
+
+  PopDeclContext();
+
+  if (!collectedDependencies.empty()) {
+    m_IncompleteTags.emplace_back(
+          enumClassDecl.borrow().cast_unsafe<AST::Decl>(),
+          std::move(collectedDependencies), scope);
+  }
+
+  return std::make_pair(enumClassDecl.cast_unsafe<AST::Decl>(),
+                        !collectedDependencies.empty());
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnADTConstructor(
+    std::shared_ptr<Scope> scope,
+    sona::ref_ptr<const Syntax::ADTDecl::DataConstructor> dc) {
+  auto typeResult = ResolveType(scope, dc->GetUnderlyingType());
+  sona::owner<AST::Decl> ret0 =
+      typeResult.contains_t1() ?
+        new AST::EnumClassInternDecl(GetCurrentDeclContext(),
+                                     dc->GetName(), typeResult.as_t1())
+      : new AST::EnumClassInternDecl(GetCurrentDeclContext(),
+                                     dc->GetName(), nullptr);
+  if (typeResult.contains_t2()) {
+    m_IncompleteEnumClassInterns.emplace_back(ret0.borrow(),
+                                              std::move(typeResult.as_t2()),
+                                              scope);
+  }
+
+  return std::make_pair(std::move(ret0), typeResult.contains_t1());
+}
+
 } // namespace Sema
 } // namespace ckx

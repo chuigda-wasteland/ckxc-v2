@@ -27,6 +27,8 @@ public:
     DK_Label,
     DK_Class,
     DK_Enum,
+    DK_EnumClass,
+    DK_EnumClassIntern,
     DK_Using,
     DK_Func,
     DK_Param,

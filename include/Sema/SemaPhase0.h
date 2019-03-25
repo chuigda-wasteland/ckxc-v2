@@ -50,6 +50,10 @@ private:
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> decl);
 
+  std::pair<sona::owner<AST::Decl>, bool>
+  ActOnADTConstructor(std::shared_ptr<Scope> scope,
+                      sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);
+
 #include "Syntax/CSTNodeDefs.def"
 
 private:
@@ -67,6 +71,7 @@ private:
 
   std::vector<Sema::IncompleteVarDecl> m_IncompleteVars;
   std::vector<Sema::IncompleteTagDecl> m_IncompleteTags;
+  std::vector<Sema::IncompleteEnumClassInternDecl> m_IncompleteEnumClassInterns;
 };
 
 } // namespace Sema

@@ -72,6 +72,48 @@ private:
   sona::string_ref m_EnumName;
 };
 
+class EnumClassInternDecl : public Decl {
+public:
+  EnumClassInternDecl(sona::ref_ptr<DeclContext> context,
+                      sona::string_ref const& constructorName,
+                      sona::ref_ptr<AST::Type const> type)
+    : Decl(DeclKind::DK_EnumClassIntern, context),
+      m_ConstructorName(constructorName),
+      m_Type(type) {}
+
+  sona::string_ref const& GetConstructorName() const noexcept {
+    return m_ConstructorName;
+  }
+
+  sona::ref_ptr<AST::Type const> GetType() const noexcept {
+    return m_Type;
+  }
+
+  void SetType(sona::ref_ptr<AST::Type> type) noexcept {
+    m_Type = type;
+  }
+
+private:
+  sona::string_ref m_ConstructorName;
+  sona::ref_ptr<AST::Type const> m_Type;
+};
+
+class EnumClassDecl : public Decl, public DeclContext {
+public:
+  EnumClassDecl(sona::ref_ptr<DeclContext> context,
+                sona::string_ref const& enumClassName)
+    : Decl(DeclKind::DK_EnumClass, context),
+      DeclContext(DeclKind::DK_EnumClass),
+      m_EnumClassName(enumClassName) {}
+
+  sona::string_ref const& GetEnumClassName() const noexcept {
+    return m_EnumClassName;
+  }
+
+private:
+  sona::string_ref m_EnumClassName;
+};
+
 class UsingDecl : public Decl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
