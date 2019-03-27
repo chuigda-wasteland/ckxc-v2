@@ -15,7 +15,6 @@ class TransUnitDecl; // : public DeclContext
 class NamedDecl;
 class LabelDecl;
 class TypeDecl;
-class TagDecl;
 class ClassDecl; // : public DeclContext
 class EnumDecl;  // : public DeclContext
 class EnumClassDecl;

@@ -169,13 +169,14 @@ private:
   sona::owner<Type> m_ReturnType;
 };
 
-class TagType : public Type {
+/// @todo This inheritance hierarchy seems redundant. Try removeing it st.
+class UserDefinedType : public Type {
 public:
-  enum class TagTypeId { TTI_Class, TTI_Enum };
-  TagType(TagTypeId id, sona::string_ref const& typeName)
+  enum class UDTypeId { TTI_Class, TTI_Enum, TTI_EnumClass };
+  UserDefinedType(UDTypeId id, sona::string_ref const& typeName)
     : Type(TypeId::TI_Tag), m_Id(id), m_TypeName(typeName) {}
 
-  TagTypeId GetTagTypeId() const noexcept { return m_Id; }
+  UDTypeId GetUDTypeId() const noexcept { return m_Id; }
 
   sona::string_ref const &GetTypeName() const noexcept { return m_TypeName; }
 
@@ -183,15 +184,15 @@ public:
   bool EqualTo(Type const &that) const noexcept override = 0;
 
 private:
-  TagTypeId m_Id;
+  UDTypeId m_Id;
   sona::string_ref m_TypeName;
 };
 
 /// @todo How to calculate hash of class and enum types?
-class ClassType : public TagType {
+class ClassType : public UserDefinedType {
 public:
   ClassType(sona::string_ref const& typeName , sona::ref_ptr<ClassDecl> decl)
-      : TagType(TagTypeId::TTI_Class, typeName), m_Decl(decl) {}
+      : UserDefinedType(UDTypeId::TTI_Class, typeName), m_Decl(decl) {}
 
   sona::ref_ptr<ClassDecl const> GetDecl() const noexcept { return m_Decl; }
 
@@ -202,10 +203,10 @@ private:
   sona::ref_ptr<ClassDecl> m_Decl;
 };
 
-class EnumType : public TagType {
+class EnumType : public UserDefinedType {
 public:
   EnumType(sona::string_ref const& typeName, sona::ref_ptr<EnumDecl> decl)
-      : TagType(TagTypeId::TTI_Enum, typeName), m_Decl(decl) {}
+      : UserDefinedType(UDTypeId::TTI_Enum, typeName), m_Decl(decl) {}
 
   sona::ref_ptr<EnumDecl const> GetDecl() const noexcept { return m_Decl; }
 
@@ -214,6 +215,21 @@ public:
 
 private:
   sona::ref_ptr<EnumDecl> m_Decl;
+};
+
+class EnumClassType : public UserDefinedType {
+public:
+  EnumClassType(sona::string_ref const& typeName,
+                sona::ref_ptr<EnumClassDecl> decl)
+    : UserDefinedType(UDTypeId::TTI_EnumClass, typeName), m_Decl(decl) {}
+
+  sona::ref_ptr<EnumClassDecl const> GetDecl() const noexcept { return m_Decl; }
+
+  std::size_t GetHash() const noexcept override;
+  bool EqualTo(Type const &that) const noexcept override;
+
+private:
+  sona::ref_ptr<EnumClassDecl> m_Decl;
 };
 
 class UsingType : public Type {

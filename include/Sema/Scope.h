@@ -104,7 +104,7 @@ private:
   sona::ref_ptr<Scope> m_EnclosingLoopScope;
   ScopeFlags m_ScopeFlags;
 
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::TagDecl const>>
+  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Decl const>>
   m_Tags;
   std::unordered_map<sona::string_ref, sona::ref_ptr<AST::VarDecl const>>
   m_Variables;

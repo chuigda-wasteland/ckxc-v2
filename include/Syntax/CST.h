@@ -588,6 +588,22 @@ public:
       m_UsingRange(usingRange),
       m_EqLoc(eqLoc) {}
 
+  sona::string_ref const& GetName() const noexcept {
+    return m_Name;
+  }
+
+  sona::ref_ptr<Type const> GetAliasee() const noexcept {
+    return m_Aliasee.borrow();
+  }
+
+  SingleSourceRange const& GetUsingRange() const noexcept {
+    return m_UsingRange;
+  }
+
+  SourceLocation const& GetEqLoc() const noexcept {
+    return m_EqLoc;
+  }
+
 private:
   sona::string_ref m_Name;
   sona::owner<Type> m_Aliasee;

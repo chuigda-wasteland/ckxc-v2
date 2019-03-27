@@ -118,7 +118,7 @@ class UsingDecl : public Decl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& aliasName,
-            sona::ref_ptr<AST::Type> aliasee)
+            sona::ref_ptr<AST::Type const> aliasee)
     : Decl(DeclKind::DK_Using, context),
       m_AliasName(aliasName),
       m_Aliasee(aliasee) {}
@@ -137,9 +137,13 @@ public:
     return m_Aliasee;
   }
 
+  void SetAliasee(sona::ref_ptr<AST::Type const> aliasee) noexcept {
+    m_Aliasee = aliasee;
+  }
+
 private:
   sona::string_ref m_AliasName;
-  sona::ref_ptr<AST::Type> m_Aliasee;
+  sona::ref_ptr<AST::Type const> m_Aliasee;
 };
 
 class EnumeratorDecl : public Decl {

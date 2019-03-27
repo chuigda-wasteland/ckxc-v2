@@ -1,6 +1,7 @@
 #ifndef POINTER_PLUS_HPP
 #define POINTER_PLUS_HPP
 
+#include <functional>
 #include <memory>
 
 namespace sona {
@@ -58,6 +59,21 @@ public:
 private:
   T *ptr;
 };
+
+} // namespace sona
+
+namespace std {
+
+template<typename T>
+struct hash<sona::ref_ptr<T>> {
+  std::size_t operator()(sona::ref_ptr<T> const& r) const noexcept {
+    return ::std::hash<const void*>()(static_cast<const void*>(&(r.get())));
+  }
+};
+
+} // namespace std
+
+namespace sona {
 
 template <typename T> class owner {
 public:

@@ -62,6 +62,10 @@ private:
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
   std::shared_ptr<Scope> GetCurrentScope();
 
+  bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
+  bool CheckUserDefinedTypeComplete(
+      sona::ref_ptr<AST::UserDefinedType const> type);
+
   Diag::DiagnosticEngine &m_Diag;
 
   AST::ASTContext m_ASTContext;
@@ -69,9 +73,18 @@ private:
   std::vector<std::shared_ptr<Scope>> m_ScopeChains;
   std::vector<Syntax::Export> m_Exports;
 
-  std::vector<Sema::IncompleteVarDecl> m_IncompleteVars;
-  std::vector<Sema::IncompleteTagDecl> m_IncompleteTags;
-  std::vector<Sema::IncompleteEnumClassInternDecl> m_IncompleteEnumClassInterns;
+  std::unordered_map<sona::ref_ptr<AST::VarDecl const>,
+                     Sema::IncompleteVarDecl>
+    m_IncompleteVars;
+  std::unordered_map<sona::ref_ptr<AST::Decl const>,
+                     Sema::IncompleteTagDecl>
+    m_IncompleteTags;
+  std::unordered_map<sona::ref_ptr<AST::UsingDecl const>,
+                     Sema::IncompleteUsingDecl>
+    m_IncompleteUsings;
+  std::unordered_map<sona::ref_ptr<AST::EnumClassInternDecl const>,
+                     Sema::IncompleteEnumClassInternDecl>
+    m_IncompleteEnumClassInterns;
 };
 
 } // namespace Sema

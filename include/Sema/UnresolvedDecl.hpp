@@ -71,10 +71,7 @@ public:
   IncompleteTagDecl(sona::ref_ptr<AST::Decl> halfway,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {
-    sona_assert(halfway->GetDeclKind() == AST::Decl::DK_Class
-                /* || halfway->GetDeclKind() == AST::Decl::DK_ADT */);
-  }
+    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
 
   sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
     return m_Halfway;
@@ -102,8 +99,8 @@ private:
 class IncompleteUsingDecl : public IncompleteDecl {
 public:
   IncompleteUsingDecl(sona::ref_ptr<AST::UsingDecl> halfway,
-                      std::shared_ptr<Scope> const& inScope,
-                      std::vector<Dependency> &&dependencies)
+                      std::vector<Dependency> &&dependencies,
+                      std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
 
   sona::ref_ptr<AST::UsingDecl const> GetHalfway() const noexcept {
