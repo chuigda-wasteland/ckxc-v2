@@ -63,8 +63,8 @@ private:
   std::shared_ptr<Scope> GetCurrentScope();
 
   bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
-  bool CheckUserDefinedTypeComplete(
-      sona::ref_ptr<AST::UserDefinedType const> type);
+  bool CheckTagTypeComplete(
+      sona::ref_ptr<AST::TagType const> type);
 
   Diag::DiagnosticEngine &m_Diag;
 

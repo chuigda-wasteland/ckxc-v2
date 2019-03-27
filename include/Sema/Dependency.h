@@ -13,14 +13,14 @@ public:
   Dependency(Syntax::Identifier &&id, bool isStrong = false)
     : m_Dependency(std::move(id)), m_IsStrong(isStrong) {}
 
-  Dependency(sona::ref_ptr<AST::Decl> decl, bool isStrong = false)
+  Dependency(sona::ref_ptr<AST::Decl const> decl, bool isStrong = false)
     : m_Dependency(decl), m_IsStrong(isStrong) {}
 
   bool IsDependByname() const noexcept {
     return m_Dependency.contains_t1();
   }
 
-  void ReplaceNameWithDecl(sona::ref_ptr<AST::Decl> decl) noexcept {
+  void ReplaceNameWithDecl(sona::ref_ptr<AST::Decl const> decl) noexcept {
     m_Dependency.set(decl);
   }
 
@@ -28,7 +28,7 @@ public:
     return m_Dependency.as_t1();
   }
 
-  sona::ref_ptr<AST::Decl> GetDeclUnsafe() const noexcept {
+  sona::ref_ptr<AST::Decl const> GetDeclUnsafe() const noexcept {
     return m_Dependency.as_t2();
   }
 
@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  sona::either<Syntax::Identifier, sona::ref_ptr<AST::Decl>> m_Dependency;
+  sona::either<Syntax::Identifier, sona::ref_ptr<AST::Decl const>> m_Dependency;
   bool m_IsStrong;
 };
 

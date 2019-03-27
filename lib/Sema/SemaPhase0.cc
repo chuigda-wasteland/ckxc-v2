@@ -98,12 +98,18 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
   sona::ref_ptr<AST::Type const> lookupResult =
       scope->LookupType(uty->GetName());
   if (lookupResult != nullptr) {
+    if (!CheckTypeComplete(lookupResult)) {
+      std::vector<Dependency> dependencies;
+      dependencies.emplace_back(
+        AST::GetDeclOfUserDefinedType(lookupResult), true);
+    }
+
     return lookupResult;
   }
 
   std::vector<Dependency> dependencies;
   dependencies.emplace_back(
-    Syntax::Identifier(uty->GetName(), uty->GetSourceRange()));
+    Syntax::Identifier(uty->GetName(), uty->GetSourceRange()), true);
 
   return sona::either<sona::ref_ptr<AST::Type const>,
                       std::vector<Dependency>>(std::move(dependencies));
@@ -269,8 +275,8 @@ SemaPhase0::ActOnADTConstructor(
 bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   switch (type->GetTypeId()) {
   case AST::Type::TypeId::TI_Tag: {
-    return CheckUserDefinedTypeComplete(
-             type.cast_unsafe<AST::UserDefinedType const>());
+    return CheckTagTypeComplete(
+             type.cast_unsafe<AST::TagType const>());
   }
 
   case AST::Type::TypeId::TI_Using: {
@@ -287,22 +293,19 @@ bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   return false;
 }
 
-bool SemaPhase0::CheckUserDefinedTypeComplete(
-    sona::ref_ptr<const AST::UserDefinedType> type) {
+bool SemaPhase0::CheckTagTypeComplete(
+    sona::ref_ptr<const AST::TagType> type) {
   sona::ref_ptr<AST::Decl const> correspondingDecl = nullptr;
-  switch (type->GetUDTypeId()) {
-  case AST::UserDefinedType::UDTypeId::TTI_Class:
+  switch (type->GetTagTypeId()) {
+  case AST::TagType::UDTypeId::TTI_Class:
     correspondingDecl = type.cast_unsafe<AST::ClassType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
-    break;
-  case AST::UserDefinedType::UDTypeId::TTI_Enum:
+  case AST::TagType::UDTypeId::TTI_Enum:
     correspondingDecl = type.cast_unsafe<AST::EnumType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
-    break;
-  case AST::UserDefinedType::UDTypeId::TTI_EnumClass:
+  case AST::TagType::UDTypeId::TTI_EnumClass:
     correspondingDecl = type.cast_unsafe<AST::EnumClassType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
-    break;
   }
 
   auto it = m_IncompleteTags.find(correspondingDecl);

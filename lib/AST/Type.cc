@@ -210,5 +210,34 @@ bool UsingType::EqualTo(Type const &that) const noexcept {
   return false;
 }
 
+sona::ref_ptr<Decl const>
+GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
+  switch (ty->GetTypeId()) {
+  case Type::TypeId::TI_Tag: {
+    sona::ref_ptr<TagType const> tagTy = ty.cast_unsafe<TagType const>();
+    switch (tagTy->GetTagTypeId()) {
+    case TagType::UDTypeId::TTI_Class:
+      return tagTy.cast_unsafe<ClassType const>()->GetDecl()
+                  .cast_unsafe<Decl const>();
+    case TagType::UDTypeId::TTI_Enum:
+        return tagTy.cast_unsafe<EnumType const>()->GetDecl()
+                    .cast_unsafe<Decl const>();
+    case TagType::UDTypeId::TTI_EnumClass:
+        return tagTy.cast_unsafe<EnumClassType const>()->GetDecl()
+                    .cast_unsafe<Decl const>();
+    }
+  }
+
+  case Type::TypeId::TI_Using: {
+    sona::ref_ptr<UsingType const> usingTy = ty.cast_unsafe<UsingType const>();
+    return usingTy->GetUsingDecl().cast_unsafe<Decl const>();
+  }
+
+  default:
+    sona_unreachable1("not user defined type");
+    return nullptr;
+  }
+}
+
 } // namespace AST
 } // namespace ckx
