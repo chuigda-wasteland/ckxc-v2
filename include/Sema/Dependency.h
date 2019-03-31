@@ -5,6 +5,8 @@
 #include "AST/DeclFwd.hpp"
 #include "sona/either.hpp"
 
+#include <iosfwd>
+
 namespace ckx {
 namespace Sema {
 
@@ -38,7 +40,7 @@ public:
 
   void SetStrong(bool strong = true) noexcept {
     m_IsStrong = strong;
-  }
+  };
 
 private:
   sona::either<Syntax::Identifier, sona::ref_ptr<AST::Decl const>> m_Dependency;

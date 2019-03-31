@@ -18,7 +18,7 @@
 namespace ckx {
 namespace Sema {
 
-class SemaPhase0 final {
+class SemaPhase0 {
 public:
   SemaPhase0(Diag::DiagnosticEngine &diag);
 
@@ -55,7 +55,8 @@ private:
 
 #include "Syntax/CSTNodeDefs.def"
 
-private:
+protected:
+  /// @note the following interfaces are opened for testing
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
