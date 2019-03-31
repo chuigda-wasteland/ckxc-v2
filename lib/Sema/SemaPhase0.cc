@@ -327,12 +327,15 @@ bool SemaPhase0::CheckTagTypeComplete(
   case AST::TagType::UDTypeId::TTI_Class:
     correspondingDecl = type.cast_unsafe<AST::ClassType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
+    break;
   case AST::TagType::UDTypeId::TTI_Enum:
     correspondingDecl = type.cast_unsafe<AST::EnumType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
+    break;
   case AST::TagType::UDTypeId::TTI_EnumClass:
     correspondingDecl = type.cast_unsafe<AST::EnumClassType const>()->GetDecl()
                             .cast_unsafe<AST::Decl const>();
+    break;
   }
 
   auto it = m_IncompleteTags.find(correspondingDecl);
