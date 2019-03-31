@@ -17,10 +17,21 @@ SemaPhase0::SemaPhase0(Diag::DiagnosticEngine& diag) : m_Diag(diag) {}
 sona::owner<AST::TransUnitDecl>
 SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
   sona::owner<AST::TransUnitDecl> transUnitDecl = new AST::TransUnitDecl();
+  PushDeclContext(transUnitDecl.borrow().cast_unsafe<AST::DeclContext>());
+  PushScope();
   for (ref_ptr<Syntax::Decl const> decl : transUnit->GetDecls()) {
-    transUnitDecl.borrow()->AddDecl(ActOnDecl(CurrentScope(), decl).first);
+    transUnitDecl.borrow()->AddDecl(ActOnDecl(GetCurrentScope(), decl).first);
   }
   return transUnitDecl;
+}
+
+void SemaPhase0::PushScope(Scope::ScopeFlags flags) {
+  m_ScopeChains.emplace_back(
+      new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));
+}
+
+void SemaPhase0::PopScope() {
+  m_ScopeChains.pop_back();
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
@@ -272,6 +283,22 @@ SemaPhase0::ActOnADTConstructor(
   return std::make_pair(std::move(ret0), typeResult.contains_t1());
 }
 
+void SemaPhase0::PushDeclContext(sona::ref_ptr<AST::DeclContext> context) {
+  m_DeclContexts.push_back(context);
+}
+
+void SemaPhase0::PopDeclContext() {
+  m_DeclContexts.pop_back();
+}
+
+sona::ref_ptr<AST::DeclContext> SemaPhase0::GetCurrentDeclContext() {
+  return m_DeclContexts.back();
+}
+
+std::shared_ptr<Scope> const& SemaPhase0::GetCurrentScope() const noexcept {
+  return m_ScopeChains.back();
+}
+
 bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   switch (type->GetTypeId()) {
   case AST::Type::TypeId::TI_Tag: {
@@ -331,6 +358,43 @@ SemaPhase0::ActOnUsingDecl(std::shared_ptr<Scope> scope,
   }
 
   return std::make_pair(std::move(ret0), typeResult.contains_t1());
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnFuncDecl(std::shared_ptr<Scope> scope,
+                          sona::ref_ptr<Syntax::FuncDecl const> decl) {
+  (void)scope;
+  (void)decl;
+  sona_unreachable1("not implemented");
+  return std::make_pair(nullptr, false);
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnEnumDecl(std::shared_ptr<Scope> scope,
+                          sona::ref_ptr<Syntax::EnumDecl const> decl) {
+  (void)scope;
+  (void)decl;
+  sona_unreachable1("not implemented");
+  return std::make_pair(nullptr, false);
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnForwardDecl(std::shared_ptr<Scope> scope,
+                             sona::ref_ptr<Syntax::ForwardDecl const> decl) {
+  (void)scope;
+  (void)decl;
+  sona_unreachable1("not implemented");
+  return std::make_pair(nullptr, false);
+}
+
+std::pair<sona::owner<AST::Decl>, bool>
+SemaPhase0::ActOnTemplatedDecl(
+    std::shared_ptr<Scope> scope,
+    sona::ref_ptr<Syntax::TemplatedDecl const> decl) {
+  (void)scope;
+  (void)decl;
+  sona_unreachable1("not implemented");
+  return std::make_pair(nullptr, false);
 }
 
 } // namespace Sema

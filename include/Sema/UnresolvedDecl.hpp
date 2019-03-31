@@ -5,6 +5,7 @@
 #include "Syntax/CSTFwd.h"
 #include "AST/Decl.hpp"
 
+#include <iosfwd>
 
 namespace ckx {
 namespace Sema {

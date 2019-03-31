@@ -28,7 +28,6 @@ public:
 private:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
-  std::shared_ptr<Scope> const& CurrentScope() const noexcept;
 
   sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
                std::vector<Dependency>>         // dependencies
@@ -60,7 +59,7 @@ private:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
-  std::shared_ptr<Scope> GetCurrentScope();
+  std::shared_ptr<Scope> const& GetCurrentScope() const noexcept;
 
   bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
   bool CheckTagTypeComplete(

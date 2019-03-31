@@ -55,7 +55,10 @@ class DeclContext {
 public:
   DeclContext(Decl::DeclKind kind) : m_DeclKind(kind) {}
 
-  void AddDecl(sona::owner<Decl> &&decl);
+  void AddDecl(sona::owner<Decl> &&decl) {
+    m_Decls.push_back(std::move(decl));
+  }
+
   bool LookupDecl(sona::string_ref const& name) const;
   bool LookupDeclLocally(sona::string_ref const& name) const;
 
