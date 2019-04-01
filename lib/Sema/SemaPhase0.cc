@@ -205,7 +205,7 @@ SemaPhase0::ActOnVarDecl(std::shared_ptr<Scope> scope,
               decl, GetCurrentDeclContext(), std::move(depends), scope));
     }
 
-    return std::make_pair(std::move(varDecl), true);
+    return std::make_pair(std::move(varDecl), isComplete);
   }
 
   sona::owner<AST::Decl> incomplete =
@@ -391,7 +391,7 @@ bool SemaPhase0::CheckTagTypeComplete(
   }
 
   auto it = m_IncompleteTags.find(correspondingDecl);
-  return it != m_IncompleteTags.end();
+  return it == m_IncompleteTags.end();
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
