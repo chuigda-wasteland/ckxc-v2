@@ -25,7 +25,7 @@ public:
     EI_Paren
   };
 
-  virtual ~Expr() {}
+  virtual ~Expr() = default;
 
 protected:
   Expr(ExprId id) : m_ExprId(id) {}

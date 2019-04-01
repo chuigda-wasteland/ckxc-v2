@@ -42,6 +42,8 @@ public:
   sona::ref_ptr<DeclContext> CastAsDeclContext() noexcept;
   sona::ref_ptr<DeclContext const> CastAsDeclContext() const noexcept;
 
+  virtual ~Decl() noexcept = default;
+
 protected:
   Decl(DeclKind declKind, sona::ref_ptr<DeclContext> context)
       : m_DeclKind(declKind), m_Context(context) {}

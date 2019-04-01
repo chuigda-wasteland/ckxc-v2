@@ -15,11 +15,14 @@ class string_ref {
 public:
   using string_set = std::unordered_map<std::string, int>;
 
-  string_ref(std::string &&str) noexcept {
-    pv = &(*(impl_stc89c52::glob_container().emplace(std::move(str), 1).first));
-  }
-
   string_ref(std::string const& str) {
+    auto it = impl_stc89c52::glob_container().find(str);
+    if (it != impl_stc89c52::glob_container().end()) {
+      pv = &(*it);
+      pv->second++;
+      return;
+    }
+
     pv = &(*(impl_stc89c52::glob_container().emplace(str, 1).first));
   }
 

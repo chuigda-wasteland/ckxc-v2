@@ -3,7 +3,7 @@
 #include "Syntax/CST.h"
 #include "AST/Expr.hpp"
 #include "AST/Stmt.hpp"
-#include "AST/Expr.hpp"
+#include "AST/Decl.hpp"
 #include "AST/Type.hpp"
 
 using namespace ckx;

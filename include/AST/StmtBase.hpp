@@ -28,6 +28,8 @@ public:
 
   StmtId GetStmtId() const { return m_StmtId; }
 
+  virtual ~Stmt() noexcept = default;
+
 protected:
   Stmt(StmtId id) : m_StmtId(id) {}
 
