@@ -239,5 +239,50 @@ GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
   }
 }
 
+std::size_t ClassType::GetHash() const noexcept {
+  return std::hash<AST::ClassDecl const*>()(m_Decl.operator->());
+}
+
+bool ClassType::EqualTo(const Type& that) const noexcept  {
+  if (that.GetTypeId() == Type::TypeId::TI_Tag
+      && static_cast<TagType const&>(that).GetTagTypeId()
+         == TagType::UDTypeId::TTI_Class) {
+    return static_cast<ClassType const&>(that).GetDecl() == this->GetDecl();
+  }
+  else {
+    return false;
+  }
+}
+
+std::size_t EnumType::GetHash() const noexcept  {
+  return std::hash<AST::EnumDecl const*>()(m_Decl.operator->());
+}
+
+bool EnumType::EqualTo(const Type& that) const noexcept  {
+  if (that.GetTypeId() == Type::TypeId::TI_Tag
+      && static_cast<TagType const&>(that).GetTagTypeId()
+         == TagType::UDTypeId::TTI_Enum) {
+    return static_cast<EnumType const&>(that).GetDecl() == this->GetDecl();
+  }
+  else {
+    return false;
+  }
+}
+
+std::size_t EnumClassType::GetHash() const noexcept  {
+  return std::hash<AST::EnumClassDecl const*>()(m_Decl.operator->());
+}
+
+bool EnumClassType::EqualTo(const Type& that) const noexcept {
+  if (that.GetTypeId() == Type::TypeId::TI_Tag
+      && static_cast<TagType const&>(that).GetTagTypeId()
+         == TagType::UDTypeId::TTI_EnumClass) {
+    return static_cast<EnumClassType const&>(that).GetDecl() == this->GetDecl();
+  }
+  else {
+    return false;
+  }
+}
+
 } // namespace AST
 } // namespace ckx

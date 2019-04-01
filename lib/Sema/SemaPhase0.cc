@@ -6,6 +6,9 @@
 #include "AST/Decl.hpp"
 #include "AST/Type.hpp"
 
+#include <functional>
+#include <numeric>
+
 using namespace ckx;
 using namespace sona;
 
@@ -183,17 +186,33 @@ SemaPhase0::ActOnVarDecl(std::shared_ptr<Scope> scope,
                          sona::ref_ptr<Syntax::VarDecl const> decl) {
   auto typeResult = ResolveType(scope, decl->GetType());
   if (typeResult.contains_t1()) {
-    return std::make_pair(
-        sona::owner<AST::Decl>(
-            new AST::VarDecl(GetCurrentDeclContext(), typeResult.as_t1(),
-                             AST::DeclSpec::DS_None /** @todo  */,
-                              decl->GetName())),
-            true);
+    sona::owner<AST::Decl> varDecl =
+        new AST::VarDecl(GetCurrentDeclContext(), typeResult.as_t1(),
+                         AST::DeclSpec::DS_None /** @todo  */,
+                         decl->GetName());
+    GetCurrentScope()->AddVarDecl(varDecl.borrow()
+                                  .cast_unsafe<AST::VarDecl>());
+
+    bool isComplete = CheckTypeComplete(typeResult.as_t1());
+    if (!isComplete) {
+      std::vector<Dependency> depends;
+      depends.emplace_back(AST::GetDeclOfUserDefinedType(typeResult.as_t1()),
+                           true);
+      m_IncompleteVars.emplace(
+            varDecl.borrow().cast_unsafe<AST::VarDecl>(),
+            Sema::IncompleteVarDecl(
+              varDecl.borrow().cast_unsafe<AST::VarDecl>(),
+              decl, GetCurrentDeclContext(), std::move(depends), scope));
+    }
+
+    return std::make_pair(std::move(varDecl), true);
   }
 
   sona::owner<AST::Decl> incomplete =
       new AST::VarDecl(GetCurrentDeclContext(), nullptr,
                        AST::DeclSpec::DS_None /*TODO*/, decl->GetName());
+  GetCurrentScope()->AddVarDecl(incomplete.borrow()
+                                .cast_unsafe<AST::VarDecl>());
   m_IncompleteVars.emplace(
         incomplete.borrow().cast_unsafe<AST::VarDecl>(),
         Sema::IncompleteVarDecl(incomplete.borrow().cast_unsafe<AST::VarDecl>(),
@@ -209,6 +228,7 @@ SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
   sona::owner<AST::ClassDecl> classDecl =
       new AST::ClassDecl(GetCurrentDeclContext(), decl->GetClassName());
   PushDeclContext(classDecl.borrow().cast_unsafe<AST::DeclContext>());
+  PushScope(Scope::SF_Class);
 
   for (sona::ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
     auto p = ActOnDecl(scope, subDecl);
@@ -218,7 +238,14 @@ SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
     GetCurrentDeclContext()->AddDecl(std::move(p.first));
   }
 
+  PopScope();
   PopDeclContext();
+
+  GetCurrentScope()->AddType(
+      decl->GetClassName(),
+      m_ASTContext.AddUserDefinedType(
+          new AST::ClassType(classDecl.borrow()->GetName(),
+                             classDecl.borrow())));
 
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
@@ -238,6 +265,7 @@ SemaPhase0::ActOnADTDecl(std::shared_ptr<Scope> scope,
   sona::owner<AST::EnumClassDecl> enumClassDecl =
     new AST::EnumClassDecl(GetCurrentDeclContext(), decl->GetName());
   PushDeclContext(enumClassDecl.borrow().cast_unsafe<AST::DeclContext>());
+  PushScope(Scope::SF_ADT);
 
   for (sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> constructor
        : decl->GetConstructors()) {
@@ -248,7 +276,14 @@ SemaPhase0::ActOnADTDecl(std::shared_ptr<Scope> scope,
     GetCurrentDeclContext()->AddDecl(std::move(result.first));
   }
 
+  PopScope();
   PopDeclContext();
+
+  GetCurrentScope()->AddType(
+      enumClassDecl.borrow()->GetEnumClassName(),
+      m_ASTContext.AddUserDefinedType(
+          new AST::EnumClassType(enumClassDecl.borrow()->GetEnumClassName(),
+                                 enumClassDecl.borrow())));
 
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
@@ -301,6 +336,24 @@ std::shared_ptr<Scope> const& SemaPhase0::GetCurrentScope() const noexcept {
 
 bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   switch (type->GetTypeId()) {
+  case AST::Type::TypeId::TI_Builtin:
+  case AST::Type::TypeId::TI_Pointer:
+  case AST::Type::TypeId::TI_Ref:
+    return true;
+
+  case AST::Type::TypeId::TI_Array:
+    return CheckTypeComplete(type.cast_unsafe<AST::ArrayType const>()
+                                 ->GetBase());
+  case AST::Type::TypeId::TI_Tuple: {
+    sona::ref_ptr<AST::TupleType const> tupleType =
+        type.cast_unsafe<AST::TupleType const>();
+    return std::accumulate(tupleType->GetTupleElemTypes().begin(),
+                           tupleType->GetTupleElemTypes().end(), true,
+                           [this](bool cur, sona::ref_ptr<AST::Type const> ty) {
+                             return cur && CheckTypeComplete(ty);
+                           });
+  }
+
   case AST::Type::TypeId::TI_Tag: {
     return CheckTagTypeComplete(
              type.cast_unsafe<AST::TagType const>());
@@ -313,9 +366,8 @@ bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
     return it != m_IncompleteUsings.end();
   }
 
-  default: {
-    sona_unreachable1("checking completion of non- user defined types");
-  }
+  default:
+    sona_unreachable1("not implemented");
   }
   return false;
 }
@@ -352,6 +404,11 @@ SemaPhase0::ActOnUsingDecl(std::shared_ptr<Scope> scope,
                            decl->GetName(), typeResult.as_t1())
       : new AST::UsingDecl(GetCurrentDeclContext(),
                            decl->GetName(), nullptr);
+  sona::ref_ptr<AST::UsingDecl> usingDecl =
+      ret0.borrow().cast_unsafe<AST::UsingDecl>();
+  GetCurrentScope()->AddType(
+        usingDecl->GetAliasName(),
+        m_ASTContext.AddUserDefinedType(new AST::UsingType(usingDecl)));
   if (typeResult.contains_t2()) {
     m_IncompleteUsings.emplace(
           ret0.borrow().cast_unsafe<AST::UsingDecl>(),

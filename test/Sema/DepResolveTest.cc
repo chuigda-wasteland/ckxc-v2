@@ -57,6 +57,8 @@ void test0() {
 
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(2uL, sema0.GetIncompleteVars().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
 
   for (const auto &incompleteTagPair : sema0.GetIncompleteTags()) {
     VkAssertEquals(AST::Decl::DeclKind::DK_Class,
@@ -74,6 +76,21 @@ void test0() {
       ref_ptr<AST::Decl const> dvar =
           incompleteTagPair.second.GetDependencies().front().GetDeclUnsafe();
       VkAssertEquals("a", dvar.cast_unsafe<AST::VarDecl const>()->GetVarName());
+    }
+  }
+
+  for (const auto &incompleteVarPair : sema0.GetIncompleteVars()) {
+    VkAssertEquals(1uL, incompleteVarPair.second.GetDependencies().size());
+    if (incompleteVarPair.first->GetVarName() == "a") {
+      ref_ptr<AST::ClassDecl const> dclass =
+          incompleteVarPair.second.GetDependencies().front().GetDeclUnsafe()
+                           .cast_unsafe<AST::ClassDecl const>();
+      VkAssertEquals("A", dclass->GetName());
+    }
+    else {
+      VkAssertEquals("b", incompleteVarPair.first->GetVarName());
+      VkAssertEquals("B", incompleteVarPair.second.GetDependencies().front()
+                                           .GetIdUnsafe().GetIdentifier());
     }
   }
 

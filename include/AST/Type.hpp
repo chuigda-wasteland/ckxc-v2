@@ -228,6 +228,8 @@ public:
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
+  ~EnumClassType() noexcept override = default;
+
 private:
   sona::ref_ptr<EnumClassDecl> m_Decl;
 };
