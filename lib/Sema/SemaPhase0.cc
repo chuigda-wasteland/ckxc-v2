@@ -116,6 +116,7 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
       std::vector<Dependency> dependencies;
       dependencies.emplace_back(
         AST::GetDeclOfUserDefinedType(lookupResult), true);
+      return std::move(dependencies);
     }
 
     return lookupResult;
@@ -193,19 +194,7 @@ SemaPhase0::ActOnVarDecl(std::shared_ptr<Scope> scope,
     GetCurrentScope()->AddVarDecl(varDecl.borrow()
                                   .cast_unsafe<AST::VarDecl>());
 
-    bool isComplete = CheckTypeComplete(typeResult.as_t1());
-    if (!isComplete) {
-      std::vector<Dependency> depends;
-      depends.emplace_back(AST::GetDeclOfUserDefinedType(typeResult.as_t1()),
-                           true);
-      m_IncompleteVars.emplace(
-            varDecl.borrow().cast_unsafe<AST::VarDecl>(),
-            Sema::IncompleteVarDecl(
-              varDecl.borrow().cast_unsafe<AST::VarDecl>(),
-              decl, GetCurrentDeclContext(), std::move(depends), scope));
-    }
-
-    return std::make_pair(std::move(varDecl), isComplete);
+    return std::make_pair(std::move(varDecl), true);
   }
 
   sona::owner<AST::Decl> incomplete =
