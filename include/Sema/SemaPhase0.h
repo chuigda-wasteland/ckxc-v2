@@ -85,6 +85,7 @@ protected:
   std::unordered_map<sona::ref_ptr<AST::EnumClassInternDecl const>,
                      Sema::IncompleteEnumClassInternDecl>
     m_IncompleteEnumClassInterns;
+  std::vector<Sema::IncompleteFuncDecl> m_IncompleteFuncs;
 };
 
 } // namespace Sema

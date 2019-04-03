@@ -31,10 +31,15 @@ public:
   GetIncompleteEnumClassInterns() const noexcept {
     return m_IncompleteEnumClassInterns;
   }
+
+  std::vector<Sema::IncompleteFuncDecl> const&
+  GetIncompleteFuncs() const noexcept {
+    return m_IncompleteFuncs;
+  }
 };
 
 void test0() {
-  VkTestSectionStart("DepResolve");
+  VkTestSectionStart("Basic dependency resolve");
 
   string f0 = R"aacaac(class A { def b : B; })aacaac";
   string f1 = R"aacaac(class B { def i : int32; })aacaac";
@@ -54,6 +59,8 @@ void test0() {
   SemaPhase0Test sema0(diag);
   sona::owner<AST::TransUnitDecl> transUnit =
       sema0.ActOnTransUnit(cst.borrow());
+
+  VkAssertFalse(diag.HasPendingDiags());
 
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(2uL, sema0.GetIncompleteVars().size());
@@ -97,10 +104,117 @@ void test0() {
   return;
 }
 
+void test1() {
+  VkTestSectionStart("Resolving with enums");
+
+  string f0 = R"aacaac(enum N { a = 3; b; c; })aacaac";
+  string f1 = R"aacaac(class A { def n : N; })aacaac";
+  string f2 = R"aacaac(class B { def a : A; def c : C; })aacaac";
+  string f3 = R"996icu(class C { def a : A; def n : N; })996icu";
+
+  string file = f0 + "\n" + f1 + "\n" + f2 + "\n" + f3;
+
+  vector<string> lines = { f0, f1, f2, f3 };
+
+  Diag::DiagnosticEngine diag("a.c", lines);
+  Frontend::Lexer lexer(move(file), diag);
+  std::vector<Frontend::Token> tokens = lexer.GetAndReset();
+
+  Frontend::Parser parser(diag);
+  sona::owner<Syntax::TransUnit> cst = parser.ParseTransUnit(tokens);
+
+  SemaPhase0Test sema0(diag);
+  sona::owner<AST::TransUnitDecl> transUnit =
+      sema0.ActOnTransUnit(cst.borrow());
+
+  VkAssertFalse(diag.HasPendingDiags());
+
+  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
+  VkAssertEquals(1uL, sema0.GetIncompleteTags().size());
+  VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
+
+  const auto& incompleteTagPair = *sema0.GetIncompleteTags().begin();
+  const auto& incompleteVarPair = *sema0.GetIncompleteVars().begin();
+
+  VkAssertEquals(1uL, incompleteTagPair.second.GetDependencies().size());
+  VkAssertEquals("B", incompleteTagPair.first
+                                       .cast_unsafe<AST::ClassDecl const>()
+                                       ->GetName());
+
+  VkAssertEquals(1uL, incompleteVarPair.second.GetDependencies().size());
+  VkAssertEquals("c", incompleteVarPair.first->GetVarName());
+}
+
+void test2() {
+  VkTestSectionStart("Resolving ADTs");
+
+  string f0 = R"aacaac(class A { def c : C; })aacaac";
+  string f1 = R"aacaac(enum class B { Cc1(A); Cc2(C); })aacaac";
+  string f2 = R"aacaac(class C { def i : int32; })aacaac";
+
+  string file = f0 + "\n" + f1 + "\n" + f2;
+
+  vector<string> lines = { f0, f1, f2 };
+
+  Diag::DiagnosticEngine diag("a.c", lines);
+  Frontend::Lexer lexer(move(file), diag);
+  std::vector<Frontend::Token> tokens = lexer.GetAndReset();
+
+  Frontend::Parser parser(diag);
+  sona::owner<Syntax::TransUnit> cst = parser.ParseTransUnit(tokens);
+
+  SemaPhase0Test sema0(diag);
+  sona::owner<AST::TransUnitDecl> transUnit =
+      sema0.ActOnTransUnit(cst.borrow());
+
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertEquals(2uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
+  VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
+  VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
+
+  for (const auto &incompleteTagPair : sema0.GetIncompleteTags()) {
+    if (incompleteTagPair.first->GetDeclKind() == AST::Decl::DK_EnumClass) {
+      sona::ref_ptr<AST::EnumClassDecl const> adt =
+          incompleteTagPair.first.cast_unsafe<AST::EnumClassDecl const>();
+      VkAssertEquals("B", adt->GetEnumClassName());
+      VkAssertEquals(2uL, incompleteTagPair.second.GetDependencies().size());
+      for (const auto& dep : incompleteTagPair.second.GetDependencies()) {
+        VkAssertTrue(dep.IsStrong());
+        VkAssertFalse(dep.IsDependByname());
+        VkAssertEquals(nullptr,
+                       dep.GetDeclUnsafe()
+                          .cast_unsafe<AST::EnumClassInternDecl const>()
+                          ->GetType());
+      }
+    }
+  }
+
+  for (const auto &incompleteDataPair : sema0.GetIncompleteEnumClassInterns()) {
+    VkAssertEquals(1uL, incompleteDataPair.second.GetDependencies().size());
+    if (incompleteDataPair.first->GetConstructorName() == "Cc1") {
+      sona::ref_ptr<AST::ClassDecl const> dependingClass =
+          incompleteDataPair.second.GetDependencies().front().GetDeclUnsafe()
+                            .cast_unsafe<AST::ClassDecl const>();
+      VkAssertEquals("A", dependingClass->GetName());
+    }
+    else {
+      VkAssertEquals("Cc2", incompleteDataPair.first->GetConstructorName());
+      VkAssertEquals("C", incompleteDataPair.second.GetDependencies().front()
+                                            .GetIdUnsafe().GetIdentifier());
+    }
+  }
+}
+
 int main() {
   VkTestStart();
 
   test0();
+  test1();
+  test2();
 
   VkTestFinish();
 }

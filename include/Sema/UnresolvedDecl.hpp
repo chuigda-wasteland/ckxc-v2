@@ -112,6 +112,19 @@ private:
   sona::ref_ptr<AST::UsingDecl> m_Halfway;
 };
 
+class IncompleteFuncDecl : public IncompleteDecl {
+public:
+  IncompleteFuncDecl(sona::ref_ptr<Syntax::FuncDecl const> funcDecl,
+                     std::shared_ptr<Scope> const& inScope,
+                     sona::ref_ptr<AST::DeclContext> inContext)
+    : IncompleteDecl(std::vector<Dependency>(), inScope),
+      m_FuncDecl(funcDecl), m_InContext(inContext) {}
+
+private:
+  sona::ref_ptr<Syntax::FuncDecl const> m_FuncDecl;
+  sona::ref_ptr<AST::DeclContext> m_InContext;
+};
+
 } // namespace Sema
 } // namespace ckx
 

@@ -410,21 +410,38 @@ SemaPhase0::ActOnUsingDecl(std::shared_ptr<Scope> scope,
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
-SemaPhase0::ActOnFuncDecl(std::shared_ptr<Scope> scope,
+SemaPhase0::ActOnFuncDecl(std::shared_ptr<Scope>,
                           sona::ref_ptr<Syntax::FuncDecl const> decl) {
-  (void)scope;
-  (void)decl;
-  sona_unreachable1("not implemented");
+  m_IncompleteFuncs.emplace_back(decl, GetCurrentScope(),
+                                 GetCurrentDeclContext());
   return std::make_pair(nullptr, false);
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
-SemaPhase0::ActOnEnumDecl(std::shared_ptr<Scope> scope,
+SemaPhase0::ActOnEnumDecl(std::shared_ptr<Scope>,
                           sona::ref_ptr<Syntax::EnumDecl const> decl) {
-  (void)scope;
-  (void)decl;
-  sona_unreachable1("not implemented");
-  return std::make_pair(nullptr, false);
+  sona::owner<AST::EnumDecl> enumDecl =
+      new AST::EnumDecl(GetCurrentDeclContext(), decl->GetName());
+  PushDeclContext(enumDecl.borrow().cast_unsafe<AST::DeclContext>());
+  PushScope(Scope::SF_Enum);
+
+  std::int64_t value = 0;
+  for (Syntax::EnumDecl::Enumerator const& e : decl->GetEnumerators()) {
+    value = e.HasValue() ? e.GetValueUnsafe() : value;
+    GetCurrentDeclContext()->AddDecl(
+          new AST::EnumeratorDecl(GetCurrentDeclContext(), e.GetName(), value));
+    value++;
+  }
+
+  PopScope();
+  PopDeclContext();
+
+  GetCurrentScope()->AddType(
+        decl->GetName(),
+        m_ASTContext.AddUserDefinedType(new AST::EnumType(decl->GetName(),
+                                                          enumDecl.borrow())));
+
+  return std::make_pair(enumDecl.cast_unsafe<AST::Decl>(), true);
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
