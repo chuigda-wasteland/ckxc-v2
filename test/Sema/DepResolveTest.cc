@@ -209,14 +209,13 @@ void test2() {
   }
 }
 
-/*
 void test3() {
   VkTestSectionStart("Resolve using declarations");
 
   string f0 = R"aacaac(class A { def b: B; })aacaac";
   string f1 = R"aacaac(using RB = B;)aacaac";
   string f2 = R"aacaac(using RA = A;)aacaac";
-  string f3 = R"996icu(class B { def i : int32 })996icu";
+  string f3 = R"996icu(class B { def i : int32; })996icu";
 
   string file = f0 + "\n" + f1 + "\n" + f2 + "\n" + f3;
 
@@ -234,16 +233,38 @@ void test3() {
       sema0.ActOnTransUnit(cst.borrow());
 
   VkAssertFalse(diag.HasPendingDiags());
+  diag.EmitDiags();
   VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
   VkAssertEquals(2uL, sema0.GetIncompleteUsings().size());
   VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
   VkAssertEquals(1uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
 
-  const auto& incompleteTagPair = *sema0.GetIncompleteTags().begin();
-  const auto& incompleteVarPair = *sema0.GetIncompleteVars().begin();
+  for (const auto& incompleteUsingPair : sema0.GetIncompleteUsings()) {
+    if (incompleteUsingPair.first->GetAliasName() == "RA") {
+      VkAssertEquals(1uL, incompleteUsingPair.second.GetDependencies().size());
+      VkAssertTrue(incompleteUsingPair.second.GetDependencies()
+                                             .front().IsStrong());
+      VkAssertFalse(incompleteUsingPair.second.GetDependencies()
+                                              .front().IsDependByname());
+      VkAssertEquals("A", incompleteUsingPair.second
+                              .GetDependencies()
+                              .front().GetDeclUnsafe()
+                              .cast_unsafe<AST::ClassDecl const>()
+                              ->GetName());
+    }
+    else {
+      VkAssertEquals("RB", incompleteUsingPair.first->GetAliasName());
+      VkAssertTrue(incompleteUsingPair.second.GetDependencies()
+                                             .front().IsStrong());
+      VkAssertTrue(incompleteUsingPair.second.GetDependencies()
+                                             .front().IsDependByname());
+      VkAssertEquals("B", incompleteUsingPair.second.GetDependencies()
+                                             .front().GetIdUnsafe()
+                                             .GetIdentifier());
+    }
+  }
 }
-*/
 
 int main() {
   VkTestStart();
@@ -251,6 +272,7 @@ int main() {
   test0();
   test1();
   test2();
+  test3();
 
   VkTestFinish();
 }

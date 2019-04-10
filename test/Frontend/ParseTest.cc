@@ -203,7 +203,6 @@ void test5() {
   VkAssertEquals("ty", usingDecl.borrow()->GetName());
   VkAssertEquals(Syntax::Type::NodeKind::CNK_BasicType,
                  usingDecl.borrow()->GetAliasee()->GetNodeKind());
-
 }
 
 int main() {
