@@ -25,6 +25,7 @@ protected:
   sona::owner<Syntax::Decl> ParseEnumDecl();
   sona::owner<Syntax::Decl> ParseADTDecl();
   sona::owner<Syntax::Decl> ParseFuncDecl();
+  sona::owner<Syntax::Decl> ParseUsingDecl();
   sona::owner<Syntax::Type> ParseType();
 
   sona::owner<Syntax::Expr> ParseExpr();

@@ -17,6 +17,7 @@ public:
   using ParserImpl::ParseVarDecl;
   using ParserImpl::ParseClassDecl;
   using ParserImpl::ParseEnumDecl;
+  using ParserImpl::ParseUsingDecl;
   using ParserImpl::ParseFuncDecl;
   using ParserImpl::ParseLiteralExpr;
 };
@@ -180,6 +181,31 @@ void test4() {
                  literalExpr.borrow()->GetAsIntUnsafe());
 }
 
+void test5() {
+  VkTestSectionStart("Parsing using decl");
+
+  string file = R"995plz(using ty = int32;)995plz";
+  vector<string> lines = { file };
+  Diag::DiagnosticEngine diag("a.c", lines);
+  Frontend::Lexer lexer(move(file), diag);
+  ParserTest testContext(diag);
+  std::vector<Frontend::Token> tokens = lexer.GetAndReset();
+  testContext.SetParsingTokenStream(tokens);
+  sona::owner<Syntax::Decl> decl = testContext.ParseUsingDecl();
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_UsingDecl,
+                   decl.borrow()->GetNodeKind());
+
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertNotEquals(nullptr, decl.borrow());
+
+  sona::owner<Syntax::UsingDecl> usingDecl =
+      decl.cast_unsafe<Syntax::UsingDecl>();
+  VkAssertEquals("ty", usingDecl.borrow()->GetName());
+  VkAssertEquals(Syntax::Type::NodeKind::CNK_BasicType,
+                 usingDecl.borrow()->GetAliasee()->GetNodeKind());
+
+}
+
 int main() {
   VkTestStart();
 
@@ -188,6 +214,7 @@ int main() {
   test2();
   test3();
   test4();
+  test5();
 
   VkTestFinish();
 }

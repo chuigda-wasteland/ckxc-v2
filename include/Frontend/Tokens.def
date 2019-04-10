@@ -12,6 +12,7 @@
 
 TOKEN_KWD(class, "class")
 TOKEN_KWD(enum, "enum")
+TOKEN_KWD(using, "using")
 TOKEN_KWD(def, "def")
 TOKEN_KWD(func, "func")
 TOKEN_KWD(int8, "int8")

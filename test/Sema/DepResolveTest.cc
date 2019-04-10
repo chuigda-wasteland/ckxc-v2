@@ -209,6 +209,42 @@ void test2() {
   }
 }
 
+/*
+void test3() {
+  VkTestSectionStart("Resolve using declarations");
+
+  string f0 = R"aacaac(class A { def b: B; })aacaac";
+  string f1 = R"aacaac(using RB = B;)aacaac";
+  string f2 = R"aacaac(using RA = A;)aacaac";
+  string f3 = R"996icu(class B { def i : int32 })996icu";
+
+  string file = f0 + "\n" + f1 + "\n" + f2 + "\n" + f3;
+
+  vector<string> lines = { f0, f1, f2, f3 };
+
+  Diag::DiagnosticEngine diag("a.c", lines);
+  Frontend::Lexer lexer(move(file), diag);
+  std::vector<Frontend::Token> tokens = lexer.GetAndReset();
+
+  Frontend::Parser parser(diag);
+  sona::owner<Syntax::TransUnit> cst = parser.ParseTransUnit(tokens);
+
+  SemaPhase0Test sema0(diag);
+  sona::owner<AST::TransUnitDecl> transUnit =
+      sema0.ActOnTransUnit(cst.borrow());
+
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(2uL, sema0.GetIncompleteUsings().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
+  VkAssertEquals(1uL, sema0.GetIncompleteTags().size());
+  VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
+
+  const auto& incompleteTagPair = *sema0.GetIncompleteTags().begin();
+  const auto& incompleteVarPair = *sema0.GetIncompleteVars().begin();
+}
+*/
+
 int main() {
   VkTestStart();
 

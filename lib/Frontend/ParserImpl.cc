@@ -34,6 +34,7 @@ owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
   switch (CurrentToken().GetTokenKind()) {
   case Token::TK_KW_def: return ParseVarDecl();
   case Token::TK_KW_class: return ParseClassDecl();
+  case Token::TK_KW_using: return ParseUsingDecl();
   case Token::TK_KW_enum:
     if (PeekToken().GetTokenKind() == Token::TK_KW_class) {
       return ParseADTDecl();
@@ -243,6 +244,30 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
                               empty_optional(), funcRange, nameRange);
 }
 
+sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
+  sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_using);
+  SourceRange usingRange = CurrentToken().GetSourceRange();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_ID)) {
+    return nullptr;
+  }
+  string_ref name = CurrentToken().GetStrValueUnsafe();
+  ConsumeToken();
+
+  if (!Expect(Token::TK_SYM_EQ)) {
+    return nullptr;
+  }
+  SourceLocation eqLoc =
+      SourceLocation(CurrentToken().GetSourceRange().GetStartLine(),
+                     CurrentToken().GetSourceRange().GetStartCol());
+  ConsumeToken();
+
+  sona::owner<Syntax::Type> aliasee = ParseType();
+  ExpectAndConsume(Token::TK_SYM_SEMI);
+
+  return new Syntax::UsingDecl(name, std::move(aliasee), usingRange, eqLoc);
+}
 void ParserImpl::
 ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
   if (!Expect(Token::TK_ID)) {
