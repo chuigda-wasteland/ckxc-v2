@@ -25,6 +25,8 @@ public:
   sona::owner<AST::TransUnitDecl>
   ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit);
 
+  void PostSubstituteDepends();
+
 private:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();

@@ -9,6 +9,8 @@
 #include <functional>
 #include <numeric>
 
+#include <sona/linq.hpp>
+
 using namespace ckx;
 using namespace sona;
 
@@ -26,6 +28,47 @@ SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
     transUnitDecl.borrow()->AddDecl(ActOnDecl(GetCurrentScope(), decl).first);
   }
   return transUnitDecl;
+}
+
+void SemaPhase0::PostSubstituteDepends() {
+  for (auto &ivar : m_IncompleteVars) {
+    std::shared_ptr<Scope> inScope = ivar.second.GetEnclosingScope();
+    for (auto &dep : ivar.second.GetDependencies()) {
+      if (dep.IsDependByname()) {
+        sona::ref_ptr<AST::Type const> type =
+            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
+        sona::ref_ptr<AST::Decl const> decl =
+            AST::GetDeclOfUserDefinedType(type);
+         dep.ReplaceNameWithDecl(decl);
+      }
+    }
+  }
+
+  for (auto &iusing : m_IncompleteUsings) {
+    std::shared_ptr<Scope> inScope = iusing.second.GetEnclosingScope();
+    for (auto &dep : iusing.second.GetDependencies()) {
+      if (dep.IsDependByname()) {
+        sona::ref_ptr<AST::Type const> type =
+            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
+        sona::ref_ptr<AST::Decl const> decl =
+            AST::GetDeclOfUserDefinedType(type);
+         dep.ReplaceNameWithDecl(decl);
+      }
+    }
+  }
+
+  for (auto &idata : m_IncompleteEnumClassInterns) {
+    std::shared_ptr<Scope> inScope = idata.second.GetEnclosingScope();
+    for (auto &dep : idata.second.GetDependencies()) {
+      if (dep.IsDependByname()) {
+        sona::ref_ptr<AST::Type const> type =
+            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
+        sona::ref_ptr<AST::Decl const> decl =
+            AST::GetDeclOfUserDefinedType(type);
+         dep.ReplaceNameWithDecl(decl);
+      }
+    }
+  }
 }
 
 void SemaPhase0::PushScope(Scope::ScopeFlags flags) {
