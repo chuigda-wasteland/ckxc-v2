@@ -49,3 +49,6 @@ target_link_libraries (TestParse Frontend Basic sona)
 
 add_executable (TestDepResolve test/Sema/DepResolveTest.cc)
 target_link_libraries (TestDepResolve Frontend Sema AST Basic sona)
+
+add_executable (TestPostSubstDep test/Sema/PostSubstDepTest.cc)
+target_link_libraries (TestPostSubstDep Frontend Sema AST Basic sona)
