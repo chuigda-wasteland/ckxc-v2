@@ -71,6 +71,64 @@ void SemaPhase0::PostSubstituteDepends() {
   }
 }
 
+/// This algorithm directly comes from wikipedia:
+///   https://en.wikipedia.org/wiki/Topological_sorting
+std::vector<sona::ref_ptr<IncompleteDecl>>
+SemaPhase0::FindTranslationOrder() {
+  /// @todo add diagnostics info
+  std::vector<sona::ref_ptr<IncompleteDecl>> transOrder;
+  std::unordered_set<sona::ref_ptr<IncompleteDecl>> permanents;
+  std::unordered_set<sona::ref_ptr<IncompleteDecl>> temporaries;
+
+  std::function<bool(sona::ref_ptr<IncompleteDecl>)> VisitIncompleteDecl =
+  [&, this](sona::ref_ptr<IncompleteDecl> decl) -> bool {
+    if (permanents.find(decl) != permanents.cend()) {
+      return true;
+    }
+    if (temporaries.find(decl) != temporaries.cend()) {
+      return false;
+    }
+
+    temporaries.insert(decl);
+    for (sona::ref_ptr<IncompleteDecl> dependingIncompleteDecl :
+         sona::linq::from_container(decl->GetDependencies())
+           .transform([](Sema::Dependency const& dep)
+                      { return dep.GetDeclUnsafe(); })
+           .transform([this](sona::ref_ptr<AST::Decl const> depDecl)
+                      { return SearchInUnfinished(depDecl); })) {
+      if (dependingIncompleteDecl == nullptr) {
+        continue;
+      }
+      if (!VisitIncompleteDecl(dependingIncompleteDecl)) {
+        return false;
+      }
+    }
+    temporaries.erase(temporaries.find(decl));
+    permanents.insert(decl);
+    return true;
+  };
+
+  auto r1 = sona::linq::from_container(m_IncompleteVars).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r2 = sona::linq::from_container(m_IncompleteTags).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r3 = sona::linq::from_container(m_IncompleteUsings).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r4 = sona::linq::from_container(m_IncompleteEnumClassInterns).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  for (sona::ref_ptr<IncompleteDecl> incomplete :
+       r1.concat_with(r2).concat_with(r3).concat_with(r4)) {
+    if (!VisitIncompleteDecl(incomplete)) {
+      return transOrder;
+    }
+  }
+  return transOrder;
+}
+
 void SemaPhase0::PushScope(Scope::ScopeFlags flags) {
   m_ScopeChains.emplace_back(
       new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));
@@ -348,6 +406,39 @@ SemaPhase0::ActOnADTConstructor(
   }
 
   return std::make_pair(std::move(ret0), typeResult.contains_t1());
+}
+
+sona::ref_ptr<IncompleteDecl>
+SemaPhase0::SearchInUnfinished(sona::ref_ptr<const AST::Decl> decl) {
+  switch (decl->GetDeclKind()) {
+  case AST::Decl::DK_Var: {
+    auto it = m_IncompleteVars.find(decl.cast_unsafe<AST::VarDecl const>());
+    if (it != m_IncompleteVars.cend()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+  case AST::Decl::DK_Class:
+  case AST::Decl::DK_Enum: {
+    auto it = m_IncompleteTags.find(decl);
+    if (it !=  m_IncompleteTags.cend()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+  case AST::Decl::DK_EnumClassIntern: {
+    auto it = m_IncompleteEnumClassInterns.find(
+                decl.cast_unsafe<AST::EnumClassInternDecl const>());
+    if (it != m_IncompleteEnumClassInterns.cend()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+  default: {
+    sona_unreachable();
+  }
+  }
+  return nullptr;
 }
 
 void SemaPhase0::PushDeclContext(sona::ref_ptr<AST::DeclContext> context) {

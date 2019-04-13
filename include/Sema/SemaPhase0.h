@@ -27,6 +27,8 @@ public:
 
   void PostSubstituteDepends();
 
+  std::vector<sona::ref_ptr<Sema::IncompleteDecl>> FindTranslationOrder();
+
 private:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
@@ -51,11 +53,14 @@ private:
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> decl);
 
+#include "Syntax/CSTNodeDefs.def"
+
   std::pair<sona::owner<AST::Decl>, bool>
   ActOnADTConstructor(std::shared_ptr<Scope> scope,
                       sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);
 
-#include "Syntax/CSTNodeDefs.def"
+  sona::ref_ptr<IncompleteDecl>
+  SearchInUnfinished(sona::ref_ptr<AST::Decl const> decl);
 
 protected:
   /// @note the following interfaces are opened for testing
