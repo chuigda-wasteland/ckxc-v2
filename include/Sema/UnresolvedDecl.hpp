@@ -19,6 +19,12 @@ public:
     m_Dependencies(std::move(dependencies)),
     m_InScope(inScope) {}
 
+  IncompleteDecl(IncompleteDecl const&) = delete;
+
+  IncompleteDecl(IncompleteDecl &&that)
+    : m_Dependencies(std::move(that.m_Dependencies)),
+      m_InScope(that.m_InScope) {}
+
   std::vector<Dependency>& GetDependencies() noexcept {
     return m_Dependencies;
   }
@@ -33,6 +39,10 @@ public:
   std::shared_ptr<Scope> & GetEnclosingScope() noexcept {
     return m_InScope;
   }
+
+  virtual std::string ToString() const = 0;
+
+  virtual ~IncompleteDecl() {}
 
 private:
   std::vector<Dependency> m_Dependencies;
@@ -61,6 +71,8 @@ public:
     return m_InContext;
   }
 
+  std::string ToString() const override;
+
 private:
   sona::ref_ptr<AST::VarDecl> m_Incomplete;
   sona::ref_ptr<Syntax::VarDecl const> m_Concrete;
@@ -78,6 +90,8 @@ public:
     return m_Halfway;
   }
 
+  std::string ToString() const override;
+
 private:
   sona::ref_ptr<AST::Decl> m_Halfway;
 };
@@ -92,6 +106,8 @@ public:
   sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
     return m_Halfway;
   }
+
+  std::string ToString() const override;
 
 private:
   sona::ref_ptr<AST::Decl> m_Halfway;
@@ -108,6 +124,8 @@ public:
     return m_Halfway;
   }
 
+  std::string ToString() const override;
+
 private:
   sona::ref_ptr<AST::UsingDecl> m_Halfway;
 };
@@ -119,6 +137,8 @@ public:
                      sona::ref_ptr<AST::DeclContext> inContext)
     : IncompleteDecl(std::vector<Dependency>(), inScope),
       m_FuncDecl(funcDecl), m_InContext(inContext) {}
+
+  std::string ToString() const override;
 
 private:
   sona::ref_ptr<Syntax::FuncDecl const> m_FuncDecl;

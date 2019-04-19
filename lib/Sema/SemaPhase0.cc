@@ -105,6 +105,7 @@ SemaPhase0::FindTranslationOrder() {
     }
     temporaries.erase(temporaries.find(decl));
     permanents.insert(decl);
+    transOrder.push_back(decl);
     return true;
   };
 

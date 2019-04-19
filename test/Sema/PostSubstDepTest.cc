@@ -86,6 +86,12 @@ void test0() {
       VkAssertEquals("B", dclass->GetName());
     }
   }
+
+  std::vector<sona::ref_ptr<Sema::IncompleteDecl>> transOrder =
+      sema0.FindTranslationOrder();
+  for (sona::ref_ptr<Sema::IncompleteDecl> d : transOrder) {
+    std::cerr << d->ToString() << std::endl;
+  }
 }
 
 int main() {

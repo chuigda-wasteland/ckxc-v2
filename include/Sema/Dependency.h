@@ -18,6 +18,10 @@ public:
   Dependency(sona::ref_ptr<AST::Decl const> decl, bool isStrong = false)
     : m_Dependency(decl), m_IsStrong(isStrong) {}
 
+  Dependency(Dependency && that)
+    : m_Dependency(std::move(that.m_Dependency)),
+      m_IsStrong(that.m_IsStrong) {}
+
   bool IsDependByname() const noexcept {
     return m_Dependency.contains_t1();
   }
