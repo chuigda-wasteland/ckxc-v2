@@ -36,7 +36,7 @@ std::string IncompleteTagDecl::ToString() const {
   case AST::Decl::DK_EnumClass: {
     sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl =
         GetHalfway().cast_unsafe<AST::EnumClassDecl const>();
-    ret += enumClassDecl->GetEnumClassName().get();
+    ret += enumClassDecl->GetName().get();
     break;
   }
   default:
@@ -46,7 +46,7 @@ std::string IncompleteTagDecl::ToString() const {
 }
 
 std::string IncompleteUsingDecl::ToString() const {
-  return "incomplete using: " + GetHalfway()->GetAliasName().get();
+  return "incomplete using: " + GetHalfway()->GetName().get();
 }
 
 std::string IncompleteEnumClassInternDecl::ToString() const {

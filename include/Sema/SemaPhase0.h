@@ -70,8 +70,8 @@ protected:
   std::shared_ptr<Scope> const& GetCurrentScope() const noexcept;
 
   bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
-  bool CheckTagTypeComplete(
-      sona::ref_ptr<AST::TagType const> type);
+  bool CheckUserDefinedTypeComplete(
+      sona::ref_ptr<AST::UserDefinedType const> type);
 
   Diag::DiagnosticEngine &m_Diag;
 

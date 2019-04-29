@@ -62,6 +62,8 @@ void test0() {
 
   VkAssertFalse(diag.HasPendingDiags());
 
+  diag.EmitDiags();
+
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(2uL, sema0.GetIncompleteVars().size());
   VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
@@ -180,7 +182,7 @@ void test2() {
     if (incompleteTagPair.first->GetDeclKind() == AST::Decl::DK_EnumClass) {
       sona::ref_ptr<AST::EnumClassDecl const> adt =
           incompleteTagPair.first.cast_unsafe<AST::EnumClassDecl const>();
-      VkAssertEquals("B", adt->GetEnumClassName());
+      VkAssertEquals("B", adt->GetName());
       VkAssertEquals(2uL, incompleteTagPair.second.GetDependencies().size());
       for (const auto& dep : incompleteTagPair.second.GetDependencies()) {
         VkAssertTrue(dep.IsStrong());
@@ -241,7 +243,7 @@ void test3() {
   VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
 
   for (const auto& incompleteUsingPair : sema0.GetIncompleteUsings()) {
-    if (incompleteUsingPair.first->GetAliasName() == "RA") {
+    if (incompleteUsingPair.first->GetName() == "RA") {
       VkAssertEquals(1uL, incompleteUsingPair.second.GetDependencies().size());
       VkAssertTrue(incompleteUsingPair.second.GetDependencies()
                                              .front().IsStrong());
@@ -254,7 +256,7 @@ void test3() {
                               ->GetName());
     }
     else {
-      VkAssertEquals("RB", incompleteUsingPair.first->GetAliasName());
+      VkAssertEquals("RB", incompleteUsingPair.first->GetName());
       VkAssertTrue(incompleteUsingPair.second.GetDependencies()
                                              .front().IsStrong());
       VkAssertTrue(incompleteUsingPair.second.GetDependencies()

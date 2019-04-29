@@ -36,6 +36,7 @@ ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
   /// added exactly once.
   sona::ref_ptr<Type> borrowed_value = type.borrow();
   m_UserDefinedTypes.push_back(std::move(type));
+
   return borrowed_value;
 }
 

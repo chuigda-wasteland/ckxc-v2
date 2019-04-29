@@ -27,13 +27,35 @@ private:
 class NamedDecl : public Decl {
 public:
   NamedDecl(sona::ref_ptr<DeclContext> declContext, DeclKind declKind,
-            sona::string_ref &&name)
-    : Decl(declKind, declContext), m_Name(std::move(name)) {}
+            sona::string_ref const& name)
+    : Decl(declKind, declContext), m_Name(name) {}
 
   sona::string_ref const &GetName() const noexcept { return m_Name; }
 
 private:
   sona::string_ref m_Name;
+};
+
+class TypeDecl : public NamedDecl {
+public:
+  TypeDecl(sona::ref_ptr<DeclContext> declContext, DeclKind declKind,
+           sona::string_ref const& name)
+    : NamedDecl(declContext, declKind, name), m_TypeForDecl(nullptr) {}
+
+  sona::ref_ptr<AST::Type> GetTypeForDecl() noexcept {
+    return m_TypeForDecl;
+  }
+
+  sona::ref_ptr<AST::Type const> GetTypeForDecl() const noexcept {
+    return m_TypeForDecl;
+  }
+
+  void SetTypeForDecl(sona::ref_ptr<AST::Type> typeForDecl) noexcept {
+    m_TypeForDecl = typeForDecl;
+  }
+
+private:
+  sona::ref_ptr<AST::Type> m_TypeForDecl;
 };
 
 class LabelDecl : public Decl {
@@ -46,30 +68,20 @@ private:
   sona::string_ref m_LabelString;
 };
 
-class ClassDecl : public Decl, public DeclContext {
+class ClassDecl : public TypeDecl, public DeclContext {
 public:
   ClassDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& className)
-      : Decl(DeclKind::DK_Class, context), DeclContext(DeclKind::DK_Class),
-        m_ClassName(className) {}
-
-  sona::string_ref const &GetName() const noexcept { return m_ClassName; }
-
-private:
-  sona::string_ref m_ClassName;
+      : TypeDecl(context, DeclKind::DK_Class, className),
+        DeclContext(DeclKind::DK_Class) {}
 };
 
-class EnumDecl : public Decl, public DeclContext {
+class EnumDecl : public TypeDecl, public DeclContext {
 public:
   EnumDecl(sona::ref_ptr<DeclContext> context,
            sona::string_ref const& enumName)
-      : Decl(DeclKind::DK_Enum, context), DeclContext(DeclKind::DK_Enum),
-        m_EnumName(enumName) {}
-
-  sona::string_ref const &GetName() const { return m_EnumName; }
-
-private:
-  sona::string_ref m_EnumName;
+      : TypeDecl(context, DeclKind::DK_Enum, enumName),
+        DeclContext(DeclKind::DK_Enum) {}
 };
 
 class EnumClassInternDecl : public Decl {
@@ -98,30 +110,20 @@ private:
   sona::ref_ptr<AST::Type const> m_Type;
 };
 
-class EnumClassDecl : public Decl, public DeclContext {
+class EnumClassDecl : public TypeDecl, public DeclContext {
 public:
   EnumClassDecl(sona::ref_ptr<DeclContext> context,
                 sona::string_ref const& enumClassName)
-    : Decl(DeclKind::DK_EnumClass, context),
-      DeclContext(DeclKind::DK_EnumClass),
-      m_EnumClassName(enumClassName) {}
-
-  sona::string_ref const& GetEnumClassName() const noexcept {
-    return m_EnumClassName;
-  }
-
-private:
-  sona::string_ref m_EnumClassName;
+    : TypeDecl(context, DeclKind::DK_EnumClass, enumClassName),
+      DeclContext(DeclKind::DK_EnumClass) {}
 };
 
-class UsingDecl : public Decl {
+class UsingDecl : public TypeDecl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& aliasName,
             sona::ref_ptr<AST::Type const> aliasee)
-    : Decl(DeclKind::DK_Using, context),
-      m_AliasName(aliasName),
-      m_Aliasee(aliasee) {}
+    : TypeDecl(context, DeclKind::DK_Using, aliasName), m_Aliasee(aliasee) {}
 
   /// @note only use this for refilling after dependency resolution
   void fillAliasee(sona::ref_ptr<AST::Type> aliasee) noexcept {
@@ -129,20 +131,11 @@ public:
     m_Aliasee = aliasee;
   }
 
-  sona::string_ref const& GetAliasName() const noexcept {
-    return m_AliasName;
-  }
-
   sona::ref_ptr<AST::Type const> GetAliasee() const noexcept {
     return m_Aliasee;
   }
 
-  void SetAliasee(sona::ref_ptr<AST::Type const> aliasee) noexcept {
-    m_Aliasee = aliasee;
-  }
-
 private:
-  sona::string_ref m_AliasName;
   sona::ref_ptr<AST::Type const> m_Aliasee;
 };
 

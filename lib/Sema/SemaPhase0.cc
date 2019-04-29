@@ -335,8 +335,7 @@ SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
   GetCurrentScope()->AddType(
       decl->GetClassName(),
       m_ASTContext.AddUserDefinedType(
-          new AST::ClassType(classDecl.borrow()->GetName(),
-                             classDecl.borrow())));
+          new AST::ClassType(classDecl.borrow())));
 
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
@@ -371,10 +370,9 @@ SemaPhase0::ActOnADTDecl(std::shared_ptr<Scope> scope,
   PopDeclContext();
 
   GetCurrentScope()->AddType(
-      enumClassDecl.borrow()->GetEnumClassName(),
+      enumClassDecl.borrow()->GetName(),
       m_ASTContext.AddUserDefinedType(
-          new AST::EnumClassType(enumClassDecl.borrow()->GetEnumClassName(),
-                                 enumClassDecl.borrow())));
+          new AST::EnumClassType(enumClassDecl.borrow())));
 
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
@@ -478,16 +476,9 @@ bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
                            });
   }
 
-  case AST::Type::TypeId::TI_Tag: {
-    return CheckTagTypeComplete(
-             type.cast_unsafe<AST::TagType const>());
-  }
-
-  case AST::Type::TypeId::TI_Using: {
-    sona::ref_ptr<AST::UsingType const> usingType =
-        type.cast_unsafe<AST::UsingType const>();
-    auto it = m_IncompleteUsings.find(usingType->GetUsingDecl());
-    return it != m_IncompleteUsings.end();
+  case AST::Type::TypeId::TI_UserDefined: {
+    return CheckUserDefinedTypeComplete(
+             type.cast_unsafe<AST::UserDefinedType const>());
   }
 
   default:
@@ -496,26 +487,20 @@ bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   return false;
 }
 
-bool SemaPhase0::CheckTagTypeComplete(
-    sona::ref_ptr<const AST::TagType> type) {
-  sona::ref_ptr<AST::Decl const> correspondingDecl = nullptr;
-  switch (type->GetTagTypeId()) {
-  case AST::TagType::UDTypeId::TTI_Class:
-    correspondingDecl = type.cast_unsafe<AST::ClassType const>()->GetDecl()
-                            .cast_unsafe<AST::Decl const>();
-    break;
-  case AST::TagType::UDTypeId::TTI_Enum:
-    correspondingDecl = type.cast_unsafe<AST::EnumType const>()->GetDecl()
-                            .cast_unsafe<AST::Decl const>();
-    break;
-  case AST::TagType::UDTypeId::TTI_EnumClass:
-    correspondingDecl = type.cast_unsafe<AST::EnumClassType const>()->GetDecl()
-                            .cast_unsafe<AST::Decl const>();
-    break;
+bool SemaPhase0::CheckUserDefinedTypeComplete(
+    sona::ref_ptr<const AST::UserDefinedType> type) {
+  sona::ref_ptr<AST::TypeDecl const> correspondingDecl = type->GetTypeDecl();
+  if (type->GetUserDefinedTypeId()
+      == AST::UserDefinedType::UDTypeId::UTI_Using) {
+    auto it = m_IncompleteUsings.find(
+                correspondingDecl.cast_unsafe<AST::UsingDecl const>());
+    return it == m_IncompleteUsings.end();
   }
-
-  auto it = m_IncompleteTags.find(correspondingDecl);
-  return it == m_IncompleteTags.end();
+  else {
+    auto it = m_IncompleteTags.find(
+                correspondingDecl.cast_unsafe<AST::Decl const>());
+    return it == m_IncompleteTags.end();
+  }
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
@@ -531,7 +516,7 @@ SemaPhase0::ActOnUsingDecl(std::shared_ptr<Scope> scope,
   sona::ref_ptr<AST::UsingDecl> usingDecl =
       ret0.borrow().cast_unsafe<AST::UsingDecl>();
   GetCurrentScope()->AddType(
-        usingDecl->GetAliasName(),
+        usingDecl->GetName(),
         m_ASTContext.AddUserDefinedType(new AST::UsingType(usingDecl)));
   if (typeResult.contains_t2()) {
     m_IncompleteUsings.emplace(
@@ -573,8 +558,8 @@ SemaPhase0::ActOnEnumDecl(std::shared_ptr<Scope>,
 
   GetCurrentScope()->AddType(
         decl->GetName(),
-        m_ASTContext.AddUserDefinedType(new AST::EnumType(decl->GetName(),
-                                                          enumDecl.borrow())));
+        m_ASTContext.AddUserDefinedType(
+          new AST::EnumType(enumDecl.borrow())));
 
   return std::make_pair(enumDecl.cast_unsafe<AST::Decl>(), true);
 }

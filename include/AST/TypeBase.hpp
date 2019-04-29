@@ -26,8 +26,7 @@ public:
     TI_Function,
 
     /// User-defined
-    TI_Tag,
-    TI_Using
+    TI_UserDefined,
 
     /// @todo where should we add "Qualifiers"?
   };

@@ -181,10 +181,6 @@ std::size_t RValueRefType::GetHash() const noexcept {
   return GetReferencedType().get().GetHash() * 19660813;
 }
 
-std::size_t UsingType::GetHash() const noexcept {
-  return m_UsingDecl->GetAliasee()->GetHash() * 233;
-}
-
 bool RefType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Ref) {
     RefType const &t = static_cast<RefType const &>(that);
@@ -202,10 +198,48 @@ bool RValueRefType::EqualTo(Type const &that) const noexcept {
   return RefType::EqualTo(that);
 }
 
-bool UsingType::EqualTo(Type const &that) const noexcept {
-  if (that.GetTypeId() == TypeId::TI_Using) {
-    UsingType const &t = static_cast<UsingType const &>(that);
-    return GetUsingDecl()->GetAliasee().get().EqualTo(t);
+ClassType::ClassType(sona::ref_ptr<ClassDecl> decl)
+  : UserDefinedType(UDTypeId::UTI_Class, decl->GetName(),
+                    decl.cast_unsafe<TypeDecl>()) {}
+
+sona::ref_ptr<const ClassDecl> ClassType::GetClassDecl() const noexcept {
+  return GetTypeDecl().cast_unsafe<ClassDecl const>();
+}
+
+EnumType::EnumType(sona::ref_ptr<EnumDecl> decl)
+  : UserDefinedType(UDTypeId::UTI_Enum, decl->GetName(),
+                    decl.cast_unsafe<TypeDecl>()) {}
+
+sona::ref_ptr<const EnumDecl> EnumType::GetEnumDecl() const noexcept {
+  return GetTypeDecl().cast_unsafe<EnumDecl const>();
+}
+
+EnumClassType::EnumClassType(sona::ref_ptr<EnumClassDecl> decl)
+  : UserDefinedType(UDTypeId::UTI_EnumClass, decl->GetName(),
+                    decl.cast_unsafe<TypeDecl>()) {}
+
+sona::ref_ptr<const EnumClassDecl>
+EnumClassType::GetEnumClassDecl() const noexcept {
+  return GetTypeDecl().cast_unsafe<EnumClassDecl const>();
+}
+
+UsingType::UsingType(sona::ref_ptr<UsingDecl> usingDecl)
+  : UserDefinedType(UDTypeId::UTI_Using, usingDecl->GetName(),
+                    usingDecl.cast_unsafe<AST::TypeDecl>()) {}
+
+sona::ref_ptr<const UsingDecl> UsingType::GetUsingDecl() const noexcept {
+  return GetTypeDecl().cast_unsafe<AST::UsingDecl const>();
+}
+
+std::size_t UserDefinedType::GetHash() const noexcept {
+  return std::hash<TypeDecl const*>()(&GetTypeDecl().get());
+}
+
+bool UserDefinedType::EqualTo(const Type& that) const noexcept {
+  if (that.GetTypeId() == Type::TypeId::TI_UserDefined) {
+    UserDefinedType const& uthat = static_cast<UserDefinedType const&>(that);
+    return uthat.GetUserDefinedTypeId() == this->GetUserDefinedTypeId()
+           && uthat.GetTypeDecl() == this->GetTypeDecl();
   }
   return false;
 }
@@ -213,74 +247,15 @@ bool UsingType::EqualTo(Type const &that) const noexcept {
 sona::ref_ptr<Decl const>
 GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
   switch (ty->GetTypeId()) {
-  case Type::TypeId::TI_Tag: {
-    sona::ref_ptr<TagType const> tagTy = ty.cast_unsafe<TagType const>();
-    switch (tagTy->GetTagTypeId()) {
-    case TagType::UDTypeId::TTI_Class:
-      return tagTy.cast_unsafe<ClassType const>()->GetDecl()
-                  .cast_unsafe<Decl const>();
-    case TagType::UDTypeId::TTI_Enum:
-        return tagTy.cast_unsafe<EnumType const>()->GetDecl()
-                    .cast_unsafe<Decl const>();
-    case TagType::UDTypeId::TTI_EnumClass:
-        return tagTy.cast_unsafe<EnumClassType const>()->GetDecl()
-                    .cast_unsafe<Decl const>();
-    }
-  }
-
-  case Type::TypeId::TI_Using: {
-    sona::ref_ptr<UsingType const> usingTy = ty.cast_unsafe<UsingType const>();
-    return usingTy->GetUsingDecl().cast_unsafe<Decl const>();
+  case Type::TypeId::TI_UserDefined: {
+    sona::ref_ptr<UserDefinedType const> udTy
+        = ty.cast_unsafe<UserDefinedType const>();
+    return udTy->GetTypeDecl().cast_unsafe<Decl const>();
   }
 
   default:
     sona_unreachable1("not user defined type");
     return nullptr;
-  }
-}
-
-std::size_t ClassType::GetHash() const noexcept {
-  return std::hash<AST::ClassDecl const*>()(m_Decl.operator->());
-}
-
-bool ClassType::EqualTo(const Type& that) const noexcept  {
-  if (that.GetTypeId() == Type::TypeId::TI_Tag
-      && static_cast<TagType const&>(that).GetTagTypeId()
-         == TagType::UDTypeId::TTI_Class) {
-    return static_cast<ClassType const&>(that).GetDecl() == this->GetDecl();
-  }
-  else {
-    return false;
-  }
-}
-
-std::size_t EnumType::GetHash() const noexcept  {
-  return std::hash<AST::EnumDecl const*>()(m_Decl.operator->());
-}
-
-bool EnumType::EqualTo(const Type& that) const noexcept  {
-  if (that.GetTypeId() == Type::TypeId::TI_Tag
-      && static_cast<TagType const&>(that).GetTagTypeId()
-         == TagType::UDTypeId::TTI_Enum) {
-    return static_cast<EnumType const&>(that).GetDecl() == this->GetDecl();
-  }
-  else {
-    return false;
-  }
-}
-
-std::size_t EnumClassType::GetHash() const noexcept  {
-  return std::hash<AST::EnumClassDecl const*>()(m_Decl.operator->());
-}
-
-bool EnumClassType::EqualTo(const Type& that) const noexcept {
-  if (that.GetTypeId() == Type::TypeId::TI_Tag
-      && static_cast<TagType const&>(that).GetTagTypeId()
-         == TagType::UDTypeId::TTI_EnumClass) {
-    return static_cast<EnumClassType const&>(that).GetDecl() == this->GetDecl();
-  }
-  else {
-    return false;
   }
 }
 
