@@ -62,13 +62,15 @@ private:
   sona::ref_ptr<IncompleteDecl>
   SearchInUnfinished(sona::ref_ptr<AST::Decl const> decl);
 
-  sona::ref_ptr<AST::Type const> LookupType(std::shared_ptr<Scope> scope,
-                                      Syntax::Identifier const& identifier,
-                                      bool shouldDiag);
+  sona::ref_ptr<AST::Type const>
+  LookupType(std::shared_ptr<Scope> scope,
+             Syntax::Identifier const& identifier,
+             bool shouldDiag);
 
-  sona::ref_ptr<AST::DeclContext>
-  ChooseDeclContext(std::shared_ptr<Scope> scope,
-                    std::vector<sona::string_ref> const& nns, bool shouldDiag);
+  sona::ref_ptr<const AST::DeclContext> ChooseDeclContext(std::shared_ptr<Scope> scope,
+                    const std::vector<sona::string_ref>& nns,
+                    bool shouldDiag,
+                    const std::vector<SingleSourceRange>& nnsRanges);
 
 protected:
   /// @note the following interfaces are opened for testing
