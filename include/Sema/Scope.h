@@ -64,13 +64,10 @@ public:
   void AddFunction(sona::ref_ptr<AST::FuncDecl const> funcDecl);
 
   sona::ref_ptr<AST::Type const>
-  LookupType(Syntax::Identifier const& name) const noexcept;
+  LookupType(sona::string_ref const& name) const noexcept;
 
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDecl(sona::string_ref const& name) const noexcept;
-
-  sona::ref_ptr<AST::Type const>
-  LookupType(sona::string_ref const& name) const noexcept;
 
   sona::ref_ptr<AST::Type const>
   LookupTypeLocally(sona::string_ref const& name) const noexcept;

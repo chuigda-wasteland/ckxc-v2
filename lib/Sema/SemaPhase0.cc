@@ -212,7 +212,7 @@ SemaPhase0::
 ResolveUserDefinedType(std::shared_ptr<Scope> scope,
                        sona::ref_ptr<Syntax::UserDefinedType const> uty) {
   sona::ref_ptr<AST::Type const> lookupResult =
-      scope->LookupType(uty->GetName());
+      LookupType(scope, uty->GetName(), false);
   if (lookupResult != nullptr) {
     if (!CheckTypeComplete(lookupResult)) {
       std::vector<Dependency> dependencies;
@@ -436,6 +436,35 @@ SemaPhase0::SearchInUnfinished(sona::ref_ptr<const AST::Decl> decl) {
     sona_unreachable();
   }
   }
+  return nullptr;
+}
+
+sona::ref_ptr<AST::Type const>
+SemaPhase0::LookupType(std::shared_ptr<Scope> scope,
+                       const Syntax::Identifier& identifier, bool shouldDiag) {
+  if (identifier.GetNestedNameSpecifiers().size() == 0) {
+    sona::ref_ptr<AST::Type const> ret
+        = scope->LookupType(identifier.GetIdentifier());
+    if (ret == nullptr && shouldDiag) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrNotDeclared,
+                               { identifier.GetIdentifier() }),
+                  identifier.GetIdSourceRange());
+    }
+    return ret;
+  }
+  sona_unreachable1("not implemented");
+  return nullptr;
+}
+
+sona::ref_ptr<AST::DeclContext>
+SemaPhase0::ChooseDeclContext(std::shared_ptr<Scope> scope,
+                              const std::vector<string_ref>& nns,
+                              bool shouldDiag) {
+  (void)scope;
+  (void)nns;
+  (void)shouldDiag;
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
