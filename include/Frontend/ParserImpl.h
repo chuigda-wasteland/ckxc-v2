@@ -54,7 +54,7 @@ protected:
 
   sona::owner<Syntax::Type> ParseBuiltinType();
   sona::owner<Syntax::Type> ParseUserDefinedType();
-  sona::owner<Syntax::Identifier> ParseIdentifier();
+  Syntax::Identifier ParseIdentifier();
 
   void
   SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);

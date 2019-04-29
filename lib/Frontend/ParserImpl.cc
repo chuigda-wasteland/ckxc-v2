@@ -529,7 +529,7 @@ sona::owner<Syntax::Expr>
 ParserImpl::ParseMemberAccessExpr(sona::owner<Syntax::Expr>&& base) {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_SYM_DOT);
   ConsumeToken();
-  sona::owner<Syntax::Identifier> member = ParseIdentifier();
+  Syntax::Identifier member = ParseIdentifier();
   return new Syntax::MemberAccessExpr(std::move(base), std::move(member));
 }
 
@@ -589,13 +589,11 @@ owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
 
 owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
-  string_ref typeStr = CurrentToken().GetStrValueUnsafe();
-  SourceRange range = CurrentToken().GetSourceRange();
-  ConsumeToken();
-  return new Syntax::UserDefinedType(typeStr, range);
+  Syntax::Identifier id = ParseIdentifier();
+  return new Syntax::UserDefinedType(std::move(id), id.GetIdSourceRange());
 }
 
-sona::owner<Syntax::Identifier> ParserImpl::ParseIdentifier() {
+Syntax::Identifier ParserImpl::ParseIdentifier() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
 
   std::vector<sona::string_ref> parsedParts;
@@ -624,8 +622,8 @@ sona::owner<Syntax::Identifier> ParserImpl::ParseIdentifier() {
   parsedParts.pop_back();
   parsedPartRanges.pop_back();
 
-  return new Syntax::Identifier(std::move(parsedParts),idItself,
-                                std::move(parsedPartRanges), idItselfRange);
+  return Syntax::Identifier(std::move(parsedParts),idItself,
+                            std::move(parsedPartRanges), idItselfRange);
 }
 
 void ParserImpl::

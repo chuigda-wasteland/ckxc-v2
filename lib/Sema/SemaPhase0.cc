@@ -225,8 +225,7 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
   }
 
   std::vector<Dependency> dependencies;
-  dependencies.emplace_back(
-    Syntax::Identifier(uty->GetName(), uty->GetSourceRange()), true);
+  dependencies.emplace_back(uty->GetName().ExplicitlyClone(), true);
 
   return sona::either<sona::ref_ptr<AST::Type const>,
                       std::vector<Dependency>>(std::move(dependencies));

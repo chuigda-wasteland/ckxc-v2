@@ -38,6 +38,13 @@ void Scope::AddFunction(sona::ref_ptr<const AST::FuncDecl> funcDecl) {
   m_Functions.emplace(funcDecl->GetName(), funcDecl);
 }
 
+sona::ref_ptr<const AST::Type>
+Scope::LookupType(const Syntax::Identifier& name) const noexcept {
+  /// @todo how to finish this?
+  (void)name;
+  return nullptr;
+}
+
 sona::ref_ptr<AST::VarDecl const>
 Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;

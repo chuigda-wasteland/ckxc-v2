@@ -15,6 +15,63 @@
 namespace ckx {
 namespace Syntax {
 
+class Identifier {
+public:
+  Identifier(sona::string_ref const& identifier,
+             SingleSourceRange const& idRange)
+    : m_Identifier(identifier), m_IdRange(idRange) {}
+
+  Identifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
+             sona::string_ref identifier,
+             std::vector<SingleSourceRange> &&nnsRanges,
+             SingleSourceRange idRange)
+    : m_NestedNameSpecifiers(std::move(nestedNameSpecifiers)),
+      m_Identifier(identifier),
+      m_NNSRanges(std::move(nnsRanges)),
+      m_IdRange(idRange) {}
+
+  Identifier(Identifier &&that)
+    : m_NestedNameSpecifiers(std::move(that.m_NestedNameSpecifiers)),
+      m_Identifier(that.m_Identifier),
+      m_NNSRanges(std::move(that.m_NNSRanges)),
+      m_IdRange(that.m_IdRange) {}
+
+  Identifier(Identifier const&) = delete;
+  Identifier& operator=(Identifier const&) = delete;
+
+  Identifier ExplicitlyClone() const {
+    std::vector<sona::string_ref> copyOfNNS = m_NestedNameSpecifiers;
+    sona::string_ref copyOfIdentifier = m_Identifier;
+    std::vector<SingleSourceRange> copyOfNNSRanges = m_NNSRanges;
+    SingleSourceRange copyOfIdRange = m_IdRange;
+    return Identifier(std::move(copyOfNNS), std::move(copyOfIdentifier),
+                      std::move(copyOfNNSRanges), std::move(copyOfIdRange));
+  }
+
+  sona::string_ref const& GetIdentifier() const noexcept {
+    return m_Identifier;
+  }
+
+  SingleSourceRange const& GetIdSourceRange() const noexcept {
+    return m_IdRange;
+  }
+
+  std::vector<sona::string_ref> const&
+  GetNestedNameSpecifiers() const noexcept {
+    return m_NestedNameSpecifiers;
+  }
+
+  std::vector<SingleSourceRange> const& GetNNSSourceRanges() const noexcept {
+    return m_NNSRanges;
+  }
+
+private:
+  std::vector<sona::string_ref> m_NestedNameSpecifiers;
+  sona::string_ref m_Identifier;
+  std::vector<SingleSourceRange> m_NNSRanges;
+  SingleSourceRange m_IdRange;
+};
+
 class Node {
 public:
   enum class NodeKind {
@@ -142,16 +199,16 @@ private:
 class UserDefinedType : public Type {
 public:
   /// @todo use Syntax::Identifier for name
-  UserDefinedType(sona::string_ref name, SingleSourceRange const& range)
+  UserDefinedType(Identifier&& name, SingleSourceRange const& range)
     : Type(NodeKind::CNK_UserDefinedType),
-      m_Name(name), m_Range(range) {}
+      m_Name(std::move(name)), m_Range(range) {}
 
-  sona::string_ref GetName() const noexcept { return m_Name; }
+  Identifier const& GetName() const noexcept { return m_Name; }
 
   SingleSourceRange const& GetSourceRange() const noexcept { return m_Range; }
 
 private:
-  sona::string_ref m_Name;
+  Identifier m_Name;
   SingleSourceRange m_Range;
 };
 
@@ -210,54 +267,6 @@ private:
   sona::owner<Type> m_RootType;
   std::vector<TypeSpecifier> m_TypeSpecifiers;
   std::vector<SingleSourceRange> m_TypeSpecifierRanges;
-};
-
-class Identifier {
-public:
-  Identifier(sona::string_ref const& identifier,
-             SingleSourceRange const& idRange)
-    : m_Identifier(identifier), m_IdRange(idRange) {}
-
-  Identifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
-             sona::string_ref identifier,
-             std::vector<SingleSourceRange> &&nnsRanges,
-             SingleSourceRange idRange)
-    : m_NestedNameSpecifiers(std::move(nestedNameSpecifiers)),
-      m_Identifier(identifier),
-      m_NNSRanges(std::move(nnsRanges)),
-      m_IdRange(idRange) {}
-
-  Identifier(Identifier &&that)
-    : m_NestedNameSpecifiers(std::move(that.m_NestedNameSpecifiers)),
-      m_Identifier(that.m_Identifier),
-      m_NNSRanges(std::move(that.m_NNSRanges)),
-      m_IdRange(that.m_IdRange) {}
-
-  Identifier(Identifier const&) = delete;
-  Identifier& operator=(Identifier const&) = delete;
-
-  sona::string_ref const& GetIdentifier() const noexcept {
-    return m_Identifier;
-  }
-
-  SingleSourceRange const& GetIdSourceRange() const noexcept {
-    return m_IdRange;
-  }
-
-  std::vector<sona::string_ref> const&
-  GetNestedNameSpecifiers() const noexcept {
-    return m_NestedNameSpecifiers;
-  }
-
-  std::vector<SingleSourceRange> const& GetNNSSourceRanges() const noexcept {
-    return m_NNSRanges;
-  }
-
-private:
-  std::vector<sona::string_ref> m_NestedNameSpecifiers;
-  sona::string_ref m_Identifier;
-  std::vector<SingleSourceRange> m_NNSRanges;
-  SingleSourceRange m_IdRange;
 };
 
 class Import : public Node {
@@ -780,15 +789,15 @@ private:
 
 class IdRefExpr : public Expr {
 public:
-  IdRefExpr(sona::owner<Identifier> &&id)
+  IdRefExpr(Identifier &&id)
     : Expr(NodeKind::CNK_IdRefExpr), m_Id(std::move(id)) {}
 
-  sona::ref_ptr<Identifier const> GetId() const noexcept {
-    return m_Id.borrow();
+  Identifier const& GetId() const noexcept {
+    return m_Id;
   }
 
 private:
-  sona::owner<Identifier> m_Id;
+  Identifier m_Id;
 };
 
 class SizeOfExpr : public Expr {
@@ -876,7 +885,7 @@ private:
 class MemberAccessExpr : public Expr {
 public:
   MemberAccessExpr(sona::owner<Syntax::Expr> &&baseExpr,
-                   sona::owner<Syntax::Identifier> &&member)
+                   Syntax::Identifier &&member)
     : Expr(Node::NodeKind::CNK_MemberAccessExpr),
       m_BaseExpr(std::move(baseExpr)), m_Member(std::move(member)) {}
 
@@ -884,13 +893,13 @@ public:
     return m_BaseExpr.borrow();
   }
 
-  sona::ref_ptr<Syntax::Identifier const> GetMember() const noexcept {
-    return m_Member.borrow();
+  Syntax::Identifier const& GetMember() const noexcept {
+    return m_Member;
   }
 
 private:
   sona::owner<Syntax::Expr> m_BaseExpr;
-  sona::owner<Syntax::Identifier> m_Member;
+  Syntax::Identifier m_Member;
 };
 
 class UnaryAlgebraicExpr : public Expr {

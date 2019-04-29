@@ -63,7 +63,9 @@ public:
 
   void AddFunction(sona::ref_ptr<AST::FuncDecl const> funcDecl);
 
-  /// @todo we need a Syntax::Identifier based lookup, instead of string_ref.
+  sona::ref_ptr<AST::Type const>
+  LookupType(Syntax::Identifier const& name) const noexcept;
+
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDecl(sona::string_ref const& name) const noexcept;
 
