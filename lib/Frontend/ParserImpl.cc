@@ -601,6 +601,7 @@ Syntax::Identifier ParserImpl::ParseIdentifier() {
 
   parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
   parsedPartRanges.push_back(CurrentToken().GetSourceRange());
+  ConsumeToken();
 
   for (;;) {
     if (CurrentToken().GetTokenKind() != Token::TK_SYM_DOT) {
