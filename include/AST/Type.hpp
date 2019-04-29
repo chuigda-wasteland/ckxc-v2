@@ -174,9 +174,7 @@ class UserDefinedType : public Type {
 public:
   enum class UDTypeId { UTI_Class, UTI_Enum, UTI_EnumClass, UTI_Using };
   UserDefinedType(UDTypeId id, sona::string_ref const& typeName,
-                  sona::ref_ptr<TypeDecl> typeDecl)
-    : Type(TypeId::TI_UserDefined), m_Id(id),
-      m_TypeName(typeName), m_TypeDecl(typeDecl) {}
+                  sona::ref_ptr<TypeDecl> typeDecl);
 
   UDTypeId GetUserDefinedTypeId() const noexcept { return m_Id; }
 

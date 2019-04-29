@@ -231,6 +231,14 @@ sona::ref_ptr<const UsingDecl> UsingType::GetUsingDecl() const noexcept {
   return GetTypeDecl().cast_unsafe<AST::UsingDecl const>();
 }
 
+UserDefinedType::UserDefinedType(UserDefinedType::UDTypeId id,
+                                 const sona::string_ref& typeName,
+                                 sona::ref_ptr<TypeDecl> typeDecl)
+  : Type(TypeId::TI_UserDefined), m_Id(id),
+    m_TypeName(typeName), m_TypeDecl(typeDecl) {
+  typeDecl->SetTypeForDecl(this);
+}
+
 std::size_t UserDefinedType::GetHash() const noexcept {
   return std::hash<TypeDecl const*>()(&GetTypeDecl().get());
 }
