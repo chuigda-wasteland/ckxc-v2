@@ -13,8 +13,10 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -Wall -Wextra -fno-delayed-template-parsing \
-          -fno-rtti")
+        "${CMAKE_CXX_FLAGS} -Wall -Wextra -fno-delayed-template-parsing")
+    if (CMAKE_BUILD_TYPE MATCHES "Release")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+    endif()
 endif ()
 
 include_directories (include)
@@ -53,3 +55,6 @@ target_link_libraries (TestDepResolve Frontend Sema AST Basic sona)
 
 add_executable (TestPostSubstDep test/Sema/PostSubstDepTest.cc)
 target_link_libraries (TestPostSubstDep Frontend Sema AST Basic sona)
+
+add_executable(TestLookup test/Sema/LookupTest.cc)
+target_link_libraries (TestLookup Frontend Sema AST Basic sona)

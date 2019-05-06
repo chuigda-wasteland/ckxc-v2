@@ -3,6 +3,20 @@
 namespace ckx {
 namespace AST {
 
+sona::ref_ptr<Decl const>
+DeclContext::LookupDecl(sona::string_ref const& name) const {
+  (void)name;
+  sona_unreachable();
+  return nullptr;
+}
+
+sona::ref_ptr<Decl const>
+DeclContext::LookupDeclLocally(sona::string_ref const& name) const {
+  (void)name;
+  sona_unreachable();
+  return nullptr;
+}
+
 sona::ref_ptr<DeclContext> Decl::CastAsDeclContext() noexcept {
   switch (GetDeclKind()) {
   case DK_Enum:

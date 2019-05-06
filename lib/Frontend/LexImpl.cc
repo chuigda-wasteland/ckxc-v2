@@ -48,7 +48,7 @@ void LexerImpl::LexAllTokens() {
       break;
 
     case '{': case '}': case '(': case ')': case ',': case ';': case ':':
-    case '[': case ']': case '=':
+    case '[': case ']': case '=': case '.':
       LexSymbol();
       break;
 

@@ -29,7 +29,7 @@ public:
 
   std::vector<sona::ref_ptr<Sema::IncompleteDecl>> FindTranslationOrder();
 
-private:
+protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
 
@@ -78,6 +78,7 @@ protected:
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
   std::shared_ptr<Scope> const& GetCurrentScope() const noexcept;
+  std::shared_ptr<Scope> const& GetGlobalScope() const noexcept;
 
   bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
   bool CheckUserDefinedTypeComplete(

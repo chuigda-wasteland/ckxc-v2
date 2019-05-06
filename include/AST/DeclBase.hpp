@@ -61,10 +61,13 @@ public:
     m_Decls.push_back(std::move(decl));
   }
 
-  bool LookupDecl(sona::string_ref const& name) const;
-  bool LookupDeclLocally(sona::string_ref const& name) const;
+  sona::ref_ptr<AST::Decl const>
+  LookupDecl(sona::string_ref const& name) const;
+  sona::ref_ptr<AST::Decl const>
+  LookupDeclLocally(sona::string_ref const& name) const;
 
   auto GetDecls() const noexcept {
+    (void)m_DeclKind;
     return sona::linq::from_container(m_Decls).
         transform([](sona::owner<Decl> const& decl) {
       return decl.borrow();

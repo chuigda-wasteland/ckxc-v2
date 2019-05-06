@@ -580,6 +580,10 @@ std::shared_ptr<Scope> const& SemaPhase0::GetCurrentScope() const noexcept {
   return m_ScopeChains.back();
 }
 
+const std::shared_ptr<Scope> &SemaPhase0::GetGlobalScope() const noexcept {
+  return m_ScopeChains.front();
+}
+
 bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
   switch (type->GetTypeId()) {
   case AST::Type::TypeId::TI_Builtin:
