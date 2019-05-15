@@ -14,10 +14,15 @@ class Scope;
 
 class IncompleteDecl {
 public:
+  enum IncompleteDeclType {
+    IDT_Var, IDT_Tag, IDT_ECC, IDT_Using, IDT_Function
+  };
+
   IncompleteDecl(std::vector<Dependency> &&dependencies,
-                 std::shared_ptr<Scope> const& inScope) :
+                 std::shared_ptr<Scope> const& inScope,
+                 IncompleteDeclType iDeclType) :
     m_Dependencies(std::move(dependencies)),
-    m_InScope(inScope) {}
+    m_InScope(inScope), m_IDeclType(iDeclType) {}
 
   IncompleteDecl(IncompleteDecl const&) = delete;
 
@@ -44,9 +49,12 @@ public:
 
   virtual ~IncompleteDecl() {}
 
+  IncompleteDeclType GetType() const noexcept { return m_IDeclType; }
+
 private:
   std::vector<Dependency> m_Dependencies;
   std::shared_ptr<Scope> m_InScope;
+  IncompleteDeclType m_IDeclType;
 };
 
 class IncompleteVarDecl : public IncompleteDecl {
@@ -56,7 +64,7 @@ public:
                     sona::ref_ptr<AST::DeclContext> inContext,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope),
+    : IncompleteDecl(std::move(dependencies), inScope, IDT_Var),
       m_Incomplete(incomplete), m_Concrete(concrete), m_InContext(inContext) {}
 
   sona::ref_ptr<AST::VarDecl> GetIncomplete() noexcept {
@@ -84,7 +92,8 @@ public:
   IncompleteTagDecl(sona::ref_ptr<AST::Decl> halfway,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
+    : IncompleteDecl(std::move(dependencies), inScope, IDT_Tag),
+      m_Halfway(halfway) {}
 
   sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
     return m_Halfway;
@@ -101,7 +110,8 @@ public:
   IncompleteEnumClassInternDecl(sona::ref_ptr<AST::Decl> halfway,
                                 std::vector<Dependency> &&dependencies,
                                 std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
+    : IncompleteDecl(std::move(dependencies), inScope, IDT_ECC),
+      m_Halfway(halfway) {}
 
   sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
     return m_Halfway;
@@ -118,7 +128,8 @@ public:
   IncompleteUsingDecl(sona::ref_ptr<AST::UsingDecl> halfway,
                       std::vector<Dependency> &&dependencies,
                       std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope), m_Halfway(halfway) {}
+    : IncompleteDecl(std::move(dependencies), inScope, IDT_Using),
+      m_Halfway(halfway) {}
 
   sona::ref_ptr<AST::UsingDecl const> GetHalfway() const noexcept {
     return m_Halfway;
@@ -135,7 +146,7 @@ public:
   IncompleteFuncDecl(sona::ref_ptr<Syntax::FuncDecl const> funcDecl,
                      std::shared_ptr<Scope> const& inScope,
                      sona::ref_ptr<AST::DeclContext> inContext)
-    : IncompleteDecl(std::vector<Dependency>(), inScope),
+    : IncompleteDecl(std::vector<Dependency>(), inScope, IDT_Function),
       m_FuncDecl(funcDecl), m_InContext(inContext) {}
 
   std::string ToString() const override;

@@ -37,8 +37,7 @@ protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
 
-   sona::ref_ptr<AST::BuiltinType const>
-   ActOnBasicTypeImpl(sona::ref_ptr<Syntax::BasicType const> basicType);
+   sona::ref_ptr<const AST::Type> ResolveBasicTypeImpl(sona::ref_ptr<Syntax::BasicType const> basicType);
 
    sona::ref_ptr<const AST::DeclContext>
    ChooseDeclContext(std::shared_ptr<Scope> scope,

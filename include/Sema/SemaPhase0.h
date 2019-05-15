@@ -23,8 +23,7 @@ public:
   std::vector<Sema::IncompleteFuncDecl> &GetIncompleteFuncs();
 
 protected:
-  sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
-               std::vector<Dependency>>         // dependencies
+  sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
   ResolveType(std::shared_ptr<Scope> scope,
               sona::ref_ptr<Syntax::Type const> type);
 
