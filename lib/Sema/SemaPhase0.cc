@@ -226,11 +226,17 @@ ResolveComposedType(std::shared_ptr<Scope> scope,
     for (Syntax::ComposedType::TypeSpecifier ts : cty->GetTypeSpecifiers()) {
       switch (ts) {
       case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
-        ret = new AST::PointerType(ret); break;
+        ret = m_ASTContext.CreatePointerType(ret)
+                          .cast_unsafe<AST::Type const>();
+        break;
       case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
-        ret = new AST::LValueRefType(ret); break;
+        ret = m_ASTContext.CreateLValueRefType(ret)
+                          .cast_unsafe<AST::Type const>();
+        break;
       case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
-        ret = new AST::RValueRefType(ret); break;
+        ret = m_ASTContext.CreateRValueRefType(ret)
+                          .cast_unsafe<AST::Type const>();
+        break;
       default:
         sona_unreachable1("not implemented");
       }

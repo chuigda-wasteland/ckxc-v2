@@ -18,6 +18,19 @@ public:
       std::vector<sona::ref_ptr<Sema::IncompleteDecl>> incompletes);
 
   void TranslateFunctions(std::vector<IncompleteFuncDecl> &funcs);
+
+protected:
+  sona::ref_ptr<AST::Type const>
+  ResolveType(std::shared_ptr<Scope> scope,
+              sona::ref_ptr<Syntax::Type const> type);
+
+#define CST_TYPE(name) \
+  sona::ref_ptr<AST::Type const> \
+  Resolve##name(std::shared_ptr<Scope> scope, \
+                sona::ref_ptr<Syntax::name const> type);
+
+#include "Syntax/CSTNodeDefs.def"
+
 };
 
 } // namespace Sema
