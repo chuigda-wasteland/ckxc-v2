@@ -34,6 +34,8 @@ protected:
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
   std::shared_ptr<Scope> const& GetCurrentScope() const noexcept;
   std::shared_ptr<Scope> const& GetGlobalScope() const noexcept;
+  void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
+  void PopScope();
 
    sona::ref_ptr<AST::BuiltinType const>
    ActOnBasicTypeImpl(sona::ref_ptr<Syntax::BasicType const> basicType);

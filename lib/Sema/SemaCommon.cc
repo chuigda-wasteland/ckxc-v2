@@ -23,6 +23,15 @@ std::shared_ptr<Scope> const& SemaCommon::GetGlobalScope() const noexcept {
   return m_ScopeChains.front();
 }
 
+void SemaCommon::PushScope(Scope::ScopeFlags flags) {
+  m_ScopeChains.emplace_back(
+      new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));
+}
+
+void SemaCommon::PopScope() {
+  m_ScopeChains.pop_back();
+}
+
 sona::ref_ptr<AST::DeclContext const>
 SemaCommon::ChooseDeclContext(std::shared_ptr<Scope> scope,
                               std::vector<sona::string_ref> const& nns,

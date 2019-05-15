@@ -23,9 +23,6 @@ public:
   std::vector<Sema::IncompleteFuncDecl> &GetIncompleteFuncs();
 
 protected:
-  void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
-  void PopScope();
-
   sona::either<sona::ref_ptr<AST::Type const>,  // finally resolved type
                std::vector<Dependency>>         // dependencies
   ResolveType(std::shared_ptr<Scope> scope,

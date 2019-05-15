@@ -139,15 +139,6 @@ std::vector<IncompleteFuncDecl> &SemaPhase0::GetIncompleteFuncs() {
   return m_IncompleteFuncs;
 }
 
-void SemaPhase0::PushScope(Scope::ScopeFlags flags) {
-  m_ScopeChains.emplace_back(
-      new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));
-}
-
-void SemaPhase0::PopScope() {
-  m_ScopeChains.pop_back();
-}
-
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::ResolveType(std::shared_ptr<Scope> scope,
                         sona::ref_ptr<Syntax::Type const> type) {
