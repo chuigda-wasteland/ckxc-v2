@@ -12,7 +12,11 @@ using namespace std;
 
 class SemaPhase0Test : public Sema::SemaPhase0 {
 public:
-  SemaPhase0Test(Diag::DiagnosticEngine &diag) : SemaPhase0(diag) {}
+  SemaPhase0Test(AST::ASTContext &astContext,
+                 std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
+                 std::vector<std::shared_ptr<Sema::Scope>> &scopeChains,
+                 Diag::DiagnosticEngine &diag)
+    : SemaPhase0(astContext, declContexts, scopeChains, diag) {}
 
   using SemaPhase0::LookupType;
   using SemaPhase0::GetGlobalScope;
@@ -35,7 +39,12 @@ void test0() {
   Frontend::Parser parser(diag);
   sona::owner<Syntax::TransUnit> cst = parser.ParseTransUnit(tokens);
 
-  SemaPhase0Test sema0(diag);
+  AST::ASTContext astContext;
+  std::vector<sona::ref_ptr<AST::DeclContext>> declContexts;
+  std::vector<std::shared_ptr<Sema::Scope>> scopeChains;
+
+  SemaPhase0Test sema0(astContext, declContexts, scopeChains, diag);
+
   sona::owner<AST::TransUnitDecl> transUnit =
       sema0.ActOnTransUnit(cst.borrow());
 

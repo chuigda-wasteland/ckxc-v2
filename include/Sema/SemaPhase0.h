@@ -1,26 +1,18 @@
 #ifndef SEMA_H
 #define SEMA_H
 
-#include "Sema/Scope.h"
-#include "Sema/UnresolvedDecl.hpp"
-#include "Sema/Dependency.h"
-
-#include "Basic/Diagnose.h"
-#include "Syntax/CST.h"
-#include "AST/DeclFwd.hpp"
-#include "AST/ExprFwd.hpp"
-#include "AST/StmtFwd.hpp"
-#include "AST/TypeFwd.hpp"
-
-#include "sona/pointer_plus.hpp"
+#include "Sema/SemaCommon.h"
 #include "sona/either.hpp"
 
 namespace ckx {
 namespace Sema {
 
-class SemaPhase0 {
+class SemaPhase0 : public SemaCommon {
 public:
-  SemaPhase0(Diag::DiagnosticEngine &diag);
+  SemaPhase0(AST::ASTContext &astContext,
+             std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
+             std::vector<std::shared_ptr<Scope>> &scopeChains,
+             Diag::DiagnosticEngine &diag);
 
   sona::owner<AST::TransUnitDecl>
   ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit);
@@ -62,33 +54,11 @@ protected:
   sona::ref_ptr<IncompleteDecl>
   SearchInUnfinished(sona::ref_ptr<AST::Decl const> decl);
 
-  sona::ref_ptr<AST::Type const>
-  LookupType(std::shared_ptr<Scope> scope,
-             Syntax::Identifier const& identifier,
-             bool shouldDiag);
-
-  sona::ref_ptr<const AST::DeclContext> ChooseDeclContext(std::shared_ptr<Scope> scope,
-                    const std::vector<sona::string_ref>& nns,
-                    bool shouldDiag,
-                    const std::vector<SingleSourceRange>& nnsRanges);
-
 protected:
-  /// @note the following interfaces are opened for testing
-  void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
-  void PopDeclContext();
-  sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
-  std::shared_ptr<Scope> const& GetCurrentScope() const noexcept;
-  std::shared_ptr<Scope> const& GetGlobalScope() const noexcept;
-
   bool CheckTypeComplete(sona::ref_ptr<AST::Type const> type);
   bool CheckUserDefinedTypeComplete(
       sona::ref_ptr<AST::UserDefinedType const> type);
 
-  Diag::DiagnosticEngine &m_Diag;
-
-  AST::ASTContext m_ASTContext;
-  std::vector<sona::ref_ptr<AST::DeclContext>> m_DeclContexts;
-  std::vector<std::shared_ptr<Scope>> m_ScopeChains;
   std::vector<Syntax::Export> m_Exports;
 
   std::unordered_map<sona::ref_ptr<AST::VarDecl const>,
@@ -109,4 +79,4 @@ protected:
 } // namespace Sema
 } // namespace ckx
 
-#endif // CSTANNOTATOR_H
+#endif // SEMA_H
