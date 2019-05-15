@@ -135,6 +135,10 @@ SemaPhase0::FindTranslationOrder() {
   return transOrder;
 }
 
+std::vector<IncompleteFuncDecl> &SemaPhase0::GetIncompleteFuncs() {
+  return m_IncompleteFuncs;
+}
+
 void SemaPhase0::PushScope(Scope::ScopeFlags flags) {
   m_ScopeChains.emplace_back(
       new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));

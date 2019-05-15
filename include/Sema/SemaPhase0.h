@@ -1,5 +1,5 @@
-#ifndef SEMA_H
-#define SEMA_H
+#ifndef SEMA_PHASE0_H
+#define SEMA_PHASE0_H
 
 #include "Sema/SemaCommon.h"
 #include "sona/either.hpp"
@@ -20,6 +20,7 @@ public:
   void PostSubstituteDepends();
 
   std::vector<sona::ref_ptr<Sema::IncompleteDecl>> FindTranslationOrder();
+  std::vector<Sema::IncompleteFuncDecl> &GetIncompleteFuncs();
 
 protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
@@ -79,4 +80,4 @@ protected:
 } // namespace Sema
 } // namespace ckx
 
-#endif // SEMA_H
+#endif // SEMA_PHASE0_H
