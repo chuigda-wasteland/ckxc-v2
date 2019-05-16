@@ -107,38 +107,60 @@ private:
 
 class IncompleteEnumClassInternDecl : public IncompleteDecl {
 public:
-  IncompleteEnumClassInternDecl(sona::ref_ptr<AST::Decl> halfway,
-                                std::vector<Dependency> &&dependencies,
-                                std::shared_ptr<Scope> const& inScope)
+  IncompleteEnumClassInternDecl(
+      sona::ref_ptr<AST::Decl> halfway,
+      sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> concrete,
+      std::vector<Dependency> &&dependencies,
+      std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope, IDT_ECC),
-      m_Halfway(halfway) {}
+      m_Halfway(halfway), m_Concrete(concrete) {}
+
+  sona::ref_ptr<AST::Decl> GetHalfway() noexcept {
+    return m_Halfway;
+  }
 
   sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
     return m_Halfway;
+  }
+
+  sona::ref_ptr<Syntax::ADTDecl::DataConstructor const>
+  GetConcrete() const noexcept {
+    return m_Concrete;
   }
 
   std::string ToString() const override;
 
 private:
   sona::ref_ptr<AST::Decl> m_Halfway;
+  sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> m_Concrete;
 };
 
 class IncompleteUsingDecl : public IncompleteDecl {
 public:
   IncompleteUsingDecl(sona::ref_ptr<AST::UsingDecl> halfway,
+                      sona::ref_ptr<Syntax::UsingDecl const> concrete,
                       std::vector<Dependency> &&dependencies,
                       std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope, IDT_Using),
-      m_Halfway(halfway) {}
+      m_Halfway(halfway), m_Concrete(concrete) {}
+
+  sona::ref_ptr<AST::UsingDecl> GetHalfway() noexcept {
+    return m_Halfway;
+  }
 
   sona::ref_ptr<AST::UsingDecl const> GetHalfway() const noexcept {
     return m_Halfway;
+  }
+
+  sona::ref_ptr<Syntax::UsingDecl const> GetConcrete() const noexcept {
+    return m_Concrete;
   }
 
   std::string ToString() const override;
 
 private:
   sona::ref_ptr<AST::UsingDecl> m_Halfway;
+  sona::ref_ptr<Syntax::UsingDecl const> m_Concrete;
 };
 
 class IncompleteFuncDecl : public IncompleteDecl {

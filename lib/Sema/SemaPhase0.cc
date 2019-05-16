@@ -372,7 +372,7 @@ SemaPhase0::ActOnADTConstructor(
     m_IncompleteEnumClassInterns.emplace(
           ret0.borrow().cast_unsafe<AST::EnumClassInternDecl>(),
           Sema::IncompleteEnumClassInternDecl(
-            ret0.borrow(), std::move(typeResult.as_t2()), scope));
+            ret0.borrow(), dc, std::move(typeResult.as_t2()), scope));
   }
 
   return std::make_pair(std::move(ret0), typeResult.contains_t1());
@@ -478,7 +478,7 @@ SemaPhase0::ActOnUsingDecl(std::shared_ptr<Scope> scope,
           ret0.borrow().cast_unsafe<AST::UsingDecl>(),
           Sema::IncompleteUsingDecl(
             ret0.borrow().cast_unsafe<AST::UsingDecl>(),
-            std::move(typeResult.as_t2()), scope));
+            decl, std::move(typeResult.as_t2()), scope));
   }
 
   return std::make_pair(std::move(ret0), typeResult.contains_t1());

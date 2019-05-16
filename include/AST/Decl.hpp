@@ -101,7 +101,7 @@ public:
     return m_Type;
   }
 
-  void SetType(sona::ref_ptr<AST::Type> type) noexcept {
+  void SetType(sona::ref_ptr<AST::Type const> type) noexcept {
     m_Type = type;
   }
 
@@ -126,7 +126,7 @@ public:
     : TypeDecl(context, DeclKind::DK_Using, aliasName), m_Aliasee(aliasee) {}
 
   /// @note only use this for refilling after dependency resolution
-  void fillAliasee(sona::ref_ptr<AST::Type> aliasee) noexcept {
+  void FillAliasee(sona::ref_ptr<AST::Type const> aliasee) noexcept {
     sona_assert(m_Aliasee == nullptr);
     m_Aliasee = aliasee;
   }

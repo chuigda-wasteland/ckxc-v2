@@ -24,6 +24,12 @@ protected:
   ResolveType(std::shared_ptr<Scope> scope,
               sona::ref_ptr<Syntax::Type const> type);
 
+  void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
+  void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
+  void PostTranslateIncompleteADTConstructor(sona::ref_ptr<Sema::IncompleteEnumClassInternDecl> iAdtC);
+  void PostTranslateIncompleteUsing(
+      sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
+
 #define CST_TYPE(name) \
   sona::ref_ptr<AST::Type const> \
   Resolve##name(std::shared_ptr<Scope> scope, \

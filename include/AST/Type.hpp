@@ -169,7 +169,6 @@ private:
   sona::owner<Type> m_ReturnType;
 };
 
-/// @todo This inheritance hierarchy seems redundant. Try removeing it st.
 class UserDefinedType : public Type {
 public:
   enum class UDTypeId { UTI_Class, UTI_Enum, UTI_EnumClass, UTI_Using };
