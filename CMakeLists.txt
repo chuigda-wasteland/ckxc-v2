@@ -28,6 +28,7 @@ aux_source_directory (lib/AST AST_SRC)
 aux_source_directory (lib/Syntax SYNTAX_SRC)
 aux_source_directory (lib/Sema SEMA_SRC)
 aux_source_directory (lib/Frontend FRONTEND_SRC)
+aux_source_directory (lib/Backend BACKEND_SRC)
 
 add_library (sona ${SONA_SRC})
 add_library (AST ${AST_SRC})
@@ -35,6 +36,7 @@ add_library (Syntax ${SYNTAX_SRC})
 add_library (Sema ${SEMA_SRC})
 add_library (Basic ${BASIC_SRC})
 add_library (Frontend ${FRONTEND_SRC})
+add_library (Backend ${BACKEND_SRC})
 
 target_link_libraries(Frontend Syntax)
 

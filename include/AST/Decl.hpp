@@ -12,7 +12,7 @@
 namespace ckx {
 namespace AST {
 
-class TransUnitDecl : public Decl, public DeclContext {
+class TransUnitDecl final : public Decl, public DeclContext {
 public:
   TransUnitDecl()
     : Decl(DeclKind::DK_TransUnit, *this),
@@ -58,7 +58,7 @@ private:
   sona::ref_ptr<AST::Type> m_TypeForDecl;
 };
 
-class LabelDecl : public Decl {
+class LabelDecl final : public Decl {
 public:
   LabelDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& labelString)
@@ -68,7 +68,7 @@ private:
   sona::string_ref m_LabelString;
 };
 
-class ClassDecl : public TypeDecl, public DeclContext {
+class ClassDecl final : public TypeDecl, public DeclContext {
 public:
   ClassDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& className)
@@ -76,7 +76,7 @@ public:
         DeclContext(DeclKind::DK_Class) {}
 };
 
-class EnumDecl : public TypeDecl, public DeclContext {
+class EnumDecl final : public TypeDecl, public DeclContext {
 public:
   EnumDecl(sona::ref_ptr<DeclContext> context,
            sona::string_ref const& enumName)
@@ -84,7 +84,7 @@ public:
         DeclContext(DeclKind::DK_Enum) {}
 };
 
-class EnumClassInternDecl : public Decl {
+class EnumClassInternDecl final : public Decl {
 public:
   EnumClassInternDecl(sona::ref_ptr<DeclContext> context,
                       sona::string_ref const& constructorName,
@@ -110,7 +110,7 @@ private:
   sona::ref_ptr<AST::Type const> m_Type;
 };
 
-class EnumClassDecl : public TypeDecl, public DeclContext {
+class EnumClassDecl final : public TypeDecl, public DeclContext {
 public:
   EnumClassDecl(sona::ref_ptr<DeclContext> context,
                 sona::string_ref const& enumClassName)
@@ -118,7 +118,7 @@ public:
       DeclContext(DeclKind::DK_EnumClass) {}
 };
 
-class UsingDecl : public TypeDecl {
+class UsingDecl final : public TypeDecl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& aliasName,
@@ -139,7 +139,7 @@ private:
   sona::ref_ptr<AST::Type const> m_Aliasee;
 };
 
-class EnumeratorDecl : public Decl {
+class EnumeratorDecl final : public Decl {
 public:
   EnumeratorDecl(sona::ref_ptr<DeclContext> context,
                  sona::string_ref const& enumeratorName,
@@ -160,7 +160,7 @@ private:
   int64_t m_Init;
 };
 
-class FuncDecl : public Decl, public DeclContext {
+class FuncDecl final : public Decl, public DeclContext {
 public:
   FuncDecl(sona::ref_ptr<DeclContext> context,
            sona::string_ref const& functionName,
@@ -202,7 +202,7 @@ private:
   sona::ref_ptr<Type const> m_RetType;
 };
 
-class VarDecl : public Decl {
+class VarDecl final : public Decl {
 public:
   VarDecl(sona::ref_ptr<DeclContext> context,
           sona::ref_ptr<Type const> type,
@@ -221,9 +221,9 @@ private:
   sona::string_ref m_VarName;
 };
 
-class ParamDecl : public VarDecl {};
+// class ParamDecl : public VarDecl {};
 
-class FieldDecl : public VarDecl {};
+// class FieldDecl : public VarDecl {};
 
 } // namespace AST
 } // namespace ckx
