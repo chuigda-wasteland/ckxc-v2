@@ -45,5 +45,55 @@ sona::ref_ptr<DeclContext const> Decl::CastAsDeclContext() const noexcept {
   return nullptr;
 }
 
+sona::owner<Backend::DeclResult> 
+TransUnitDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitTransUnit(this);
+}
+
+sona::owner<Backend::DeclResult>
+LabelDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitLabelDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+ClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitClassDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+EnumDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitEnumDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+EnumClassInternDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitEnumClassInternDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+EnumClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitEnumClassDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+EnumeratorDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitEnumeratorDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+UsingDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitUsingDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+FuncDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitFuncDecl(this);
+}
+
+sona::owner<Backend::DeclResult>
+VarDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+  return visitor->VisitVarDecl(this);
+}
+
 } // namespace AST
 } // namespace ckx

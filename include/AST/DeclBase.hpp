@@ -1,7 +1,9 @@
 #ifndef DECLBASE_HPP
 #define DECLBASE_HPP
 
-#include "DeclFwd.hpp"
+#include "AST/DeclFwd.hpp"
+#include "Backend/ASTVisitor.h"
+
 #include "sona/linq.hpp"
 #include "sona/pointer_plus.hpp"
 #include "sona/small_vector.hpp"
@@ -41,6 +43,9 @@ public:
 
   sona::ref_ptr<DeclContext> CastAsDeclContext() noexcept;
   sona::ref_ptr<DeclContext const> CastAsDeclContext() const noexcept;
+
+  virtual sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) = 0;
 
   virtual ~Decl() noexcept = default;
 

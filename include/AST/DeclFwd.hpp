@@ -7,7 +7,7 @@ namespace AST {
 class Decl;
 class DeclContext;
 
-class EmptyDecl;
+// class EmptyDecl;
 /// @todo implement them once we can
 // class ImportDecl;
 // class ModuleDecl;
@@ -20,11 +20,11 @@ class EnumDecl;  // : public DeclContext
 class EnumClassDecl;
 class EnumClassInternDecl;
 class UsingDecl;
-class ValuedDecl;
+// class ValuedDecl;
 class FuncDecl; // : public DeclContext
 class VarDecl;
-class FieldDecl;
-class ParamDecl;
+// class FieldDecl;
+// class ParamDecl;
 class EnumeratorDecl;
 
 /// @todo and_then fix DeclBase.hpp

@@ -12,7 +12,7 @@ class RefType;
 class LValueRefType;
 class RValueRefType;
 class FunctionType;
-class TagType;
+class UserDefinedType;
 class EnumType;
 class ClassType;
 class UsingType;

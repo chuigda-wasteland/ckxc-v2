@@ -1,9 +1,9 @@
 #ifndef ASTVISITOR_H
 #define ASTVISITOR_H
 
-#include "AST/Decl.hpp"
-#include "AST/Stmt.hpp"
-#include "AST/Expr.hpp"
+#include "AST/DeclFwd.hpp"
+#include "AST/StmtFwd.hpp"
+#include "AST/ExprFwd.hpp"
 
 #include "sona/pointer_plus.hpp"
 #include "sona/util.hpp"

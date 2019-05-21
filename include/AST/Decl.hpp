@@ -20,6 +20,9 @@ public:
 
   sona::ref_ptr<ASTContext> GetASTContext() noexcept { return m_Context; }
 
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
+
 private:
   ASTContext m_Context;
 };
@@ -64,6 +67,9 @@ public:
             sona::string_ref const& labelString)
       : Decl(DeclKind::DK_Label, context), m_LabelString(labelString) {}
 
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
+
 private:
   sona::string_ref m_LabelString;
 };
@@ -74,6 +80,9 @@ public:
             sona::string_ref const& className)
       : TypeDecl(context, DeclKind::DK_Class, className),
         DeclContext(DeclKind::DK_Class) {}
+        
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 };
 
 class EnumDecl final : public TypeDecl, public DeclContext {
@@ -82,6 +91,9 @@ public:
            sona::string_ref const& enumName)
       : TypeDecl(context, DeclKind::DK_Enum, enumName),
         DeclContext(DeclKind::DK_Enum) {}
+        
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 };
 
 class EnumClassInternDecl final : public Decl {
@@ -105,6 +117,9 @@ public:
     m_Type = type;
   }
 
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
+
 private:
   sona::string_ref m_ConstructorName;
   sona::ref_ptr<AST::Type const> m_Type;
@@ -116,6 +131,9 @@ public:
                 sona::string_ref const& enumClassName)
     : TypeDecl(context, DeclKind::DK_EnumClass, enumClassName),
       DeclContext(DeclKind::DK_EnumClass) {}
+      
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 };
 
 class UsingDecl final : public TypeDecl {
@@ -134,6 +152,9 @@ public:
   sona::ref_ptr<AST::Type const> GetAliasee() const noexcept {
     return m_Aliasee;
   }
+
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 
 private:
   sona::ref_ptr<AST::Type const> m_Aliasee;
@@ -154,6 +175,9 @@ public:
   int64_t GetInit() const noexcept {
     return m_Init;
   }
+  
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 
 private:
   sona::string_ref m_EnumeratorName;
@@ -194,6 +218,9 @@ public:
     /// @todo provide a way to link declarations and definitions together.
     return false;
   }
+  
+  sona::owner<Backend::DeclResult> 
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 
 private:
   sona::string_ref m_FunctionName;
@@ -214,6 +241,9 @@ public:
   sona::string_ref const &GetVarName() const noexcept { return m_VarName; }
   void SetType(sona::ref_ptr<Type const> type) noexcept { m_Type = type; }
   sona::ref_ptr<Type const> GetType() const noexcept { return m_Type; }
+
+  sona::owner<Backend::DeclResult>
+  Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) override;
 
 private:
   sona::ref_ptr<Type const> m_Type;
