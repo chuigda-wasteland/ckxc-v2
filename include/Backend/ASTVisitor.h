@@ -33,6 +33,18 @@ private:
 
 class VoidType {};
 
+template<>
+class DeclResultImpl<VoidType> : public DeclResult {
+public:
+  DeclResultImpl(VoidType v) { (void)v; }
+  DeclResultImpl(DeclResultImpl const&) = delete;
+  DeclResultImpl(DeclResultImpl&&) = delete;
+  DeclResultImpl& operator=(DeclResultImpl const&) = delete;
+  DeclResultImpl& operator=(DeclResultImpl &&) = delete;
+
+  void* GetValue() const noexcept { return nullptr; }
+};
+
 template <typename T> sona::owner<DeclResult> CreateDeclResult(T&& t) {
   return new DeclResultImpl<T>(std::forward<T>(t));
 }
