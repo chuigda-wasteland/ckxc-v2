@@ -45,53 +45,53 @@ sona::ref_ptr<DeclContext const> Decl::CastAsDeclContext() const noexcept {
   return nullptr;
 }
 
-sona::owner<Backend::DeclResult> 
+sona::owner<Backend::ActionResult> 
 TransUnitDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitTransUnit(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 LabelDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitLabelDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 ClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitClassDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 EnumDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 EnumClassInternDecl::Accept(
     sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumClassInternDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 EnumClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumClassDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 EnumeratorDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumeratorDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 UsingDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitUsingDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 FuncDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitFuncDecl(this);
 }
 
-sona::owner<Backend::DeclResult>
+sona::owner<Backend::ActionResult>
 VarDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitVarDecl(this);
 }

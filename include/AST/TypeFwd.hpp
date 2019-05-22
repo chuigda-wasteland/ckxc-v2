@@ -2,6 +2,7 @@
 #define TYPEFWD_HPP
 
 namespace ckx {
+namespace AST {
 
 class Type;
 class BuiltinType;
@@ -15,8 +16,10 @@ class FunctionType;
 class UserDefinedType;
 class EnumType;
 class ClassType;
+class EnumClassType;
 class UsingType;
 
+} // namespace AST
 } // namespace ckx
 
 #endif // TYPEFWD_HPP

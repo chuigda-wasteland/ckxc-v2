@@ -267,5 +267,60 @@ GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
   }
 }
 
+sona::owner<Backend::ActionResult>
+BuiltinType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitBuiltinType(this);
+}
+
+sona::owner<Backend::ActionResult>
+TupleType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitTupleType(this);
+}
+
+sona::owner<Backend::ActionResult>
+ArrayType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitArrayType(this);
+}
+
+sona::owner<Backend::ActionResult>
+PointerType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitPointerType(this);
+}
+
+sona::owner<Backend::ActionResult>
+LValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitLValueRefType(this);
+}
+
+sona::owner<Backend::ActionResult>
+RValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitRValueRefType(this);
+}
+
+sona::owner<Backend::ActionResult>
+FunctionType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitFunctionType(this);
+}
+
+sona::owner<Backend::ActionResult>
+ClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitClassType(this);
+}
+
+sona::owner<Backend::ActionResult>
+EnumType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitEnumType(this);
+}
+
+sona::owner<Backend::ActionResult>
+EnumClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitEnumClassType(this);
+}
+
+sona::owner<Backend::ActionResult>
+UsingType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+  return visitor->VisitUsingType(this);
+}
+
 } // namespace AST
 } // namespace ckx

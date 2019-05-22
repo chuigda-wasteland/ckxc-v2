@@ -20,7 +20,7 @@ public:
 
   sona::ref_ptr<ASTContext> GetASTContext() noexcept { return m_Context; }
 
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
@@ -67,7 +67,7 @@ public:
             sona::string_ref const& labelString)
       : Decl(DeclKind::DK_Label, context), m_LabelString(labelString) {}
 
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
   sona::string_ref const& GetLabelString() const noexcept {
@@ -85,7 +85,7 @@ public:
       : TypeDecl(context, DeclKind::DK_Class, className),
         DeclContext(DeclKind::DK_Class) {}
         
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 };
 
@@ -96,7 +96,7 @@ public:
       : TypeDecl(context, DeclKind::DK_Enum, enumName),
         DeclContext(DeclKind::DK_Enum) {}
         
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 };
 
@@ -121,7 +121,7 @@ public:
     m_Type = type;
   }
 
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
@@ -136,7 +136,7 @@ public:
     : TypeDecl(context, DeclKind::DK_EnumClass, enumClassName),
       DeclContext(DeclKind::DK_EnumClass) {}
       
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 };
 
@@ -157,7 +157,7 @@ public:
     return m_Aliasee;
   }
 
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
@@ -180,7 +180,7 @@ public:
     return m_Init;
   }
   
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
@@ -223,7 +223,7 @@ public:
     return false;
   }
   
-  sona::owner<Backend::DeclResult> 
+  sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
@@ -246,7 +246,7 @@ public:
   void SetType(sona::ref_ptr<Type const> type) noexcept { m_Type = type; }
   sona::ref_ptr<Type const> GetType() const noexcept { return m_Type; }
 
-  sona::owner<Backend::DeclResult>
+  sona::owner<Backend::ActionResult>
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:

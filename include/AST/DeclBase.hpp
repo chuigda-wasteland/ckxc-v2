@@ -44,7 +44,7 @@ public:
   sona::ref_ptr<DeclContext> CastAsDeclContext() noexcept;
   sona::ref_ptr<DeclContext const> CastAsDeclContext() const noexcept;
 
-  virtual sona::owner<Backend::DeclResult> 
+  virtual sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const = 0;
 
   virtual ~Decl() noexcept = default;

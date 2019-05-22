@@ -5,7 +5,7 @@
 namespace ckx {
 namespace Backend {
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitTransUnit(
     sona::ref_ptr<AST::TransUnitDecl const> transUnitDecl) {
   Indent();
@@ -18,7 +18,7 @@ ASTPrinter::VisitTransUnit(
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitLabelDecl(sona::ref_ptr<AST::LabelDecl const> labelDecl) {
   Indent();
   std::cerr << "Label declaraion " << labelDecl->GetLabelString().get()
@@ -26,7 +26,7 @@ ASTPrinter::VisitLabelDecl(sona::ref_ptr<AST::LabelDecl const> labelDecl) {
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitClassDecl(sona::ref_ptr<AST::ClassDecl const> classDecl) {
   Indent();
   std::cerr << "Class declaraion " << classDecl->GetName().get()
@@ -39,7 +39,7 @@ ASTPrinter::VisitClassDecl(sona::ref_ptr<AST::ClassDecl const> classDecl) {
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitEnumDecl(sona::ref_ptr<AST::EnumDecl const> enumDecl) {
   Indent();
   std::cerr << "Enum declaraion " << enumDecl->GetName().get()
@@ -52,7 +52,7 @@ ASTPrinter::VisitEnumDecl(sona::ref_ptr<AST::EnumDecl const> enumDecl) {
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitEnumeratorDecl(
     sona::ref_ptr<AST::EnumeratorDecl const> enumeratorDecl) {
   Indent();
@@ -62,7 +62,7 @@ ASTPrinter::VisitEnumeratorDecl(
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitEnumClassInternDecl(
     sona::ref_ptr<AST::EnumClassInternDecl const> eciDecl) {
   Indent();
@@ -73,7 +73,7 @@ ASTPrinter::VisitEnumClassInternDecl(
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitEnumClassDecl(
     sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl) {
   Indent();
@@ -87,19 +87,19 @@ ASTPrinter::VisitEnumClassDecl(
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) {
   (void)usingDecl;
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitFuncDecl(sona::ref_ptr<AST::FuncDecl const> funcDecl) {
   (void)funcDecl;
   return CreateDeclResult(VoidType());
 }
 
-sona::owner<DeclResult>
+sona::owner<ActionResult>
 ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
   (void)varDecl;
   return CreateDeclResult(VoidType());

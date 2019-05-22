@@ -3,7 +3,7 @@
 namespace ckx {
 namespace Backend {
 
-DeclResult::~DeclResult() { }
+ActionResult::~ActionResult() { }
 
 } // namespace Backend
 } // namespace ckx

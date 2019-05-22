@@ -15,7 +15,7 @@
 namespace ckx {
 namespace AST {
 
-class BuiltinType : public Type {
+class BuiltinType final : public Type {
 public:
   enum class BuiltinTypeId : std::int8_t {
     BTI_u8,
@@ -51,13 +51,16 @@ public:
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+
 private:
   BuiltinTypeId m_BuiltinTypeId;
 
   using NumericBuiltinTypeId = std::underlying_type_t<BuiltinTypeId>;
 };
 
-class TupleType : public Type {
+class TupleType final : public Type {
 public:
   using TupleElements_t = sona::small_vector<sona::ref_ptr<Type>, 3>;
 
@@ -73,11 +76,14 @@ public:
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+
 private:
   TupleElements_t m_ElemTypes;
 };
 
-class ArrayType : public Type {
+class ArrayType final : public Type {
 public:
   ArrayType(sona::ref_ptr<Type> base, std::size_t size)
       : Type(TypeId::TI_Array), m_Base(base), m_Size(size) {}
@@ -88,12 +94,15 @@ public:
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+
 private:
   sona::ref_ptr<Type> m_Base;
   std::size_t m_Size;
 };
 
-class PointerType : public Type {
+class PointerType final : public Type {
 public:
   PointerType(sona::ref_ptr<Type const> pointee)
       : Type(TypeId::TI_Pointer), m_Pointee(pointee) {}
@@ -102,6 +111,9 @@ public:
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 
 private:
   sona::ref_ptr<Type const> m_Pointee;
@@ -128,25 +140,31 @@ private:
   sona::ref_ptr<Type const> m_ReferencedType;
 };
 
-class LValueRefType : public RefType {
+class LValueRefType final : public RefType {
 public:
   LValueRefType(sona::ref_ptr<Type const> referenced)
       : RefType(RefTypeId::RTI_LValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
-class RValueRefType : public RefType {
+class RValueRefType final : public RefType {
 public:
   RValueRefType(sona::ref_ptr<Type const> referenced)
       : RefType(RefTypeId::RTI_RValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
-class FunctionType : public Type {
+class FunctionType final : public Type {
 public:
   FunctionType(std::vector<sona::owner<Type>> &&paramTypes,
                sona::owner<Type> returnType)
@@ -163,6 +181,9 @@ public:
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 
 private:
   std::vector<sona::owner<Type>> m_ParamTypes;
@@ -193,28 +214,40 @@ private:
 };
 
 /// @todo How to calculate hash of class and enum types?
-class ClassType : public UserDefinedType {
+class ClassType final : public UserDefinedType {
 public:
   ClassType(sona::ref_ptr<ClassDecl> decl);
   sona::ref_ptr<ClassDecl const> GetClassDecl() const noexcept;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
-class EnumType : public UserDefinedType {
+class EnumType final : public UserDefinedType {
 public:
   EnumType(sona::ref_ptr<EnumDecl> decl);
   sona::ref_ptr<EnumDecl const> GetEnumDecl() const noexcept;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
-class EnumClassType : public UserDefinedType {
+class EnumClassType final : public UserDefinedType {
 public:
   EnumClassType(sona::ref_ptr<EnumClassDecl> decl);
   sona::ref_ptr<EnumClassDecl const> GetEnumClassDecl() const noexcept;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
-class UsingType : public UserDefinedType {
+class UsingType final : public UserDefinedType {
 public:
   UsingType(sona::ref_ptr<AST::UsingDecl> usingDecl);
   sona::ref_ptr<AST::UsingDecl const> GetUsingDecl() const noexcept;
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
 };
 
 sona::ref_ptr<AST::Decl const>
