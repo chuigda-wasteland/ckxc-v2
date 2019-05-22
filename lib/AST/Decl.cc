@@ -46,52 +46,53 @@ sona::ref_ptr<DeclContext const> Decl::CastAsDeclContext() const noexcept {
 }
 
 sona::owner<Backend::DeclResult> 
-TransUnitDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+TransUnitDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitTransUnit(this);
 }
 
 sona::owner<Backend::DeclResult>
-LabelDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+LabelDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitLabelDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-ClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+ClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitClassDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-EnumDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+EnumDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-EnumClassInternDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+EnumClassInternDecl::Accept(
+    sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumClassInternDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-EnumClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+EnumClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumClassDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-EnumeratorDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+EnumeratorDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitEnumeratorDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-UsingDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+UsingDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitUsingDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-FuncDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+FuncDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitFuncDecl(this);
 }
 
 sona::owner<Backend::DeclResult>
-VarDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) {
+VarDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
   return visitor->VisitVarDecl(this);
 }
 

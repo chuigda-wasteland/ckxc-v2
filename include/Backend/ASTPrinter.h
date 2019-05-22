@@ -13,6 +13,8 @@ namespace Backend {
 
 class ASTPrinter final : public DeclVisitor {
 public:
+  ASTPrinter(std::size_t indentSize = 2) : m_IndentSize(indentSize) {}
+
   sona::owner<DeclResult>
   VisitTransUnit(
       sona::ref_ptr<AST::TransUnitDecl const> transUnitDecl) override;
@@ -46,9 +48,23 @@ public:
 
   sona::owner<DeclResult>
   VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) override;
+
+private:
+  void EnterScope() noexcept {
+    ++m_NestedLevel;
+  }
+
+  void ExitScope() noexcept {
+    --m_NestedLevel;
+  }
+
+  void Indent() const;
+
+  std::size_t m_NestedLevel = 0;
+  std::size_t m_IndentSize;
 };
 
-}
+} // namespace Backend
 } // namespace ckx
 
 #endif // ASTPRINTER_H
