@@ -11,7 +11,7 @@
 namespace ckx {
 namespace Backend {
 
-class ASTPrinter final : public DeclVisitor {
+class ASTPrinter final : public DeclVisitor, public TypeVisitor {
 public:
   ASTPrinter(std::size_t indentSize = 2) : m_IndentSize(indentSize) {}
 
@@ -48,6 +48,43 @@ public:
 
   sona::owner<ActionResult>
   VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) override;
+
+
+  sona::owner<ActionResult>
+  VisitBuiltinType(sona::ref_ptr<AST::BuiltinType const> builtinType) override;
+
+  sona::owner<ActionResult>
+  VisitTupleType(sona::ref_ptr<AST::TupleType const> tupleType) override;
+
+  sona::owner<ActionResult>
+  VisitArrayType(sona::ref_ptr<AST::ArrayType const> arrayType) override;
+
+  sona::owner<ActionResult>
+  VisitPointerType(sona::ref_ptr<AST::PointerType const> ptrType) override;
+
+  sona::owner<ActionResult>
+  VisitLValueRefType(
+      sona::ref_ptr<AST::LValueRefType const> lvRefType) override;
+
+  sona::owner<ActionResult>
+  VisitRValueRefType(
+      sona::ref_ptr<AST::RValueRefType const> rvRefType) override;
+
+  sona::owner<ActionResult>
+  VisitFunctionType(sona::ref_ptr<AST::FunctionType const> funcType) override;
+
+  sona::owner<ActionResult>
+  VisitClassType(sona::ref_ptr<AST::ClassType const> classType) override;
+
+  sona::owner<ActionResult>
+  VisitEnumType(sona::ref_ptr<AST::EnumType const> enumType) override;
+
+  sona::owner<ActionResult>
+  VisitEnumClassType(
+      sona::ref_ptr<AST::EnumClassType const> enumClassType) override;
+
+  sona::owner<ActionResult>
+  VisitUsingType(sona::ref_ptr<AST::UsingType const> usingType) override;
 
 private:
   void EnterScope() noexcept {

@@ -105,6 +105,71 @@ ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
   return CreateDeclResult(VoidType());
 }
 
+sona::owner<ActionResult>
+ASTPrinter::VisitBuiltinType(
+    sona::ref_ptr<const AST::BuiltinType> builtinType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitTupleType(
+    sona::ref_ptr<const AST::TupleType> tupleType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitArrayType(
+    sona::ref_ptr<const AST::ArrayType> arrayType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitPointerType(
+    sona::ref_ptr<const AST::PointerType> ptrType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitLValueRefType(
+    sona::ref_ptr<const AST::LValueRefType> lvRefType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitRValueRefType(
+    sona::ref_ptr<const AST::RValueRefType> rvRefType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitFunctionType(
+    sona::ref_ptr<const AST::FunctionType> funcType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitClassType(
+    sona::ref_ptr<const AST::ClassType> classType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitEnumType(
+    sona::ref_ptr<const AST::EnumType> enumType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitEnumClassType(
+    sona::ref_ptr<const AST::EnumClassType> enumClassType) {
+
+}
+
+sona::owner<ActionResult>
+ASTPrinter::VisitUsingType(sona::ref_ptr<const AST::UsingType> usingType) {
+
+}
+
 void ASTPrinter::Indent() const {
   for (std::size_t i = 0; i < m_NestedLevel * m_IndentSize; i++) {
     std::cerr << ' ';
