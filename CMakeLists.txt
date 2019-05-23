@@ -39,12 +39,16 @@ add_library (Frontend ${FRONTEND_SRC})
 add_library (Backend ${BACKEND_SRC})
 
 target_link_libraries(Frontend Syntax)
+target_link_libraries(Sema AST)
 
 add_executable (temporary driver/temporarymain.cc)
-target_link_libraries (temporary AST Sema Frontend Basic sona)
+target_link_libraries (temporary Sema Frontend Backend Basic sona)
 
 add_executable (ckx-syntax driver/SynCheck.cc)
-target_link_libraries (ckx-syntax AST Sema Frontend Basic sona)
+target_link_libraries (ckx-syntax AST Frontend Basic sona)
+
+add_executable (ckx-ast driver/ASTDump.cc)
+target_link_libraries (ckx-ast Frontend Backend Basic Sema sona)
 
 add_executable (TestLex test/Frontend/LexTest.cc)
 target_link_libraries (TestLex Frontend Basic sona)
@@ -53,10 +57,10 @@ add_executable (TestParse test/Frontend/ParseTest.cc)
 target_link_libraries (TestParse Frontend Basic sona)
 
 add_executable (TestDepResolve test/Sema/DepResolveTest.cc)
-target_link_libraries (TestDepResolve Frontend Sema AST Basic sona)
+target_link_libraries (TestDepResolve Frontend Sema Basic sona)
 
 add_executable (TestPostSubstDep test/Sema/PostSubstDepTest.cc)
-target_link_libraries (TestPostSubstDep Frontend Sema AST Basic sona)
+target_link_libraries (TestPostSubstDep Frontend Sema Basic sona)
 
 add_executable(TestLookup test/Sema/LookupTest.cc)
-target_link_libraries (TestLookup Frontend Sema AST Basic sona)
+target_link_libraries (TestLookup Frontend Sema Basic sona)

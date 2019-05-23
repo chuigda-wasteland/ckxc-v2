@@ -53,6 +53,4 @@ int main(int argc, const char *argv[]) {
   }
 
   cerr << "Parsing success, no syntactical issue" << endl;
-
-  return 0;
 }
