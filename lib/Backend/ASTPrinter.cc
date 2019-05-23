@@ -89,7 +89,10 @@ ASTPrinter::VisitEnumClassDecl(
 
 sona::owner<ActionResult>
 ASTPrinter::VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) {
-  (void)usingDecl;
+  Indent();
+  std::cerr << "Using declaration " << usingDecl->GetName().get()
+            << " aliasing to " << (void*)(usingDecl->GetAliasee().operator->())
+            << " @ " << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 
@@ -101,7 +104,10 @@ ASTPrinter::VisitFuncDecl(sona::ref_ptr<AST::FuncDecl const> funcDecl) {
 
 sona::owner<ActionResult>
 ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
-  (void)varDecl;
+  Indent();
+  std::cerr << "Variable declaration " << varDecl->GetVarName().get()
+            << " of type " << (void*)(varDecl->GetType().operator->())
+            << " @ " << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 
