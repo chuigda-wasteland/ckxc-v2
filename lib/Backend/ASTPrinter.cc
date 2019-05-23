@@ -114,66 +114,77 @@ ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
 sona::owner<ActionResult>
 ASTPrinter::VisitBuiltinType(
     sona::ref_ptr<const AST::BuiltinType> builtinType) {
-
+  (void)builtinType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitTupleType(
     sona::ref_ptr<const AST::TupleType> tupleType) {
-
+  (void)tupleType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitArrayType(
     sona::ref_ptr<const AST::ArrayType> arrayType) {
-
+  (void)arrayType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitPointerType(
     sona::ref_ptr<const AST::PointerType> ptrType) {
-
+  (void)ptrType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitLValueRefType(
     sona::ref_ptr<const AST::LValueRefType> lvRefType) {
-
+  (void)lvRefType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitRValueRefType(
     sona::ref_ptr<const AST::RValueRefType> rvRefType) {
-
+  (void)rvRefType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitFunctionType(
     sona::ref_ptr<const AST::FunctionType> funcType) {
-
+  (void)funcType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitClassType(
     sona::ref_ptr<const AST::ClassType> classType) {
-
+  (void)classType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitEnumType(
     sona::ref_ptr<const AST::EnumType> enumType) {
-
+  (void)enumType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitEnumClassType(
     sona::ref_ptr<const AST::EnumClassType> enumClassType) {
-
+  (void)enumClassType;
+  return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitUsingType(sona::ref_ptr<const AST::UsingType> usingType) {
-
+  (void)usingType;
+  return CreateDeclResult(VoidType());
 }
 
 void ASTPrinter::Indent() const {
