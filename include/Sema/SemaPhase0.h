@@ -24,29 +24,24 @@ public:
 
 protected:
   sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
-  ResolveType(std::shared_ptr<Scope> scope,
-              sona::ref_ptr<Syntax::Type const> type);
+  ResolveType(sona::ref_ptr<Syntax::Type const> type);
 
   std::pair<sona::owner<AST::Decl>, bool>
-  ActOnDecl(std::shared_ptr<Scope> scope,
-            sona::ref_ptr<Syntax::Decl const> decl);
+  ActOnDecl(sona::ref_ptr<Syntax::Decl const> decl);
 
 #define CST_TYPE(name) \
   sona::either<sona::ref_ptr<AST::Type const>, \
                std::vector<Dependency>> \
-  Resolve##name(std::shared_ptr<Scope> scope, \
-                sona::ref_ptr<Syntax::name const> type);
+  Resolve##name(sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \
   std::pair<sona::owner<AST::Decl>, bool> \
-  ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const> decl);
+  ActOn##name(sona::ref_ptr<Syntax::name const> decl);
 
 #include "Syntax/CSTNodeDefs.def"
 
   std::pair<sona::owner<AST::Decl>, bool>
-  ActOnADTConstructor(std::shared_ptr<Scope> scope,
-                      sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);
+  ActOnADTConstructor(sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);
 
   sona::ref_ptr<IncompleteDecl>
   SearchInUnfinished(sona::ref_ptr<AST::Decl const> decl);
