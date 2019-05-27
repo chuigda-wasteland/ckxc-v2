@@ -52,7 +52,7 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
   BuiltinTypeId m_BuiltinTypeId;
@@ -62,7 +62,7 @@ private:
 
 class TupleType final : public Type {
 public:
-  using TupleElements_t = sona::small_vector<sona::ref_ptr<Type>, 3>;
+  using TupleElements_t = std::vector<sona::ref_ptr<Type>>;
 
   TupleType(TupleElements_t &&elemTypes)
       : Type(TypeId::TI_Tuple), m_ElemTypes(std::move(elemTypes)) {}
@@ -77,7 +77,7 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
   TupleElements_t m_ElemTypes;
@@ -95,7 +95,7 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
   sona::ref_ptr<Type> m_Base;
@@ -113,7 +113,7 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
   sona::ref_ptr<Type const> m_Pointee;
@@ -149,7 +149,7 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 class RValueRefType final : public RefType {
@@ -161,33 +161,33 @@ public:
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 class FunctionType final : public Type {
 public:
-  FunctionType(std::vector<sona::owner<Type>> &&paramTypes,
-               sona::owner<Type> returnType)
+  FunctionType(std::vector<sona::ref_ptr<Type>> &&paramTypes,
+               sona::ref_ptr<Type> returnType)
       : Type(TypeId::TI_Function), m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(std::move(returnType)) {}
 
-  std::vector<sona::owner<Type>> const &GetParamTypes() const {
+  std::vector<sona::ref_ptr<Type>> const& GetParamTypes() const {
     return m_ParamTypes;
   }
 
   sona::ref_ptr<Type const> GetReturnType() const {
-    return m_ReturnType.borrow();
+    return m_ReturnType;
   }
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
-  std::vector<sona::owner<Type>> m_ParamTypes;
-  sona::owner<Type> m_ReturnType;
+  std::vector<sona::ref_ptr<Type>> m_ParamTypes;
+  sona::ref_ptr<Type> m_ReturnType;
 };
 
 class UserDefinedType : public Type {
@@ -220,7 +220,7 @@ public:
   sona::ref_ptr<ClassDecl const> GetClassDecl() const noexcept;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 class EnumType final : public UserDefinedType {
@@ -229,7 +229,7 @@ public:
   sona::ref_ptr<EnumDecl const> GetEnumDecl() const noexcept;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 class EnumClassType final : public UserDefinedType {
@@ -238,7 +238,7 @@ public:
   sona::ref_ptr<EnumClassDecl const> GetEnumClassDecl() const noexcept;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 class UsingType final : public UserDefinedType {
@@ -247,7 +247,7 @@ public:
   sona::ref_ptr<AST::UsingDecl const> GetUsingDecl() const noexcept;
 
   sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) override;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
 sona::ref_ptr<AST::Decl const>

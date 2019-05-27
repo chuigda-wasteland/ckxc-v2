@@ -38,7 +38,7 @@ public:
   virtual bool EqualTo(Type const &that) const noexcept = 0;
 
   virtual sona::owner<Backend::ActionResult>
-  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) = 0;
+  Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const = 0;
 
   virtual ~Type() = default;
 

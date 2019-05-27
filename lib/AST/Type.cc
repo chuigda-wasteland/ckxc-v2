@@ -140,11 +140,9 @@ bool PointerType::EqualTo(Type const &that) const noexcept {
 size_t FunctionType::GetHash() const noexcept {
   auto rng =
       sona::linq::from_container(m_ParamTypes)
-          .transform([](sona::owner<Type> const &t) { return t.borrow(); })
-          .transform(
-              [](sona::ref_ptr<Type const> t) { return t.get().GetHash(); });
+          .transform([](sona::ref_ptr<Type const> t) { return t->GetHash(); });
   return (size_t)std::accumulate(rng.begin(), rng.end(), 0) +
-         m_ReturnType.borrow().get().GetHash();
+         m_ReturnType->GetHash();
 }
 
 bool FunctionType::EqualTo(Type const &that) const noexcept {
@@ -153,17 +151,12 @@ bool FunctionType::EqualTo(Type const &that) const noexcept {
     if (GetReturnType()->EqualTo(t.GetReturnType().get()) &&
         GetParamTypes().size() == t.GetParamTypes().size()) {
       auto rng1 =
-          sona::linq::from_container(GetParamTypes())
-              .transform([](sona::owner<Type> const &t) { return t.borrow(); });
-
+          sona::linq::from_container(GetParamTypes());
       auto rng2 =
-          sona::linq::from_container(t.GetParamTypes())
-              .transform([](sona::owner<Type> const &t) { return t.borrow(); });
-
+          sona::linq::from_container(t.GetParamTypes());
       auto rng = rng1.zip_with(rng2).transform(
-          [](std::pair<sona::ref_ptr<Type const>, sona::ref_ptr<Type const>>
-                 p) { return p.first.get().EqualTo(p.second.get()); });
-
+          [](std::pair<sona::ref_ptr<Type const>, sona::ref_ptr<Type const>> p)
+          { return p.first.get().EqualTo(p.second.get()); });
       for (bool b : rng)
         if (!b) return false;
       return true;
@@ -268,57 +261,57 @@ GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
 }
 
 sona::owner<Backend::ActionResult>
-BuiltinType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+BuiltinType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitBuiltinType(this);
 }
 
 sona::owner<Backend::ActionResult>
-TupleType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+TupleType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitTupleType(this);
 }
 
 sona::owner<Backend::ActionResult>
-ArrayType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+ArrayType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitArrayType(this);
 }
 
 sona::owner<Backend::ActionResult>
-PointerType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+PointerType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitPointerType(this);
 }
 
 sona::owner<Backend::ActionResult>
-LValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+LValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitLValueRefType(this);
 }
 
 sona::owner<Backend::ActionResult>
-RValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+RValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitRValueRefType(this);
 }
 
 sona::owner<Backend::ActionResult>
-FunctionType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+FunctionType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitFunctionType(this);
 }
 
 sona::owner<Backend::ActionResult>
-ClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+ClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitClassType(this);
 }
 
 sona::owner<Backend::ActionResult>
-EnumType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+EnumType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitEnumType(this);
 }
 
 sona::owner<Backend::ActionResult>
-EnumClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+EnumClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitEnumClassType(this);
 }
 
 sona::owner<Backend::ActionResult>
-UsingType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) {
+UsingType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
   return visitor->VisitUsingType(this);
 }
 
