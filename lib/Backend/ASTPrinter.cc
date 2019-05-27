@@ -68,8 +68,9 @@ ASTPrinter::VisitEnumClassInternDecl(
   Indent();
   std::cerr << "ADT constructor declaration "
             << eciDecl->GetConstructorName().get()
-            << " of type @" << (void*)(eciDecl->GetType().operator->())
-            << " @" << (void*)this << std::endl;
+            << " of type ";
+  eciDecl->GetType()->Accept(this);
+  std::cerr << " @" << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 
@@ -91,8 +92,9 @@ sona::owner<ActionResult>
 ASTPrinter::VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) {
   Indent();
   std::cerr << "Using declaration " << usingDecl->GetName().get()
-            << " aliasing to " << (void*)(usingDecl->GetAliasee().operator->())
-            << " @ " << (void*)this << std::endl;
+            << " aliasing to ";
+  usingDecl->GetTypeForDecl()->Accept(this);
+  std::cerr << " @ " << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 
@@ -106,8 +108,9 @@ sona::owner<ActionResult>
 ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
   Indent();
   std::cerr << "Variable declaration " << varDecl->GetVarName().get()
-            << " of type " << (void*)(varDecl->GetType().operator->())
-            << " @ " << (void*)this << std::endl;
+            << " of type ";
+  varDecl->GetType()->Accept(this);
+  std::cerr << " @ " << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 

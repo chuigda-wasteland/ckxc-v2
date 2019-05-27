@@ -41,7 +41,7 @@ void SemaPhase0::PostSubstituteDepends() {
     for (auto &dep : ivar.second.GetDependencies()) {
       if (dep.IsDependByname()) {
         sona::ref_ptr<AST::Type const> type =
-            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
+            LookupType(inScope, dep.GetIdUnsafe(), true);
         sona::ref_ptr<AST::Decl const> decl =
             AST::GetDeclOfUserDefinedType(type);
          dep.ReplaceNameWithDecl(decl);
@@ -273,8 +273,8 @@ SemaPhase0::ActOnVarDecl(std::shared_ptr<Scope> scope,
   sona::owner<AST::Decl> incomplete =
       new AST::VarDecl(GetCurrentDeclContext(), nullptr,
                        AST::DeclSpec::DS_None /*TODO*/, decl->GetName());
-  GetCurrentScope()->AddVarDecl(incomplete.borrow()
-                                .cast_unsafe<AST::VarDecl>());
+  scope->AddVarDecl(incomplete.borrow()
+                    .cast_unsafe<AST::VarDecl>());
   m_IncompleteVars.emplace(
         incomplete.borrow().cast_unsafe<AST::VarDecl>(),
         Sema::IncompleteVarDecl(incomplete.borrow().cast_unsafe<AST::VarDecl>(),
@@ -293,7 +293,7 @@ SemaPhase0::ActOnClassDecl(std::shared_ptr<Scope> scope,
   PushScope(Scope::SF_Class);
 
   for (sona::ref_ptr<Syntax::Decl const> subDecl : decl->GetSubDecls()) {
-    auto p = ActOnDecl(scope, subDecl);
+    auto p = ActOnDecl(GetCurrentScope(), subDecl);
     if (!p.second) {
       collectedDependencies.emplace_back(p.first.borrow(), true);
     }
@@ -330,7 +330,7 @@ SemaPhase0::ActOnADTDecl(std::shared_ptr<Scope> scope,
 
   for (sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> constructor
        : decl->GetConstructors()) {
-    auto result = ActOnADTConstructor(scope, constructor);
+    auto result = ActOnADTConstructor(GetCurrentScope(), constructor);
     if (!result.second) {
       collectedDependencies.emplace_back(result.first.borrow(), true);
     }

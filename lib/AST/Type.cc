@@ -150,10 +150,8 @@ bool FunctionType::EqualTo(Type const &that) const noexcept {
     FunctionType const &t = static_cast<FunctionType const &>(that);
     if (GetReturnType()->EqualTo(t.GetReturnType().get()) &&
         GetParamTypes().size() == t.GetParamTypes().size()) {
-      auto rng1 =
-          sona::linq::from_container(GetParamTypes());
-      auto rng2 =
-          sona::linq::from_container(t.GetParamTypes());
+      auto rng1 = sona::linq::from_container(GetParamTypes());
+      auto rng2 = sona::linq::from_container(t.GetParamTypes());
       auto rng = rng1.zip_with(rng2).transform(
           [](std::pair<sona::ref_ptr<Type const>, sona::ref_ptr<Type const>> p)
           { return p.first.get().EqualTo(p.second.get()); });

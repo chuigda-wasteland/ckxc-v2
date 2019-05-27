@@ -28,7 +28,8 @@ public:
 
   IncompleteDecl(IncompleteDecl &&that)
     : m_Dependencies(std::move(that.m_Dependencies)),
-      m_InScope(that.m_InScope) {}
+      m_InScope(that.m_InScope),
+      m_IDeclType(that.m_IDeclType) {}
 
   std::vector<Dependency>& GetDependencies() noexcept {
     return m_Dependencies;
