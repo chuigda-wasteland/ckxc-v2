@@ -3,12 +3,10 @@
 namespace ckx {
 namespace Sema {
 
-SemaPhase1::SemaPhase1(
-    AST::ASTContext &astContext,
+SemaPhase1::SemaPhase1(AST::ASTContext &astContext,
     std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
-    std::vector<std::shared_ptr<Scope> > &scopeChains,
     Diag::DiagnosticEngine &diag)
-  : SemaCommon(astContext, declContexts, scopeChains, diag) {}
+  : SemaCommon(astContext, declContexts, diag) {}
 
 void SemaPhase1::PostTranslateIncompletes(
     std::vector<sona::ref_ptr<IncompleteDecl>> incompletes) {

@@ -11,7 +11,6 @@ class SemaPhase1 : public SemaCommon {
 public:
   SemaPhase1(AST::ASTContext &astContext,
              std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
-             std::vector<std::shared_ptr<Scope>> &scopeChains,
              Diag::DiagnosticEngine &diag);
 
   void PostTranslateIncompletes(
@@ -26,7 +25,8 @@ protected:
 
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
-  void PostTranslateIncompleteADTConstructor(sona::ref_ptr<Sema::IncompleteEnumClassInternDecl> iAdtC);
+  void PostTranslateIncompleteADTConstructor(
+      sona::ref_ptr<Sema::IncompleteEnumClassInternDecl> iAdtC);
   void PostTranslateIncompleteUsing(
       sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
 

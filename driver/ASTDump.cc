@@ -58,10 +58,9 @@ int main(int argc, const char* argv[]) {
 
   AST::ASTContext astContext;
   std::vector<sona::ref_ptr<AST::DeclContext>> declContexts;
-  std::vector<std::shared_ptr<Sema::Scope>> scopeChains;
 
-  Sema::SemaPhase0 sp0(astContext, declContexts, scopeChains, diag);
-  Sema::SemaPhase1 sp1(astContext, declContexts, scopeChains, diag);
+  Sema::SemaPhase0 sp0(astContext, declContexts, diag);
+  Sema::SemaPhase1 sp1(astContext, declContexts, diag);
 
   sona::owner<AST::TransUnitDecl> aTransUnit =
       sp0.ActOnTransUnit(unit.borrow());

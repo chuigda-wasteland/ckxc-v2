@@ -11,7 +11,6 @@ class SemaPhase0 : public SemaCommon {
 public:
   SemaPhase0(AST::ASTContext &astContext,
              std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
-             std::vector<std::shared_ptr<Scope>> &scopeChains,
              Diag::DiagnosticEngine &diag);
 
   sona::owner<AST::TransUnitDecl>

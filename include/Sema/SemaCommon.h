@@ -21,12 +21,9 @@ class SemaCommon {
 public:
   SemaCommon(AST::ASTContext &astContext,
              std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
-             std::vector<std::shared_ptr<Scope>> &scopeChains,
              Diag::DiagnosticEngine &diag)
-    : m_ASTContext(astContext),
-      m_DeclContexts(declContexts),
-      m_ScopeChains(scopeChains),
-      m_Diag(diag) {}
+    : m_ASTContext(astContext), m_DeclContexts(declContexts),
+      m_CurrentScope(nullptr), m_GlobalScope(nullptr), m_Diag(diag) {}
 
 protected:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
@@ -37,7 +34,8 @@ protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
 
-   sona::ref_ptr<const AST::Type> ResolveBasicTypeImpl(sona::ref_ptr<Syntax::BasicType const> basicType);
+   sona::ref_ptr<const AST::Type>
+   ResolveBasicTypeImpl(sona::ref_ptr<Syntax::BasicType const> basicType);
 
    sona::ref_ptr<const AST::DeclContext>
    ChooseDeclContext(std::shared_ptr<Scope> scope,
@@ -52,7 +50,8 @@ protected:
 
   AST::ASTContext &m_ASTContext;
   std::vector<sona::ref_ptr<AST::DeclContext>> &m_DeclContexts;
-  std::vector<std::shared_ptr<Scope>> &m_ScopeChains;
+  std::shared_ptr<Scope> m_CurrentScope;
+  std::shared_ptr<Scope> m_GlobalScope;
   Diag::DiagnosticEngine &m_Diag;
 };
 

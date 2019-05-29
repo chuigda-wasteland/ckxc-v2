@@ -20,9 +20,8 @@ namespace Sema {
 SemaPhase0::SemaPhase0(
     AST::ASTContext &astContext,
     std::vector<sona::ref_ptr<AST::DeclContext>> &declContexts,
-    std::vector<std::shared_ptr<Scope>> &scopeChains,
     Diag::DiagnosticEngine& diag)
-  : SemaCommon(astContext, declContexts, scopeChains, diag) {}
+  : SemaCommon(astContext, declContexts, diag) {}
 
 sona::owner<AST::TransUnitDecl>
 SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {

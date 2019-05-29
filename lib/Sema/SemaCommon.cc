@@ -16,20 +16,23 @@ sona::ref_ptr<AST::DeclContext> SemaCommon::GetCurrentDeclContext() {
 }
 
 std::shared_ptr<Scope> const& SemaCommon::GetCurrentScope() const noexcept {
-  return m_ScopeChains.back();
+  return m_CurrentScope;
 }
 
 std::shared_ptr<Scope> const& SemaCommon::GetGlobalScope() const noexcept {
-  return m_ScopeChains.front();
+  return m_GlobalScope;
 }
 
 void SemaCommon::PushScope(Scope::ScopeFlags flags) {
-  m_ScopeChains.emplace_back(
-      new Scope(m_ScopeChains.empty() ? nullptr : m_ScopeChains.back(), flags));
+  std::shared_ptr<Scope> newScope(new Scope(GetCurrentScope(), flags));
+  if (GetCurrentScope() == nullptr) {
+    m_GlobalScope = newScope;
+  }
+  m_CurrentScope = newScope;
 }
 
 void SemaCommon::PopScope() {
-  m_ScopeChains.pop_back();
+  m_CurrentScope = m_CurrentScope->GetParentScope();
 }
 
 sona::ref_ptr<const AST::Type>
