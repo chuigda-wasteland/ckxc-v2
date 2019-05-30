@@ -1,7 +1,7 @@
 #include "Sema/Scope.h"
 
-using namespace ckx;
-using namespace ckx::Sema;
+namespace ckx {
+namespace Sema {
 
 Scope::Scope(std::shared_ptr<Scope> parentScope, Scope::ScopeFlags scopeFlags)
   : m_ParentScope(parentScope), m_EnclosingFunctionScope(nullptr),
@@ -110,3 +110,6 @@ void Scope::ReplaceVarDecl(const sona::string_ref& denotingName,
   sona_assert(it != m_Variables.end());
   it->second = varDecl;
 }
+
+} // namespace Sema
+} // namespace ckx

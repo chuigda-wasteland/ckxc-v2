@@ -11,9 +11,6 @@
 
 #include <sona/linq.hpp>
 
-using namespace ckx;
-using namespace sona;
-
 namespace ckx {
 namespace Sema {
 
@@ -28,7 +25,7 @@ SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
   sona::owner<AST::TransUnitDecl> transUnitDecl = new AST::TransUnitDecl();
   PushDeclContext(transUnitDecl.borrow().cast_unsafe<AST::DeclContext>());
   PushScope();
-  for (ref_ptr<Syntax::Decl const> decl : transUnit->GetDecls()) {
+  for (sona::ref_ptr<Syntax::Decl const> decl : transUnit->GetDecls()) {
     transUnitDecl.borrow()->AddDecl(ActOnDecl(decl).first);
   }
   return transUnitDecl;

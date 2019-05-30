@@ -1,17 +1,16 @@
 #include "Frontend/ParserImpl.h"
 
-using namespace sona;
-
 namespace ckx {
 namespace Frontend {
 
-owner<Syntax::TransUnit>
-ParserImpl::ParseTransUnit(ref_ptr<std::vector<Token> const> tokenStream) {
+sona::owner<Syntax::TransUnit>
+ParserImpl::ParseTransUnit(
+    sona::ref_ptr<std::vector<Token> const> tokenStream) {
   SetParsingTokenStream(tokenStream);
 
-  owner<Syntax::TransUnit> ret = new Syntax::TransUnit;
+  sona::owner<Syntax::TransUnit> ret = new Syntax::TransUnit;
   while (CurrentToken().GetTokenKind() != Token::TK_EOI) {
-    owner<Syntax::Decl> d = ParseDeclOrFndef();
+    sona::owner<Syntax::Decl> d = ParseDeclOrFndef();
     if (d.borrow() == nullptr) {
       continue;
     }
@@ -24,13 +23,13 @@ ParserImpl::ParseTransUnit(ref_ptr<std::vector<Token> const> tokenStream) {
   return ret;
 }
 
-owner<Syntax::Stmt>
+sona::owner<Syntax::Stmt>
 ParserImpl::ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream) {
   SetParsingTokenStream(tokenStream);
   return nullptr;
 }
 
-owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
+sona::owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
   switch (CurrentToken().GetTokenKind()) {
   case Token::TK_KW_def: return ParseVarDecl();
   case Token::TK_KW_class: return ParseClassDecl();
@@ -49,7 +48,7 @@ owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
   return nullptr;
 }
 
-owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
+sona::owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_def);
   SourceRange defRange = CurrentToken().GetSourceRange();
   ConsumeToken();
@@ -67,11 +66,11 @@ owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
     return nullptr;
   }
 
-  owner<Syntax::Type> type = ParseType();
+  sona::owner<Syntax::Type> type = ParseType();
   return new Syntax::VarDecl(name, std::move(type), defRange, nameRange);
 }
 
-owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
+sona::owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_class);
   SourceRange classRange = CurrentToken().GetSourceRange();
   ConsumeToken();
@@ -90,7 +89,7 @@ owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
     return nullptr;
   }
 
-  std::vector<owner<Syntax::Decl>> decls;
+  std::vector<sona::owner<Syntax::Decl>> decls;
 
   while (CurrentToken().GetTokenKind() != Token::TK_EOI
          && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
@@ -117,7 +116,7 @@ owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
   return new Syntax::ClassDecl(name, std::move(decls), classRange, nameRange);
 }
 
-owner<Syntax::Decl> ParserImpl::ParseEnumDecl() {
+sona::owner<Syntax::Decl> ParserImpl::ParseEnumDecl() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_KW_enum);
   SourceRange enumRange = CurrentToken().GetSourceRange();
   ConsumeToken();
@@ -163,7 +162,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseADTDecl() {
     return nullptr;
   }
 
-  string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -194,7 +193,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
     return nullptr;
   }
 
-  string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -202,21 +201,21 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
     return nullptr;
   }
 
-  std::vector<string_ref> paramNames;
-  std::vector<owner<Syntax::Type>> paramTypes;
+  std::vector<sona::string_ref> paramNames;
+  std::vector<sona::owner<Syntax::Type>> paramTypes;
 
   while (CurrentToken().GetTokenKind() != Token::TK_EOI) {
     if (!Expect(Token::TK_ID)) {
       continue;
     }
-    string_ref paramName = CurrentToken().GetStrValueUnsafe();
+    sona::string_ref paramName = CurrentToken().GetStrValueUnsafe();
     ConsumeToken();
 
     if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
       continue;
     }
 
-    owner<Syntax::Type> type = ParseType();
+    sona::owner<Syntax::Type> type = ParseType();
     if (type.borrow() == nullptr) {
       continue;
     }
@@ -237,11 +236,11 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
     return nullptr;
   }
 
-  owner<Syntax::Type> retType = ParseType();
+  sona::owner<Syntax::Type> retType = ParseType();
   ExpectAndConsume(Token::TK_SYM_SEMI);
   return new Syntax::FuncDecl(name, std::move(paramTypes),
                               std::move(paramNames), std::move(retType),
-                              empty_optional(), funcRange, nameRange);
+                              sona::empty_optional(), funcRange, nameRange);
 }
 
 sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
@@ -252,7 +251,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
   if (!Expect(Token::TK_ID)) {
     return nullptr;
   }
-  string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
   ConsumeToken();
 
   if (!Expect(Token::TK_SYM_EQ)) {
@@ -322,8 +321,8 @@ void ParserImpl::ParseDataConstructor(
   dataConstructors.emplace_back(name, std::move(underlyingType), nameRange);
 }
 
-owner<Syntax::Type> ParserImpl::ParseType() {
-  owner<Syntax::Type> ret = nullptr;
+sona::owner<Syntax::Type> ParserImpl::ParseType() {
+  sona::owner<Syntax::Type> ret = nullptr;
   if (CurrentToken().GetTokenKind() == Token::TK_ID) {
     ret = ParseUserDefinedType();
   }
@@ -554,7 +553,7 @@ ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
   return e0;
 }
 
-owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
+sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   Syntax::BasicType::TypeKind kind;
   switch (CurrentToken().GetTokenKind()) {
   case Token::TK_KW_int8:
@@ -587,7 +586,7 @@ owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   return new Syntax::BasicType(kind, range);
 }
 
-owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
+sona::owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
   Syntax::Identifier id = ParseIdentifier();
   return new Syntax::UserDefinedType(std::move(id), id.GetIdSourceRange());
@@ -628,7 +627,7 @@ Syntax::Identifier ParserImpl::ParseIdentifier() {
 }
 
 void ParserImpl::
-SetParsingTokenStream(ref_ptr<std::vector<Token> const> tokenStream) {
+SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream) {
   m_ParsingTokenStream = tokenStream;
   m_Index = 0;
 }
@@ -668,7 +667,8 @@ bool ParserImpl::ExpectAndConsume(Token::TokenKind tokenKind) noexcept {
   return got;
 }
 
-string_ref ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
+sona::string_ref
+ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
   switch (tokenKind) {
 #define TOKEN_KWD(name, rep) \
   case Token::TK_KW_##name: return "'" + std::string(rep) + "'";
@@ -726,7 +726,7 @@ ParserImpl::EvaluateFloatTypeKind(double) noexcept {
   return Syntax::BasicType::TypeKind::TK_Double;
 }
 
-string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
+sona::string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
   switch (token.GetTokenKind()) {
 #define TOKEN_KWD(name, rep) \
   case Token::TK_KW_##name: return "'" + std::string(rep) + "'";
