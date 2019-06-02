@@ -619,27 +619,14 @@ ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
 sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   Syntax::BuiltinType::TypeKind kind;
   switch (CurrentToken().GetTokenKind()) {
-  case Token::TK_KW_int8:
-    kind = Syntax::BuiltinType::TypeKind::TK_Int8; break;
-  case Token::TK_KW_int16:
-    kind = Syntax::BuiltinType::TypeKind::TK_Int16; break;
-  case Token::TK_KW_int32:
-    kind = Syntax::BuiltinType::TypeKind::TK_Int32; break;
-  case Token::TK_KW_int64:
-    kind = Syntax::BuiltinType::TypeKind::TK_Int64; break;
-  case Token::TK_KW_uint8:
-    kind = Syntax::BuiltinType::TypeKind::TK_UInt8; break;
-  case Token::TK_KW_uint16:
-    kind = Syntax::BuiltinType::TypeKind::TK_UInt16; break;
-  case Token::TK_KW_uint32:
-    kind = Syntax::BuiltinType::TypeKind::TK_UInt32; break;
-  case Token::TK_KW_uint64:
-    kind = Syntax::BuiltinType::TypeKind::TK_UInt64; break;
-  case Token::TK_KW_float:
-    kind = Syntax::BuiltinType::TypeKind::TK_Float; break;
-  case Token::TK_KW_double:
-    kind = Syntax::BuiltinType::TypeKind::TK_Double; break;
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
+    case Frontend::Token::token: \
+      kind = Syntax::BuiltinType::TypeKind::TK_##name; break;
+  #include "Syntax/BuiltinTypes.def"
+
   default:
+    sona_unreachable();
     return nullptr;
   }
 
@@ -750,22 +737,6 @@ bool ParserImpl::ExpectAndConsume(Token::TokenKind tokenKind) noexcept {
     ConsumeToken();
   }
   return got;
-}
-
-sona::string_ref
-ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
-  switch (tokenKind) {
-#define TOKEN_KWD(name, rep) \
-  case Token::TK_KW_##name: return "'" + std::string(rep) + "'";
-#define TOKEN_SYM(name, rep) \
-  case Token::TK_SYM_##name: return "'" + std::string(rep) + "'";
-#define TOKEN_MISC(name, desc) \
-  case Token::TK_##name: return desc;
-#include "Frontend/Tokens.def"
-  case Token::TK_INVALID: sona_unreachable();
-  }
-  sona_unreachable();
-  return "";
 }
 
 Syntax::BuiltinType::TypeKind

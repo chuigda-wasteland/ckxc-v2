@@ -82,7 +82,7 @@ void SemaPhase1::PostTranslateIncompleteUsing(
 sona::ref_ptr<AST::Type const>
 SemaPhase1::ResolveBuiltinType(std::shared_ptr<Scope>,
                              sona::ref_ptr<Syntax::BuiltinType const> bty) {
-  return SemaCommon::ResolveBasicTypeImpl(bty);
+  return SemaCommon::ResolveBuiltinTypeImpl(bty);
 }
 
 sona::ref_ptr<AST::Type const>

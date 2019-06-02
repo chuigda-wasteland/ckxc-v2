@@ -89,6 +89,8 @@ private:
   sona::optional<sona::string_ref> m_StrValue;
 };
 
+sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind);
+
 } // namespace Frontend
 } // namespace ckx
 

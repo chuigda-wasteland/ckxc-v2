@@ -36,40 +36,17 @@ void SemaCommon::PopScope() {
 }
 
 sona::ref_ptr<const AST::Type>
-SemaCommon::ResolveBasicTypeImpl(
+SemaCommon::ResolveBuiltinTypeImpl(
     sona::ref_ptr<const Syntax::BuiltinType> basicType) {
   AST::BuiltinType::BuiltinTypeId bid;
   /// @todo consider use tablegen to generate this, or unify the two
   /// "type kinds" enumeration
   switch (basicType->GetTypeKind()) {
-  case Syntax::BuiltinType::TypeKind::TK_Int8:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_i8; break;
-  case Syntax::BuiltinType::TypeKind::TK_Int16:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_i16; break;
-  case Syntax::BuiltinType::TypeKind::TK_Int32:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_i32; break;
-  case Syntax::BuiltinType::TypeKind::TK_Int64:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_i64; break;
-  case Syntax::BuiltinType::TypeKind::TK_UInt8:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_u8; break;
-  case Syntax::BuiltinType::TypeKind::TK_UInt16:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_u16; break;
-  case Syntax::BuiltinType::TypeKind::TK_UInt32:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_u32; break;
-  case Syntax::BuiltinType::TypeKind::TK_UInt64:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_u64; break;
-  case Syntax::BuiltinType::TypeKind::TK_Float:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_r32; break;
-  case Syntax::BuiltinType::TypeKind::TK_Double:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_r64; break;
-  /// @todo quad type is platform dependent, consider use a PlatformConfig
-  /// class to control this
-  case Syntax::BuiltinType::TypeKind::TK_Quad:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_r128; break;
-  case Syntax::BuiltinType::TypeKind::TK_Bool:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_bool; break;
-  case Syntax::BuiltinType::TypeKind::TK_Void:
-    bid = AST::BuiltinType::BuiltinTypeId::BTI_void; break;
+  #define BUILTIN_TYPE(name, rep, size, isint, \
+                       issigned, signedver, unsignedver) \
+    case Syntax::BuiltinType::TypeKind::TK_##name: \
+      bid = AST::BuiltinType::BuiltinTypeId::BTI_##name; break;
+  #include "Syntax/BuiltinTypes.def"
   }
 
   return m_ASTContext.GetBuiltinType(bid);

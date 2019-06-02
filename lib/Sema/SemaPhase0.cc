@@ -163,7 +163,7 @@ SemaPhase0::ActOnDecl(sona::ref_ptr<const Syntax::Decl> decl) {
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
 SemaPhase0::ResolveBuiltinType(sona::ref_ptr<Syntax::BuiltinType const> bty) {
-  return SemaCommon::ResolveBasicTypeImpl(bty);
+  return SemaCommon::ResolveBuiltinTypeImpl(bty);
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>

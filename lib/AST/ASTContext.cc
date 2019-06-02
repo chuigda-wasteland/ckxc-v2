@@ -5,28 +5,14 @@ namespace AST {
 
 sona::ref_ptr<Type const>
 ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
-  /// @todo consider use tablegen to generate this
-#define HANDLE_SINGLE_BUILTIN_TYPE(TYID)                                       \
-  case BuiltinType::BuiltinTypeId::BTI_##TYID: {                               \
-    static BuiltinType TYID##Type{ BuiltinType::BuiltinTypeId::BTI_##TYID };   \
-    return TYID##Type;                                                         \
-  }
-
   switch (btid) {
-    HANDLE_SINGLE_BUILTIN_TYPE(u8)
-    HANDLE_SINGLE_BUILTIN_TYPE(u16)
-    HANDLE_SINGLE_BUILTIN_TYPE(u32)
-    HANDLE_SINGLE_BUILTIN_TYPE(u64)
-    HANDLE_SINGLE_BUILTIN_TYPE(i8)
-    HANDLE_SINGLE_BUILTIN_TYPE(i16)
-    HANDLE_SINGLE_BUILTIN_TYPE(i32)
-    HANDLE_SINGLE_BUILTIN_TYPE(i64)
-    HANDLE_SINGLE_BUILTIN_TYPE(r32)
-    HANDLE_SINGLE_BUILTIN_TYPE(r64)
-    HANDLE_SINGLE_BUILTIN_TYPE(r128)
-    HANDLE_SINGLE_BUILTIN_TYPE(bool)
-    HANDLE_SINGLE_BUILTIN_TYPE(nil)
-    HANDLE_SINGLE_BUILTIN_TYPE(void)
+  #define BUILTIN_TYPE(name, rep, size, isint, \
+                       issigned, signedver, unsignedver) \
+    case BuiltinType::BuiltinTypeId::BTI_##name: { \
+      static BuiltinType name##Type{ BuiltinType::BuiltinTypeId::BTI_##name }; \
+      return name##Type; \
+    }
+  #include "Syntax/BuiltinTypes.def"
   }
 }
 

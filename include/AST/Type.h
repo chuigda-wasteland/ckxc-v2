@@ -18,20 +18,10 @@ namespace AST {
 class BuiltinType final : public Type {
 public:
   enum class BuiltinTypeId : std::int8_t {
-    BTI_u8,
-    BTI_u16,
-    BTI_u32,
-    BTI_u64,
-    BTI_i8,
-    BTI_i16,
-    BTI_i32,
-    BTI_i64,
-    BTI_r32,
-    BTI_r64,
-    BTI_r128,
-    BTI_bool,
-    BTI_nil,
-    BTI_void,
+    #define BUILTIN_TYPE(name, rep, size, isint, \
+                         issigned, signedver, unsignedver) \
+      BTI_##name,
+    #include "Syntax/BuiltinTypes.def"
   };
 
   explicit BuiltinType(BuiltinTypeId id)

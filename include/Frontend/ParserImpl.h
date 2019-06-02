@@ -75,7 +75,6 @@ private:
   template <typename Cond> void SkipUntil(Cond cond);
 
   sona::string_ref PrettyPrintToken(Token const &token) const;
-  sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) const;
 
   static Syntax::BuiltinType::TypeKind
   EvaluateIntTypeKind(std::int64_t i) noexcept;

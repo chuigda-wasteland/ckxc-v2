@@ -35,7 +35,7 @@ protected:
   void PopScope();
 
    sona::ref_ptr<const AST::Type>
-   ResolveBasicTypeImpl(sona::ref_ptr<Syntax::BuiltinType const> basicType);
+   ResolveBuiltinTypeImpl(sona::ref_ptr<Syntax::BuiltinType const> basicType);
 
    sona::ref_ptr<const AST::DeclContext>
    ChooseDeclContext(std::shared_ptr<Scope> scope,

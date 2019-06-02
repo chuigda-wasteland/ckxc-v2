@@ -1,0 +1,26 @@
+#ifndef BUILTIN_TYPE
+#define BUILTIN_TYPE(name, size, isint, \
+                     issigned, signedver, unsignedver, token)
+#endif
+
+BUILTIN_TYPE(Int8,  1, true, true, NoType, UInt8, TK_KW_int8)
+BUILTIN_TYPE(Int16, 2, true, true, NoType, UInt16, TK_KW_int16)
+BUILTIN_TYPE(Int32, 4, true, true, NoType, UInt32, TK_KW_int32)
+BUILTIN_TYPE(Int64, 8, true, true, NoType, UInt64, TK_KW_int64)
+
+BUILTIN_TYPE(UInt8,  1, true, false, Int8,  NoType, TK_KW_uint8)
+BUILTIN_TYPE(UInt16, 2, true, false, Int16, NoType, TK_KW_uint16)
+BUILTIN_TYPE(UInt32, 4, true, false, Int32, NoType, TK_KW_uint32)
+BUILTIN_TYPE(UInt64, 8, true, false, Int64, NoType, TK_KW_uint64)
+
+BUILTIN_TYPE(Float,  4, false, false, NoType, NoType, TK_KW_float)
+BUILTIN_TYPE(Double, 8, false, false, NoType, NoType, TK_KW_double)
+BUILTIN_TYPE(Quad,   16, false, false, NoType, NoType, TK_KW_quad)
+
+BUILTIN_TYPE(Void,    0, false, false, NoType, NoType, TK_KW_void)
+BUILTIN_TYPE(Bool,    1, false, false, NoType, NoType, TK_KW_bool)
+BUILTIN_TYPE(NilType, 0, false, false, NoType, NoType, TK_KW_niltype)
+
+BUILTIN_TYPE(NoType,  0, false, false, NoType, NoType, TK_EOI)
+
+#undef BUILTIN_TYPE
