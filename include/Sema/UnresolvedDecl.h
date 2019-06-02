@@ -2,7 +2,7 @@
 #define UNRESOLVEDDECL_H
 
 #include "Sema/Dependency.h"
-#include "Syntax/CSTFwd.h"
+#include "Syntax/ConcreteFwd.h"
 #include "AST/Decl.h"
 
 #include <iosfwd>

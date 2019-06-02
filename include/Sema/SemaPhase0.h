@@ -37,7 +37,7 @@ protected:
   std::pair<sona::owner<AST::Decl>, bool> \
   ActOn##name(sona::ref_ptr<Syntax::name const> decl);
 
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
 
   std::pair<sona::owner<AST::Decl>, bool>
   ActOnADTConstructor(sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);

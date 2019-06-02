@@ -1,6 +1,6 @@
 #include "Sema/SemaPhase0.h"
 
-#include "Syntax/CST.h"
+#include "Syntax/Concrete.h"
 #include "AST/Expr.h"
 #include "AST/Stmt.h"
 #include "AST/Decl.h"
@@ -141,7 +141,7 @@ SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
     return Resolve##name(type.cast_unsafe<Syntax::name const>());
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
   default:
     sona_unreachable();
   }
@@ -154,7 +154,7 @@ SemaPhase0::ActOnDecl(sona::ref_ptr<const Syntax::Decl> decl) {
 #define CST_DECL(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
     return ActOn##name(decl.cast_unsafe<Syntax::name const>());
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
   default:
     sona_unreachable();
   }

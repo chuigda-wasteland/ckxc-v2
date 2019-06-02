@@ -12,7 +12,7 @@ namespace Syntax {
 #define CST_STMT(name) class name;
 #define CST_EXPR(name) class name;
 
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
 
 } // namespace Syntax
 } // namespace ckx

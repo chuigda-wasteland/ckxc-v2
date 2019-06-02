@@ -6,7 +6,7 @@
 #include "Sema/Dependency.h"
 
 #include "Basic/Diagnose.h"
-#include "Syntax/CST.h"
+#include "Syntax/Concrete.h"
 #include "AST/DeclFwd.h"
 #include "AST/ExprFwd.h"
 #include "AST/StmtFwd.h"

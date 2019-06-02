@@ -40,7 +40,7 @@ SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
     return Resolve##name(scope, type.cast_unsafe<Syntax::name const>());
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
   default:
     sona_unreachable();
   }

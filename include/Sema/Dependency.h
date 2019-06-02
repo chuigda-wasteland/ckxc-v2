@@ -1,7 +1,7 @@
 #ifndef DEPENDENCY_H
 #define DEPENDENCY_H
 
-#include "Syntax/CST.h"
+#include "Syntax/Concrete.h"
 #include "AST/DeclFwd.h"
 #include "sona/either.h"
 

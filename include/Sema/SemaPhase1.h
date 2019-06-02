@@ -35,7 +35,7 @@ protected:
   Resolve##name(std::shared_ptr<Scope> scope, \
                 sona::ref_ptr<Syntax::name const> type);
 
-#include "Syntax/CSTNodeDefs.def"
+#include "Syntax/Nodes.def"
 
 };
 

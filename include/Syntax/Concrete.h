@@ -1,5 +1,5 @@
-#ifndef CST_CC
-#define CST_CC
+#ifndef CONCRETE_H
+#define CONCRETE_H
 
 #include <vector>
 #include <string>
@@ -82,7 +82,7 @@ public:
     #define CST_STMT(name) CNK_##name,
     #define CST_EXPR(name) CNK_##name,
 
-    #include "Syntax/CSTNodeDefs.def"
+    #include "Syntax/Nodes.def"
   };
 
   Node(NodeKind nodeKind) : m_NodeKind(nodeKind) {}
@@ -1010,4 +1010,4 @@ private:
 } // namespace Syntax;
 } // namespace ckx
 
-#endif // CST_H
+#endif // CONCRETE_H

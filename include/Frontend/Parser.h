@@ -2,7 +2,7 @@
 #define PARSER_H
 
 #include "Frontend/Lex.h"
-#include "Syntax/CST.h"
+#include "Syntax/Concrete.h"
 
 namespace ckx {
 namespace Frontend {
