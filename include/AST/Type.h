@@ -203,7 +203,6 @@ private:
   sona::ref_ptr<AST::TypeDecl> m_TypeDecl;
 };
 
-/// @todo How to calculate hash of class and enum types?
 class ClassType final : public UserDefinedType {
 public:
   ClassType(sona::ref_ptr<ClassDecl> decl);
