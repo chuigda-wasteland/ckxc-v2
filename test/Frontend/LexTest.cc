@@ -10,7 +10,7 @@ using namespace std;
 void test0() {
   VkTestSectionStart("Lexing test 1");
 
-  string file = R"aacaac(def a, b : int16;)aacaac";
+  string file = R"aacaac(def a, nmsl!? : int16;)aacaac";
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("a.c", lines);
@@ -25,7 +25,7 @@ void test0() {
   VkAssertEquals("a", tokens[1].GetStrValueUnsafe());
   VkAssertEquals(Frontend::Token::TK_SYM_COMMA, tokens[2].GetTokenKind());
   VkAssertEquals(Frontend::Token::TK_ID, tokens[3].GetTokenKind());
-  VkAssertEquals("b", tokens[3].GetStrValueUnsafe());
+  VkAssertEquals("nmsl!?", tokens[3].GetStrValueUnsafe());
   VkAssertEquals(Frontend::Token::TK_SYM_COLON, tokens[4].GetTokenKind());
   VkAssertEquals(Frontend::Token::TK_KW_int16, tokens[5].GetTokenKind());
   VkAssertEquals(Frontend::Token::TK_SYM_SEMI, tokens[6].GetTokenKind());

@@ -32,11 +32,15 @@ private:
   void LexSymbol();
   void SkipWhitespace();
 
+  std::string ScanIdString();
+
   std::uint64_t ScanInt();
 
   char CurChar() const noexcept;
   void NextChar() noexcept;
   char PeekOneChar() const noexcept;
+
+  SourceRange CurCharRange() const noexcept;
 
   std::uint16_t GetLine() const noexcept;
   std::uint16_t GetCol() const noexcept;

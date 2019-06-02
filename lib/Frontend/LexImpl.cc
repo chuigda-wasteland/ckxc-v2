@@ -55,11 +55,17 @@ void LexerImpl::LexAllTokens() {
     case ' ': case '\t': case '\v': case '\f': case '\n':
       SkipWhitespace();
       break;
+
+    default:
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrUnexpectedChar,
+                               { std::to_string(CurChar()) }),
+                  CurCharRange());
+      NextChar();
     }
   }
 
-  m_TokenStream.emplace_back(Token::TK_EOI,
-                             SourceRange(GetLine(), GetCol(), GetCol()+1));
+  m_TokenStream.emplace_back(Token::TK_EOI, CurCharRange());
 }
 
 void LexerImpl::LexIdOrKeyword() {
@@ -70,32 +76,18 @@ void LexerImpl::LexIdOrKeyword() {
     {"$(40490fd0)$", Token::TK_INVALID}
   };
 
-  std::stringstream stream;
   std::uint16_t col1 = GetCol();
-  while (std::isdigit(CurChar()) || std::isalpha(CurChar())
-         || CurChar() == '_' || CurChar() == '$') {
-    stream.put(CurChar());
-    NextChar();
-  }
-  std::uint16_t col2 = GetCol();
-
-  std::string str;
-  stream >> str;
+  std::string str = ScanIdString();
 
   auto it = KeywordMaps.find(str);
   if (it != KeywordMaps.cend()) {
     m_TokenStream.emplace_back(it->second,
-                               SourceRange(GetLine(), col1, col2), str);
+                               SourceRange(GetLine(), col1, GetCol()), str);
     return;
   }
 
-  if (CurChar() == '!') {
-    str.push_back(CurChar());
-    NextChar();
-  }
-
   m_TokenStream.emplace_back(Token::TK_ID,
-                             SourceRange(GetLine(), col1, col2), str);
+                             SourceRange(GetLine(), col1, GetCol()), str);
 }
 
 void LexerImpl::LexNumber() {
@@ -166,9 +158,11 @@ void LexerImpl::LexBinNumber() {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(
                   Diag::DMT_ErrUnexpectedCharInContext,
-                  { std::to_string(CurChar()), "bin number" }),
-                SourceRange(GetLine(), GetCol(), GetCol()+1));
-    /// @todo add proper skipping
+                  { std::to_string(CurChar()), "binary number" }),
+                CurCharRange());
+    while (CurChar() != '\0' && (isdigit(CurChar()) || isalpha(CurChar()))) {
+      NextChar();
+    }
   }
 
   m_TokenStream.emplace_back(Token::TK_LIT_INT,
@@ -198,8 +192,10 @@ void LexerImpl::LexHexNumber() {
                 Diag::Format(
                   Diag::DMT_ErrUnexpectedCharInContext,
                   { std::to_string(CurChar()), "hex number" }),
-                SourceRange(GetLine(), GetCol(), GetCol()+1));
-    /// @todo add proper skipping
+                CurCharRange());
+    while (CurChar() != '\0' && (isdigit(CurChar()) || isalpha(CurChar()))) {
+      NextChar();
+    }
   }
 
   m_TokenStream.emplace_back(Token::TK_LIT_INT,
@@ -244,7 +240,7 @@ void LexerImpl::LexString() {
   if (CurChar() == '\0') {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrUnexpectedChar, {"EOF", "string"}),
-                SourceRange(GetLine(), GetCol(), GetCol()+1));
+                CurCharRange());
   }
   else /* if (CurChar() == '"') */ {
     NextChar();
@@ -257,58 +253,47 @@ void LexerImpl::LexString() {
 void LexerImpl::LexSymbol() {
   switch (CurChar()) {
   case '{':
-    m_TokenStream.emplace_back(Token::TK_SYM_LBRACE,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_LBRACE, CurCharRange());
     break;
 
   case '}':
-    m_TokenStream.emplace_back(Token::TK_SYM_RBRACE,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_RBRACE, CurCharRange());
     break;
 
   case '[':
-    m_TokenStream.emplace_back(Token::TK_SYM_LBRACKET,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_LBRACKET, CurCharRange());
     break;
 
   case ']':
-    m_TokenStream.emplace_back(Token::TK_SYM_RBRACKET,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_RBRACKET, CurCharRange());
     break;
 
   case '(':
-    m_TokenStream.emplace_back(Token::TK_SYM_LPAREN,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_LPAREN, CurCharRange());
     break;
 
   case ')':
-    m_TokenStream.emplace_back(Token::TK_SYM_RPAREN,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_RPAREN, CurCharRange());
     break;
 
   case ',':
-    m_TokenStream.emplace_back(Token::TK_SYM_COMMA,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_COMMA, CurCharRange());
     break;
 
   case ';':
-    m_TokenStream.emplace_back(Token::TK_SYM_SEMI,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_SEMI, CurCharRange());
     break;
 
   case ':':
-    m_TokenStream.emplace_back(Token::TK_SYM_COLON,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_COLON, CurCharRange());
     break;
 
   case '=':
-    m_TokenStream.emplace_back(Token::TK_SYM_EQ,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange());
     break;
 
   case '.':
-    m_TokenStream.emplace_back(Token::TK_SYM_DOT,
-                               SourceRange(GetLine(), GetCol(), GetCol()+1));
+    m_TokenStream.emplace_back(Token::TK_SYM_DOT, CurCharRange());
     break;
   }
 
@@ -321,34 +306,36 @@ void LexerImpl::SkipWhitespace() {
   }
 }
 
-std::uint64_t LexerImpl::ScanInt() {
-  std::uint64_t ret = 0;
-  while (std::isdigit(CurChar())) {
-    ret *= 10;
-    ret += CurChar() - '0';
-    NextChar();
-  }
-  return ret;
-}
-
-void LexerImpl::LexIdentifier() {
+std::string LexerImpl::ScanIdString() {
   std::stringstream stream;
-  std::uint16_t col1 = GetCol();
-
   while (std::isdigit(CurChar()) || std::isalpha(CurChar())
          || CurChar() == '_' || CurChar() == '$') {
     stream.put(CurChar());
     NextChar();
   }
 
-  if (CurChar() == '!') {
+  while (CurChar() == '!' || CurChar() == '?') {
     stream.put(CurChar());
     NextChar();
   }
 
-  std::string str;
-  stream >> str;
+  std::string ret;
+  stream >> ret;
+  return ret;
+}
 
+std::uint64_t LexerImpl::ScanInt() {
+  std::uint64_t ret = 0;
+  while (std::isdigit(CurChar())) {
+    ret *= 10;
+    ret += CurChar() - '0'; NextChar();
+  }
+  return ret;
+}
+
+void LexerImpl::LexIdentifier() {
+  std::uint16_t col1 = GetCol();
+  std::string str = ScanIdString();
   m_TokenStream.emplace_back(Token::TK_ID,
                              SourceRange(GetLine(), col1, GetCol()), str);
 }
@@ -375,6 +362,10 @@ void LexerImpl::NextChar() noexcept {
 char LexerImpl::PeekOneChar() const noexcept {
   sona_assert(m_SourceCode[m_Index] != '\0');
   return m_SourceCode[m_Index + 1];
+}
+
+SourceRange LexerImpl::CurCharRange() const noexcept {
+  return SourceRange(GetLine(), GetCol(), GetCol()+1);
 }
 
 uint16_t LexerImpl::GetLine() const noexcept {
