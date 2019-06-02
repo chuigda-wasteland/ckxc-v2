@@ -58,7 +58,7 @@ void SemaPhase0::PostSubstituteDepends() {
     }
   }
 
-  for (auto &idata : m_IncompleteEnumClassInterns) {
+  for (auto &idata : m_IncompleteValueCtors) {
     std::shared_ptr<Scope> inScope = idata.second.GetEnclosingScope();
     for (auto &dep : idata.second.GetDependencies()) {
       if (dep.IsDependByname()) {
@@ -119,7 +119,7 @@ SemaPhase0::FindTranslationOrder() {
   auto r3 = sona::linq::from_container(m_IncompleteUsings).
             transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
                       { return static_cast<IncompleteDecl*>(&(p.second)); });
-  auto r4 = sona::linq::from_container(m_IncompleteEnumClassInterns).
+  auto r4 = sona::linq::from_container(m_IncompleteValueCtors).
             transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
                       { return static_cast<IncompleteDecl*>(&(p.second)); });
   for (sona::ref_ptr<IncompleteDecl> incomplete :
@@ -313,9 +313,9 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
   std::vector<Dependency> collectedDependencies;
-  sona::owner<AST::EnumClassDecl> enumClassDecl =
-    new AST::EnumClassDecl(GetCurrentDeclContext(), decl->GetName());
-  PushDeclContext(enumClassDecl.borrow().cast_unsafe<AST::DeclContext>());
+  sona::owner<AST::ADTDecl> adtDecl =
+    new AST::ADTDecl(GetCurrentDeclContext(), decl->GetName());
+  PushDeclContext(adtDecl.borrow().cast_unsafe<AST::DeclContext>());
   PushScope(Scope::SF_ADT);
 
   for (sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> constructor
@@ -331,20 +331,20 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
   PopDeclContext();
 
   GetCurrentScope()->AddType(
-      enumClassDecl.borrow()->GetName(),
+      adtDecl.borrow()->GetName(),
       m_ASTContext.AddUserDefinedType(
-          new AST::EnumClassType(enumClassDecl.borrow())));
+          new AST::ADTType(adtDecl.borrow())));
 
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
-          enumClassDecl.borrow().cast_unsafe<AST::Decl>(),
+          adtDecl.borrow().cast_unsafe<AST::Decl>(),
           IncompleteTagDecl(
-            enumClassDecl.borrow().cast_unsafe<AST::Decl>(),
+            adtDecl.borrow().cast_unsafe<AST::Decl>(),
             std::move(collectedDependencies),
             GetCurrentScope()));
   }
 
-  return std::make_pair(enumClassDecl.cast_unsafe<AST::Decl>(),
+  return std::make_pair(adtDecl.cast_unsafe<AST::Decl>(),
                         !collectedDependencies.empty());
 }
 
@@ -354,14 +354,14 @@ SemaPhase0::ActOnADTConstructor(
   auto typeResult = ResolveType(dc->GetUnderlyingType());
   sona::owner<AST::Decl> ret0 =
       typeResult.contains_t1() ?
-        new AST::EnumClassInternDecl(GetCurrentDeclContext(),
+        new AST::ValueCtorDecl(GetCurrentDeclContext(),
                                      dc->GetName(), typeResult.as_t1())
-      : new AST::EnumClassInternDecl(GetCurrentDeclContext(),
+      : new AST::ValueCtorDecl(GetCurrentDeclContext(),
                                      dc->GetName(), nullptr);
   if (typeResult.contains_t2()) {
-    m_IncompleteEnumClassInterns.emplace(
-          ret0.borrow().cast_unsafe<AST::EnumClassInternDecl>(),
-          Sema::IncompleteEnumClassInternDecl(
+    m_IncompleteValueCtors.emplace(
+          ret0.borrow().cast_unsafe<AST::ValueCtorDecl>(),
+          Sema::IncompleteValueCtorDecl(
             ret0.borrow(), dc, std::move(typeResult.as_t2()),
             GetCurrentScope()));
   }
@@ -387,10 +387,10 @@ SemaPhase0::SearchInUnfinished(sona::ref_ptr<const AST::Decl> decl) {
     }
     return nullptr;
   }
-  case AST::Decl::DK_EnumClassIntern: {
-    auto it = m_IncompleteEnumClassInterns.find(
-                decl.cast_unsafe<AST::EnumClassInternDecl const>());
-    if (it != m_IncompleteEnumClassInterns.cend()) {
+  case AST::Decl::DK_ValueCtor: {
+    auto it = m_IncompleteValueCtors.find(
+                decl.cast_unsafe<AST::ValueCtorDecl const>());
+    if (it != m_IncompleteValueCtors.cend()) {
       return it->second;
     }
     return nullptr;

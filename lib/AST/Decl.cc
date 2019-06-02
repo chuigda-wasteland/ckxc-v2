@@ -23,7 +23,7 @@ sona::ref_ptr<DeclContext> Decl::CastAsDeclContext() noexcept {
     return static_cast<DeclContext*>(static_cast<EnumDecl*>(this));
   case DK_Class:
     return static_cast<DeclContext*>(static_cast<EnumDecl*>(this));
-  case DK_EnumClass:
+  case DK_ADT:
     return static_cast<DeclContext*>(static_cast<EnumDecl*>(this));
   default:
     sona_unreachable();
@@ -37,7 +37,7 @@ sona::ref_ptr<DeclContext const> Decl::CastAsDeclContext() const noexcept {
     return static_cast<DeclContext const*>(static_cast<EnumDecl const*>(this));
   case DK_Class:
     return static_cast<DeclContext const*>(static_cast<EnumDecl const*>(this));
-  case DK_EnumClass:
+  case DK_ADT:
     return static_cast<DeclContext const*>(static_cast<EnumDecl const*>(this));
   default:
     sona_unreachable();
@@ -66,14 +66,14 @@ EnumDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
 }
 
 sona::owner<Backend::ActionResult>
-EnumClassInternDecl::Accept(
+ValueCtorDecl::Accept(
     sona::ref_ptr<Backend::DeclVisitor> visitor) const {
-  return visitor->VisitEnumClassInternDecl(this);
+  return visitor->VisitValueCtor(this);
 }
 
 sona::owner<Backend::ActionResult>
-EnumClassDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
-  return visitor->VisitEnumClassDecl(this);
+ADTDecl::Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const {
+  return visitor->VisitADT(this);
 }
 
 sona::owner<Backend::ActionResult>

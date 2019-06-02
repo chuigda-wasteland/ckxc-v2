@@ -33,12 +33,11 @@ public:
       sona::ref_ptr<AST::EnumeratorDecl const> enumeratorDecl) override;
 
   sona::owner<ActionResult>
-  VisitEnumClassInternDecl(
-      sona::ref_ptr<AST::EnumClassInternDecl const> eciDecl) override;
+  VisitValueCtor(
+      sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) override;
 
   sona::owner<ActionResult>
-  VisitEnumClassDecl(
-      sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl) override;
+  VisitADT(sona::ref_ptr<AST::ADTDecl const> adtDecl) override;
 
   sona::owner<ActionResult>
   VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) override;
@@ -48,7 +47,6 @@ public:
 
   sona::owner<ActionResult>
   VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) override;
-
 
   sona::owner<ActionResult>
   VisitBuiltinType(sona::ref_ptr<AST::BuiltinType const> builtinType) override;
@@ -80,8 +78,8 @@ public:
   VisitEnumType(sona::ref_ptr<AST::EnumType const> enumType) override;
 
   sona::owner<ActionResult>
-  VisitEnumClassType(
-      sona::ref_ptr<AST::EnumClassType const> enumClassType) override;
+  VisitADTType(
+      sona::ref_ptr<AST::ADTType const> adtType) override;
 
   sona::owner<ActionResult>
   VisitUsingType(sona::ref_ptr<AST::UsingType const> usingType) override;

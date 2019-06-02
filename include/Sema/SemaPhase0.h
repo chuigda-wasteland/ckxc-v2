@@ -61,9 +61,9 @@ protected:
   std::unordered_map<sona::ref_ptr<AST::UsingDecl const>,
                      Sema::IncompleteUsingDecl>
     m_IncompleteUsings;
-  std::unordered_map<sona::ref_ptr<AST::EnumClassInternDecl const>,
-                     Sema::IncompleteEnumClassInternDecl>
-    m_IncompleteEnumClassInterns;
+  std::unordered_map<sona::ref_ptr<AST::ValueCtorDecl const>,
+                     Sema::IncompleteValueCtorDecl>
+    m_IncompleteValueCtors;
   std::vector<Sema::IncompleteFuncDecl> m_IncompleteFuncs;
 };
 

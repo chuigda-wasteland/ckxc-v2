@@ -26,7 +26,7 @@ protected:
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
   void PostTranslateIncompleteADTConstructor(
-      sona::ref_ptr<Sema::IncompleteEnumClassInternDecl> iAdtC);
+      sona::ref_ptr<Sema::IncompleteValueCtorDecl> iAdtC);
   void PostTranslateIncompleteUsing(
       sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
 

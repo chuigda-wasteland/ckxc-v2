@@ -63,25 +63,25 @@ ASTPrinter::VisitEnumeratorDecl(
 }
 
 sona::owner<ActionResult>
-ASTPrinter::VisitEnumClassInternDecl(
-    sona::ref_ptr<AST::EnumClassInternDecl const> eciDecl) {
+ASTPrinter::VisitValueCtor(
+    sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) {
   Indent();
   std::cerr << "ADT constructor declaration "
-            << eciDecl->GetConstructorName().get()
+            << valueCtorDecl->GetConstructorName().get()
             << " of type ";
-  eciDecl->GetType()->Accept(this);
+  valueCtorDecl->GetType()->Accept(this);
   std::cerr << " @" << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
 
 sona::owner<ActionResult>
-ASTPrinter::VisitEnumClassDecl(
-    sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl) {
+ASTPrinter::VisitADT(
+    sona::ref_ptr<AST::ADTDecl const> adtDecl) {
   Indent();
-  std::cerr << "ADT declaraion " << enumClassDecl->GetName().get()
+  std::cerr << "ADT declaraion " << adtDecl->GetName().get()
             << " @" << (void*)this << std::endl;
   EnterScope();
-  for (auto decl : enumClassDecl->GetDecls()) {
+  for (auto decl : adtDecl->GetDecls()) {
     decl->Accept(this);
   }
   ExitScope();
@@ -198,10 +198,10 @@ ASTPrinter::VisitEnumType(
 }
 
 sona::owner<ActionResult>
-ASTPrinter::VisitEnumClassType(
-    sona::ref_ptr<const AST::EnumClassType> enumClassType) {
-  std::cerr << "ADT " << enumClassType->GetEnumClassDecl()->GetName().get()
-            << " @" << enumClassType->GetTypeDecl().operator->();
+ASTPrinter::VisitADTType(
+    sona::ref_ptr<const AST::ADTType> adtType) {
+  std::cerr << "ADT " << adtType->GetADTDecl()->GetName().get()
+            << " @" << adtType->GetTypeDecl().operator->();
   return CreateDeclResult(VoidType());
 }
 

@@ -15,7 +15,7 @@ class Scope;
 class IncompleteDecl {
 public:
   enum IncompleteDeclType {
-    IDT_Var, IDT_Tag, IDT_ECC, IDT_Using, IDT_Function
+    IDT_Var, IDT_Tag, IDT_ValueCtor, IDT_Using, IDT_Function
   };
 
   IncompleteDecl(std::vector<Dependency> &&dependencies,
@@ -106,14 +106,14 @@ private:
   sona::ref_ptr<AST::Decl> m_Halfway;
 };
 
-class IncompleteEnumClassInternDecl : public IncompleteDecl {
+class IncompleteValueCtorDecl : public IncompleteDecl {
 public:
-  IncompleteEnumClassInternDecl(
+  IncompleteValueCtorDecl(
       sona::ref_ptr<AST::Decl> halfway,
       sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> concrete,
       std::vector<Dependency> &&dependencies,
       std::shared_ptr<Scope> const& inScope)
-    : IncompleteDecl(std::move(dependencies), inScope, IDT_ECC),
+    : IncompleteDecl(std::move(dependencies), inScope, IDT_ValueCtor),
       m_Halfway(halfway), m_Concrete(concrete) {}
 
   sona::ref_ptr<AST::Decl> GetHalfway() noexcept {

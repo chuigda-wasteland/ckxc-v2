@@ -69,11 +69,11 @@ public:
       sona::ref_ptr<AST::EnumeratorDecl const> enumeratorDecl) = 0;
 
   virtual sona::owner<ActionResult>
-  VisitEnumClassInternDecl(
-      sona::ref_ptr<AST::EnumClassInternDecl const> eciDecl) = 0;
+  VisitValueCtor(
+      sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) = 0;
 
   virtual sona::owner<ActionResult>
-  VisitEnumClassDecl(sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl) = 0;
+  VisitADT(sona::ref_ptr<AST::ADTDecl const> adtDecl) = 0;
 
   virtual sona::owner<ActionResult>
   VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) = 0;
@@ -115,7 +115,7 @@ public:
   VisitEnumType(sona::ref_ptr<AST::EnumType const> enumType) = 0;
 
   virtual sona::owner<ActionResult>
-  VisitEnumClassType(sona::ref_ptr<AST::EnumClassType const> enumClassType) = 0;
+  VisitADTType(sona::ref_ptr<AST::ADTType const> adtType) = 0;
 
   virtual sona::owner<ActionResult>
   VisitUsingType(sona::ref_ptr<AST::UsingType const> usingType) = 0;

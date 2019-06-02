@@ -29,10 +29,10 @@ public:
                      Sema::IncompleteUsingDecl> const&
   GetIncompleteUsings() const noexcept { return m_IncompleteUsings; }
 
-  std::unordered_map<sona::ref_ptr<AST::EnumClassInternDecl const>,
-                     Sema::IncompleteEnumClassInternDecl> const&
-  GetIncompleteEnumClassInterns() const noexcept {
-    return m_IncompleteEnumClassInterns;
+  std::unordered_map<sona::ref_ptr<AST::ValueCtorDecl const>,
+                     Sema::IncompleteValueCtorDecl> const&
+  GetIncompleteValueCtors() const noexcept {
+    return m_IncompleteValueCtors;
   }
 
   std::vector<Sema::IncompleteFuncDecl> const&
@@ -75,7 +75,7 @@ void test0() {
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(2uL, sema0.GetIncompleteVars().size());
   VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
-  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteValueCtors().size());
 
   for (const auto &incompleteTagPair : sema0.GetIncompleteTags()) {
     VkAssertEquals(AST::Decl::DeclKind::DK_Class,
@@ -142,7 +142,7 @@ void test1() {
 
   VkAssertFalse(diag.HasPendingDiags());
 
-  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteValueCtors().size());
   VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
   VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
   VkAssertEquals(1uL, sema0.GetIncompleteTags().size());
@@ -187,16 +187,16 @@ void test2() {
       sema0.ActOnTransUnit(cst.borrow());
 
   VkAssertFalse(diag.HasPendingDiags());
-  VkAssertEquals(2uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(2uL, sema0.GetIncompleteValueCtors().size());
   VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
   VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(1uL, sema0.GetIncompleteVars().size());
 
   for (const auto &incompleteTagPair : sema0.GetIncompleteTags()) {
-    if (incompleteTagPair.first->GetDeclKind() == AST::Decl::DK_EnumClass) {
-      sona::ref_ptr<AST::EnumClassDecl const> adt =
-          incompleteTagPair.first.cast_unsafe<AST::EnumClassDecl const>();
+    if (incompleteTagPair.first->GetDeclKind() == AST::Decl::DK_ADT) {
+      sona::ref_ptr<AST::ADTDecl const> adt =
+          incompleteTagPair.first.cast_unsafe<AST::ADTDecl const>();
       VkAssertEquals("B", adt->GetName());
       VkAssertEquals(2uL, incompleteTagPair.second.GetDependencies().size());
       for (const auto& dep : incompleteTagPair.second.GetDependencies()) {
@@ -204,13 +204,13 @@ void test2() {
         VkAssertFalse(dep.IsDependByname());
         VkAssertEquals(nullptr,
                        dep.GetDeclUnsafe()
-                          .cast_unsafe<AST::EnumClassInternDecl const>()
+                          .cast_unsafe<AST::ValueCtorDecl const>()
                           ->GetType());
       }
     }
   }
 
-  for (const auto &incompleteDataPair : sema0.GetIncompleteEnumClassInterns()) {
+  for (const auto &incompleteDataPair : sema0.GetIncompleteValueCtors()) {
     VkAssertEquals(1uL, incompleteDataPair.second.GetDependencies().size());
     if (incompleteDataPair.first->GetConstructorName() == "Cc1") {
       sona::ref_ptr<AST::ClassDecl const> dependingClass =
@@ -255,7 +255,7 @@ void test3() {
 
   VkAssertFalse(diag.HasPendingDiags());
   diag.EmitDiags();
-  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteValueCtors().size());
   VkAssertEquals(2uL, sema0.GetIncompleteUsings().size());
   VkAssertEquals(0uL, sema0.GetIncompleteFuncs().size());
   VkAssertEquals(1uL, sema0.GetIncompleteTags().size());

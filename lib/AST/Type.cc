@@ -205,13 +205,13 @@ sona::ref_ptr<const EnumDecl> EnumType::GetEnumDecl() const noexcept {
   return GetTypeDecl().cast_unsafe<EnumDecl const>();
 }
 
-EnumClassType::EnumClassType(sona::ref_ptr<EnumClassDecl> decl)
-  : UserDefinedType(UDTypeId::UTI_EnumClass, decl->GetName(),
+ADTType::ADTType(sona::ref_ptr<ADTDecl> decl)
+  : UserDefinedType(UDTypeId::UTI_ADT, decl->GetName(),
                     decl.cast_unsafe<TypeDecl>()) {}
 
-sona::ref_ptr<const EnumClassDecl>
-EnumClassType::GetEnumClassDecl() const noexcept {
-  return GetTypeDecl().cast_unsafe<EnumClassDecl const>();
+sona::ref_ptr<const ADTDecl>
+ADTType::GetADTDecl() const noexcept {
+  return GetTypeDecl().cast_unsafe<ADTDecl const>();
 }
 
 UsingType::UsingType(sona::ref_ptr<UsingDecl> usingDecl)
@@ -304,8 +304,8 @@ EnumType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
 }
 
 sona::owner<Backend::ActionResult>
-EnumClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitEnumClassType(this);
+ADTType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
+  return visitor->VisitADTType(this);
 }
 
 sona::owner<Backend::ActionResult>

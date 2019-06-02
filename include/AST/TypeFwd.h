@@ -16,7 +16,7 @@ class FunctionType;
 class UserDefinedType;
 class EnumType;
 class ClassType;
-class EnumClassType;
+class ADTType;
 class UsingType;
 
 } // namespace AST

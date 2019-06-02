@@ -192,7 +192,7 @@ private:
 
 class UserDefinedType : public Type {
 public:
-  enum class UDTypeId { UTI_Class, UTI_Enum, UTI_EnumClass, UTI_Using };
+  enum class UDTypeId { UTI_Class, UTI_Enum, UTI_ADT, UTI_Using };
   UserDefinedType(UDTypeId id, sona::string_ref const& typeName,
                   sona::ref_ptr<TypeDecl> typeDecl);
 
@@ -232,10 +232,10 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class EnumClassType final : public UserDefinedType {
+class ADTType final : public UserDefinedType {
 public:
-  EnumClassType(sona::ref_ptr<EnumClassDecl> decl);
-  sona::ref_ptr<EnumClassDecl const> GetEnumClassDecl() const noexcept;
+  ADTType(sona::ref_ptr<ADTDecl> decl);
+  sona::ref_ptr<ADTDecl const> GetADTDecl() const noexcept;
 
   sona::owner<Backend::ActionResult>
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;

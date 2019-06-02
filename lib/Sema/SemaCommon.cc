@@ -118,7 +118,7 @@ SemaCommon::ChooseDeclContext(std::shared_ptr<Scope> scope,
     for (auto decl : context->GetDecls()) {
       if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit
            || decl->GetDeclKind() == AST::Decl::DK_Enum
-           || decl->GetDeclKind() == AST::Decl::DK_EnumClass
+           || decl->GetDeclKind() == AST::Decl::DK_ADT
            || decl->GetDeclKind() == AST::Decl::DK_Class)
           && decl.cast_unsafe<AST::NamedDecl const>()->GetName()
              == (*it).first) {
@@ -168,7 +168,7 @@ SemaCommon::LookupType(std::shared_ptr<Scope> scope,
   for (auto decl : context->GetDecls()) {
     if ((decl->GetDeclKind() == AST::Decl::DK_Class
          || decl->GetDeclKind() == AST::Decl::DK_Enum
-         || decl->GetDeclKind() == AST::Decl::DK_EnumClass
+         || decl->GetDeclKind() == AST::Decl::DK_ADT
          || decl->GetDeclKind() == AST::Decl::DK_Using)
         && decl.cast_unsafe<AST::NamedDecl const>()->GetName()
            == identifier.GetIdentifier()) {

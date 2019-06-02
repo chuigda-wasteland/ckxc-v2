@@ -100,12 +100,12 @@ public:
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 };
 
-class EnumClassInternDecl final : public Decl {
+class ValueCtorDecl final : public Decl {
 public:
-  EnumClassInternDecl(sona::ref_ptr<DeclContext> context,
-                      sona::string_ref const& constructorName,
-                      sona::ref_ptr<AST::Type const> type)
-    : Decl(DeclKind::DK_EnumClassIntern, context),
+  ValueCtorDecl(sona::ref_ptr<DeclContext> context,
+                sona::string_ref const& constructorName,
+                sona::ref_ptr<AST::Type const> type)
+    : Decl(DeclKind::DK_ValueCtor, context),
       m_ConstructorName(constructorName),
       m_Type(type) {}
 
@@ -129,12 +129,12 @@ private:
   sona::ref_ptr<AST::Type const> m_Type;
 };
 
-class EnumClassDecl final : public TypeDecl, public DeclContext {
+class ADTDecl final : public TypeDecl, public DeclContext {
 public:
-  EnumClassDecl(sona::ref_ptr<DeclContext> context,
-                sona::string_ref const& enumClassName)
-    : TypeDecl(context, DeclKind::DK_EnumClass, enumClassName),
-      DeclContext(DeclKind::DK_EnumClass) {}
+  ADTDecl(sona::ref_ptr<DeclContext> context,
+                sona::string_ref const& adtName)
+    : TypeDecl(context, DeclKind::DK_ADT, adtName),
+      DeclContext(DeclKind::DK_ADT) {}
       
   sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;

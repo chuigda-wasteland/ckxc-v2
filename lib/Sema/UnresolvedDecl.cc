@@ -33,10 +33,10 @@ std::string IncompleteTagDecl::ToString() const {
     ret += enumDecl->GetName().get();
     break;
   }
-  case AST::Decl::DK_EnumClass: {
-    sona::ref_ptr<AST::EnumClassDecl const> enumClassDecl =
-        GetHalfway().cast_unsafe<AST::EnumClassDecl const>();
-    ret += enumClassDecl->GetName().get();
+  case AST::Decl::DK_ADT: {
+    sona::ref_ptr<AST::ADTDecl const> adtDecl =
+        GetHalfway().cast_unsafe<AST::ADTDecl const>();
+    ret += adtDecl->GetName().get();
     break;
   }
   default:
@@ -49,9 +49,9 @@ std::string IncompleteUsingDecl::ToString() const {
   return "incomplete using: " + GetHalfway()->GetName().get();
 }
 
-std::string IncompleteEnumClassInternDecl::ToString() const {
+std::string IncompleteValueCtorDecl::ToString() const {
   return "incomplete ADT constructor: "
-         + GetHalfway().cast_unsafe<AST::EnumClassInternDecl const>()
+         + GetHalfway().cast_unsafe<AST::ValueCtorDecl const>()
                        ->GetConstructorName().get();
 }
 

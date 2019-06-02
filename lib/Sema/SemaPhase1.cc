@@ -18,9 +18,9 @@ void SemaPhase1::PostTranslateIncompletes(
     case IncompleteDecl::IDT_Tag:
       PostTranslateIncompleteTag(incomplete.cast_unsafe<IncompleteTagDecl>());
       break;
-    case IncompleteDecl::IDT_ECC:
+    case IncompleteDecl::IDT_ValueCtor:
       PostTranslateIncompleteADTConstructor(
-            incomplete.cast_unsafe<IncompleteEnumClassInternDecl>());
+            incomplete.cast_unsafe<IncompleteValueCtorDecl>());
       break;
     case IncompleteDecl::IDT_Using:
       PostTranslateIncompleteUsing(
@@ -62,9 +62,9 @@ void SemaPhase1::PostTranslateIncompleteTag(
 }
 
 void SemaPhase1::PostTranslateIncompleteADTConstructor(
-    sona::ref_ptr<IncompleteEnumClassInternDecl> iAdtC) {
-  sona::ref_ptr<AST::EnumClassInternDecl> halfway =
-      iAdtC->GetHalfway().cast_unsafe<AST::EnumClassInternDecl>();
+    sona::ref_ptr<IncompleteValueCtorDecl> iAdtC) {
+  sona::ref_ptr<AST::ValueCtorDecl> halfway =
+      iAdtC->GetHalfway().cast_unsafe<AST::ValueCtorDecl>();
   sona::ref_ptr<AST::Type const> adtConstructorType =
       ResolveType(iAdtC->GetEnclosingScope(),
                   iAdtC->GetConcrete()->GetUnderlyingType());

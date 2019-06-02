@@ -29,10 +29,10 @@ public:
                      Sema::IncompleteUsingDecl> const&
   GetIncompleteUsings() const noexcept { return m_IncompleteUsings; }
 
-  std::unordered_map<sona::ref_ptr<AST::EnumClassInternDecl const>,
-                     Sema::IncompleteEnumClassInternDecl> const&
-  GetIncompleteEnumClassInterns() const noexcept {
-    return m_IncompleteEnumClassInterns;
+  std::unordered_map<sona::ref_ptr<AST::ValueCtorDecl const>,
+                     Sema::IncompleteValueCtorDecl> const&
+  GetIncompleteValueCtors() const noexcept {
+    return m_IncompleteValueCtors;
   }
 
   std::vector<Sema::IncompleteFuncDecl> const&
@@ -74,7 +74,7 @@ void test0() {
   VkAssertEquals(2uL, sema0.GetIncompleteTags().size());
   VkAssertEquals(2uL, sema0.GetIncompleteVars().size());
   VkAssertEquals(0uL, sema0.GetIncompleteUsings().size());
-  VkAssertEquals(0uL, sema0.GetIncompleteEnumClassInterns().size());
+  VkAssertEquals(0uL, sema0.GetIncompleteValueCtors().size());
 
   for (const auto &incompleteVarPair : sema0.GetIncompleteVars()) {
     VkAssertEquals(1uL, incompleteVarPair.second.GetDependencies().size());
