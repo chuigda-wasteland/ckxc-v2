@@ -1,5 +1,5 @@
-#ifndef Q_LIST_HPP
-#define Q_LIST_HPP
+#ifndef Q_LIST_H
+#define Q_LIST_H
 
 #include <cstddef>
 #include <initializer_list>
@@ -292,4 +292,4 @@ private:
 
 } // namespace sona
 
-#endif // Q_LIST_HPP
+#endif // Q_LIST_H

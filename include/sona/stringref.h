@@ -1,5 +1,5 @@
-#ifndef STRINGREF_HPP
-#define STRINGREF_HPP
+#ifndef STRINGREF_H
+#define STRINGREF_H
 
 #include <string>
 #include <cstddef>
@@ -82,4 +82,4 @@ struct hash<sona::string_ref> {
 
 } // namespace std
 
-#endif // STRINGREF_HPP
+#endif // STRINGREF_H

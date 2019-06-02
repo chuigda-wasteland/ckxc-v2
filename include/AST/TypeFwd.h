@@ -1,5 +1,5 @@
-#ifndef TYPEFWD_HPP
-#define TYPEFWD_HPP
+#ifndef TYPEFWD_H
+#define TYPEFWD_H
 
 namespace ckx {
 namespace AST {
@@ -22,4 +22,4 @@ class UsingType;
 } // namespace AST
 } // namespace ckx
 
-#endif // TYPEFWD_HPP
+#endif // TYPEFWD_H

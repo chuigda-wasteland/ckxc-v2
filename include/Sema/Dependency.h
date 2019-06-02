@@ -2,8 +2,8 @@
 #define DEPENDENCY_H
 
 #include "Syntax/CST.h"
-#include "AST/DeclFwd.hpp"
-#include "sona/either.hpp"
+#include "AST/DeclFwd.h"
+#include "sona/either.h"
 
 #include <iosfwd>
 

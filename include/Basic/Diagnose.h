@@ -1,12 +1,12 @@
 #ifndef DIAGNOSE_H
 #define DIAGNOSE_H
 
-#include "Basic/SourceRange.hpp"
+#include "Basic/SourceRange.h"
 
 #include <vector>
 #include <string>
 #include <initializer_list>
-#include "sona/stringref.hpp"
+#include "sona/stringref.h"
 
 namespace ckx {
 namespace Diag {

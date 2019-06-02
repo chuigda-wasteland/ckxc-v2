@@ -1,4 +1,4 @@
-#include "sona/log.hpp"
+#include "sona/log.h"
 #include <cstdio>
 
 namespace sona {

@@ -2,7 +2,7 @@
 #define SEMA_PHASE1_H
 
 #include "Sema/SemaCommon.h"
-#include "sona/either.hpp"
+#include "sona/either.h"
 
 namespace ckx {
 namespace Sema {

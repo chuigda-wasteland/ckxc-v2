@@ -1,5 +1,5 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#ifndef LOG_H
+#define LOG_H
 
 #include <memory>
 #include <string>
@@ -32,4 +32,4 @@ template <typename T, typename... Args> void log(T &&value, Args &&... args) {
 
 } // namespace sona
 
-#endif // LOG_HPP
+#endif // LOG_H

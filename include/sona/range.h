@@ -1,5 +1,5 @@
-#ifndef RANGE_HPP
-#define RANGE_HPP
+#ifndef RANGE_H
+#define RANGE_H
 
 #include <iterator>
 
@@ -36,4 +36,4 @@ private:
 
 } // namespace sona
 
-#endif // RANGE_HPP
+#endif // RANGE_H

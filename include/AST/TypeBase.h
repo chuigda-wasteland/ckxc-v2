@@ -1,11 +1,11 @@
-#ifndef TYPEBASE_HPP
-#define TYPEBASE_HPP
+#ifndef TYPEBASE_H
+#define TYPEBASE_H
 
-#include "Basic/SourceRange.hpp"
-#include "AST/TypeFwd.hpp"
+#include "Basic/SourceRange.h"
+#include "AST/TypeFwd.h"
 #include "Backend/ASTVisitor.h"
 
-#include "sona/stringref.hpp"
+#include "sona/stringref.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -65,4 +65,4 @@ template <typename Type_t> struct TypeHash {
 } // namespace AST
 } // namespace ckx
 
-#endif // TYPEBASE_HPP
+#endif // TYPEBASE_H

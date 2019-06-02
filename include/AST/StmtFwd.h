@@ -1,5 +1,5 @@
-#ifndef STMTFWD_HPP
-#define STMTFWD_HPP
+#ifndef STMTFWD_H
+#define STMTFWD_H
 
 namespace ckx {
 namespace AST {
@@ -22,4 +22,4 @@ class ReturnStmt;
 } // namespace AST
 } // namespace ckx
 
-#endif // STMTFWD_HPP
+#endif // STMTFWD_H

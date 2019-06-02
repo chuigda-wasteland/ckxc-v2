@@ -1,12 +1,12 @@
-#ifndef TYPE_HPP
-#define TYPE_HPP
+#ifndef TYPE_H
+#define TYPE_H
 
-#include "DeclBase.hpp"
-#include "TypeBase.hpp"
-#include "sona/linq.hpp"
-#include "sona/pointer_plus.hpp"
-#include "sona/range.hpp"
-#include "sona/small_vector.hpp"
+#include "DeclBase.h"
+#include "TypeBase.h"
+#include "sona/linq.h"
+#include "sona/pointer_plus.h"
+#include "sona/range.h"
+#include "sona/small_vector.h"
 
 #include <memory>
 #include <type_traits>
@@ -256,4 +256,4 @@ GetDeclOfUserDefinedType(sona::ref_ptr<AST::Type const> ty) noexcept;
 } // namespace AST
 } // namespace ckx
 
-#endif // TYPE_HPP
+#endif // TYPE_H

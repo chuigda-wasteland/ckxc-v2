@@ -1,9 +1,9 @@
 #ifndef SCOPE_H
 #define SCOPE_H
 
-#include "AST/Decl.hpp"
-#include "AST/Type.hpp"
-#include "Sema/UnresolvedDecl.hpp"
+#include "AST/Decl.h"
+#include "AST/Type.h"
+#include "Sema/UnresolvedDecl.h"
 
 #include <map>
 #include <cstdint>

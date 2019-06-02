@@ -1,5 +1,5 @@
-#ifndef DECLFWD_HPP
-#define DECLFWD_HPP
+#ifndef DECLFWD_H
+#define DECLFWD_H
 
 namespace ckx {
 namespace AST {
@@ -27,9 +27,9 @@ class VarDecl;
 // class ParamDecl;
 class EnumeratorDecl;
 
-/// @todo and_then fix DeclBase.hpp
+/// @todo and_then fix DeclBase.h
 
 } // namespace AST
 } // namespace ckx
 
-#endif // DECLFWD_HPP
+#endif // DECLFWD_H

@@ -1,7 +1,7 @@
-#ifndef EITHER_HPP
-#define EITHER_HPP
+#ifndef EITHER_H
+#define EITHER_H
 
-#include "util.hpp"
+#include "util.h"
 #include <algorithm>
 #include <memory>
 
@@ -112,4 +112,4 @@ private:
 
 } // namespace sona
 
-#endif // EITHER_HPP
+#endif // EITHER_H

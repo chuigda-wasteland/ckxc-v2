@@ -1,4 +1,4 @@
-#include "AST/ASTContext.hpp"
+#include "AST/ASTContext.h"
 
 namespace ckx {
 namespace AST {

@@ -1,9 +1,9 @@
-#ifndef EXPRBASE_HPP
-#define EXPRBASE_HPP
+#ifndef EXPRBASE_H
+#define EXPRBASE_H
 
-#include "ExprFwd.hpp"
+#include "ExprFwd.h"
 
-#include "sona/stringref.hpp"
+#include "sona/stringref.h"
 
 namespace ckx {
 namespace AST {
@@ -39,4 +39,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPRBASE_HPP
+#endif // EXPRBASE_H

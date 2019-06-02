@@ -1,9 +1,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "Basic/SourceRange.hpp"
-#include "sona/stringref.hpp"
-#include "sona/optional.hpp"
+#include "Basic/SourceRange.h"
+#include "sona/stringref.h"
+#include "sona/optional.h"
 #include <cstdint>
 
 namespace ckx {

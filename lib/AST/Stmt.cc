@@ -1,3 +1,3 @@
-#include "AST/Stmt.hpp"
+#include "AST/Stmt.h"
 
 namespace ckx {} // namespace ckx

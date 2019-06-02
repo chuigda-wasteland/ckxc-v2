@@ -1,9 +1,9 @@
-#ifndef STMTBASE_HPP
-#define STMTBASE_HPP
+#ifndef STMTBASE_H
+#define STMTBASE_H
 
-#include "StmtFwd.hpp"
+#include "StmtFwd.h"
 
-#include "sona/stringref.hpp"
+#include "sona/stringref.h"
 
 namespace ckx {
 namespace AST {
@@ -40,4 +40,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // STMTBASE_HPP
+#endif // STMTBASE_H

@@ -1,4 +1,4 @@
-#include "sona/util.hpp"
+#include "sona/util.h"
 #include <cstdio>
 
 #ifndef SONA_NO_DEBUG

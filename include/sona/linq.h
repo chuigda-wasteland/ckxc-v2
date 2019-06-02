@@ -1,11 +1,11 @@
-#ifndef LINQ_HPP
-#define LINQ_HPP
+#ifndef LINQ_H
+#define LINQ_H
 
-#include "iterator_plus.hpp"
-#include "optional.hpp"
-#include "range.hpp"
-#include "traits_plus.hpp"
-#include "util.hpp"
+#include "iterator_plus.h"
+#include "optional.h"
+#include "range.h"
+#include "traits_plus.h"
+#include "util.h"
 
 /// @attention Sona is for ckx, always for ckx and only for ckx.
 namespace sona {
@@ -572,4 +572,4 @@ public:
 
 } // namespace sona
 
-#endif // LINQ_HPP
+#endif // LINQ_H

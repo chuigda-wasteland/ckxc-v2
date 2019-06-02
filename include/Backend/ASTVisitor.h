@@ -1,13 +1,13 @@
 #ifndef ASTVISITOR_H
 #define ASTVISITOR_H
 
-#include "AST/DeclFwd.hpp"
-#include "AST/StmtFwd.hpp"
-#include "AST/ExprFwd.hpp"
-#include "AST/TypeFwd.hpp"
+#include "AST/DeclFwd.h"
+#include "AST/StmtFwd.h"
+#include "AST/ExprFwd.h"
+#include "AST/TypeFwd.h"
 
-#include "sona/pointer_plus.hpp"
-#include "sona/util.hpp"
+#include "sona/pointer_plus.h"
+#include "sona/util.h"
 
 namespace ckx {
 namespace Backend {

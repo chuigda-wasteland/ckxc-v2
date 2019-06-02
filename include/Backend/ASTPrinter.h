@@ -3,10 +3,10 @@
 
 #include "Backend/ASTVisitor.h"
 
-#include "AST/Decl.hpp"
-#include "AST/Expr.hpp"
-#include "AST/Stmt.hpp"
-#include "AST/Type.hpp"
+#include "AST/Decl.h"
+#include "AST/Expr.h"
+#include "AST/Stmt.h"
+#include "AST/Type.h"
 
 namespace ckx {
 namespace Backend {

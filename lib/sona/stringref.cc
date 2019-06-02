@@ -1,4 +1,4 @@
-#include "sona/stringref.hpp"
+#include "sona/stringref.h"
 
 std::unordered_map<std::string, int>&
 sona::impl_stc89c52::glob_container() noexcept {

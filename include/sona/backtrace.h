@@ -1,5 +1,5 @@
-#ifndef BACKTRACE_HPP
-#define BACKTRACE_HPP
+#ifndef BACKTRACE_H
+#define BACKTRACE_H
 
 #ifndef SONA_NO_DEBUG
 
@@ -48,4 +48,4 @@ public:
 
 #endif
 
-#endif // BACKTRACE_HPP
+#endif // BACKTRACE_H

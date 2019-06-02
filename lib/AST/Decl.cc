@@ -1,4 +1,4 @@
-#include "AST/Decl.hpp"
+#include "AST/Decl.h"
 
 namespace ckx {
 namespace AST {

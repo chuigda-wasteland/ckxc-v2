@@ -1,13 +1,13 @@
-#ifndef EXPR_HPP
-#define EXPR_HPP
+#ifndef EXPR_H
+#define EXPR_H
 
-#include "DeclBase.hpp"
-#include "ExprBase.hpp"
-#include "StmtBase.hpp"
+#include "DeclBase.h"
+#include "ExprBase.h"
+#include "StmtBase.h"
 
-#include "sona/either.hpp"
-#include "sona/optional.hpp"
-#include "sona/pointer_plus.hpp"
+#include "sona/either.h"
+#include "sona/optional.h"
+#include "sona/pointer_plus.h"
 #include <type_traits>
 #include <vector>
 
@@ -255,4 +255,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPR_HPP
+#endif // EXPR_H

@@ -1,7 +1,7 @@
-#ifndef ITERATOR_PLUS_HPP
-#define ITERATOR_PLUS_HPP
+#ifndef ITERATOR_PLUS_H
+#define ITERATOR_PLUS_H
 
-#include "util.hpp"
+#include "util.h"
 
 #include <iterator>
 #include <type_traits>
@@ -110,4 +110,4 @@ private:
 
 } // namespace sona
 
-#endif // ITERATOR_PLUS_HPP
+#endif // ITERATOR_PLUS_H

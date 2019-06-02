@@ -2,7 +2,7 @@
 #define RESULT_WRAPPER_H
 
 #include <memory>
-#include <sona/pointer_plus.hpp>
+#include <sona/pointer_plus.h>
 
 namespace sona {
 

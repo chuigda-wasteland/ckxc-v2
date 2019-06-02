@@ -1,11 +1,11 @@
-#ifndef SMALL_VECTOR_HPP
-#define SMALL_VECTOR_HPP
+#ifndef SMALL_VECTOR_H
+#define SMALL_VECTOR_H
 
 #include <cstddef>
 #include <cstring>
 #include <memory>
 
-#include "util.hpp"
+#include "util.h"
 
 namespace sona {
 
@@ -291,4 +291,4 @@ private:
 
 } // namespace sona
 
-#endif // SMALL_VECTOR_HPP
+#endif // SMALL_VECTOR_H

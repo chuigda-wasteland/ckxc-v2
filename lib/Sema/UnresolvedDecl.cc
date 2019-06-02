@@ -1,6 +1,6 @@
-#include "Sema/UnresolvedDecl.hpp"
+#include "Sema/UnresolvedDecl.h"
 #include "Sema/Scope.h"
-#include "AST/Type.hpp"
+#include "AST/Type.h"
 
 namespace ckx {
 namespace Sema {

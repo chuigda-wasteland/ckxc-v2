@@ -1,4 +1,4 @@
-#include "sona/backtrace.hpp"
+#include "sona/backtrace.h"
 
 #ifndef SONA_NO_DEBUG
 

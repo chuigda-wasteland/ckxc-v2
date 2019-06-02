@@ -3,7 +3,7 @@
 
 #include "Frontend/Token.h"
 #include "Basic/Diagnose.h"
-#include "sona/pointer_plus.hpp"
+#include "sona/pointer_plus.h"
 
 #include <memory>
 #include <string>

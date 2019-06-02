@@ -1,10 +1,10 @@
-#ifndef DECL_HPP
-#define DECL_HPP
+#ifndef DECL_H
+#define DECL_H
 
-#include "AST/ASTContext.hpp"
-#include "AST/DeclBase.hpp"
-#include "AST/ExprBase.hpp"
-#include "AST/TypeBase.hpp"
+#include "AST/ASTContext.h"
+#include "AST/DeclBase.h"
+#include "AST/ExprBase.h"
+#include "AST/TypeBase.h"
 
 #include <memory>
 #include <string>
@@ -262,4 +262,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // DECL_HPP
+#endif // DECL_H

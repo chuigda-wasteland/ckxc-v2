@@ -1,15 +1,15 @@
 #include "Sema/SemaPhase0.h"
 
 #include "Syntax/CST.h"
-#include "AST/Expr.hpp"
-#include "AST/Stmt.hpp"
-#include "AST/Decl.hpp"
-#include "AST/Type.hpp"
+#include "AST/Expr.h"
+#include "AST/Stmt.h"
+#include "AST/Decl.h"
+#include "AST/Type.h"
 
 #include <functional>
 #include <numeric>
 
-#include <sona/linq.hpp>
+#include <sona/linq.h>
 
 namespace ckx {
 namespace Sema {

@@ -1,14 +1,14 @@
-#ifndef DECLBASE_HPP
-#define DECLBASE_HPP
+#ifndef DECLBASE_H
+#define DECLBASE_H
 
-#include "AST/DeclFwd.hpp"
+#include "AST/DeclFwd.h"
 #include "Backend/ASTVisitor.h"
 
-#include "sona/linq.hpp"
-#include "sona/pointer_plus.hpp"
-#include "sona/small_vector.hpp"
-#include "sona/util.hpp"
-#include "sona/stringref.hpp"
+#include "sona/linq.h"
+#include "sona/pointer_plus.h"
+#include "sona/small_vector.h"
+#include "sona/util.h"
+#include "sona/stringref.h"
 #include <vector>
 
 namespace ckx {
@@ -87,4 +87,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // DECLBASE_HPP
+#endif // DECLBASE_H

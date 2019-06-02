@@ -1,4 +1,4 @@
-#include "VKTestCXX.hpp"
+#include "VKTestCXX.h"
 #include "Frontend/Lex.h"
 
 #include <string>

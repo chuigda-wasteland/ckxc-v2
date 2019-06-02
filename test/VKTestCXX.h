@@ -1,5 +1,5 @@
-#ifndef VKTESTCXX_HPP
-#define VKTESTCXX_HPP
+#ifndef VKTESTCXX_H
+#define VKTESTCXX_H
 
 #include <cmath>
 #include <cstdio>

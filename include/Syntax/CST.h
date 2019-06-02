@@ -4,13 +4,13 @@
 #include <vector>
 #include <string>
 
-#include <Basic/SourceRange.hpp>
+#include <Basic/SourceRange.h>
 #include <Syntax/Operator.h>
 
-#include <sona/range.hpp>
-#include <sona/linq.hpp>
-#include <sona/pointer_plus.hpp>
-#include <sona/stringref.hpp>
+#include <sona/range.h>
+#include <sona/linq.h>
+#include <sona/pointer_plus.h>
+#include <sona/stringref.h>
 
 namespace ckx {
 namespace Syntax {

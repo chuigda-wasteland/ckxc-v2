@@ -1,11 +1,11 @@
-#ifndef SOURCERANGE_HPP
-#define SOURCERANGE_HPP
+#ifndef SOURCERANGE_H
+#define SOURCERANGE_H
 
 #include <cstddef>
 #include <cstdint>
 
-#include "sona/either.hpp"
-#include "sona/small_vector.hpp"
+#include "sona/either.h"
+#include "sona/small_vector.h"
 
 namespace ckx {
 
@@ -40,4 +40,4 @@ using SourceRange = SingleSourceRange;
 
 } // namespace ckx
 
-#endif // SOURCERANGE_HPP
+#endif // SOURCERANGE_H

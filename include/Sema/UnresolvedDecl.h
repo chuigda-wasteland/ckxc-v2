@@ -1,9 +1,9 @@
-#ifndef UNRESOLVEDDECL_HPP
-#define UNRESOLVEDDECL_HPP
+#ifndef UNRESOLVEDDECL_H
+#define UNRESOLVEDDECL_H
 
 #include "Sema/Dependency.h"
 #include "Syntax/CSTFwd.h"
-#include "AST/Decl.hpp"
+#include "AST/Decl.h"
 
 #include <iosfwd>
 
@@ -182,4 +182,4 @@ private:
 } // namespace Sema
 } // namespace ckx
 
-#endif // UNRESOLVEDDECL_HPP
+#endif // UNRESOLVEDDECL_H

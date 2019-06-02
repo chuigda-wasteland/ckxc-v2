@@ -1,5 +1,5 @@
-#ifndef EXPRFWD_HPP
-#define EXPRFWD_HPP
+#ifndef EXPRFWD_H
+#define EXPRFWD_H
 
 namespace ckx {
 namespace AST {
@@ -22,4 +22,4 @@ class ParenExpr;
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPRFWD_HPP
+#endif // EXPRFWD_H

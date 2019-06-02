@@ -1,7 +1,7 @@
-#ifndef OPTIONAL_HPP
-#define OPTIONAL_HPP
+#ifndef OPTIONAL_H
+#define OPTIONAL_H
 
-#include "util.hpp"
+#include "util.h"
 #include <type_traits>
 
 namespace sona {
@@ -37,4 +37,4 @@ private:
 
 } // namespace sona
 
-#endif // OPTIONAL_HPP
+#endif // OPTIONAL_H

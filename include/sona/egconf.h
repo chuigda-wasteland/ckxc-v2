@@ -69,8 +69,8 @@
 
 */
 
-#ifndef EGCONF_HPP
-#define EGCONF_HPP
+#ifndef EGCONF_H
+#define EGCONF_H
 
 // redefinable configurations:
 #ifndef EGCONF_DUMP_TABSTOP

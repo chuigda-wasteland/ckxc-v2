@@ -1,12 +1,12 @@
-#ifndef STMT_HPP
-#define STMT_HPP
+#ifndef STMT_H
+#define STMT_H
 
-#include "DeclBase.hpp"
-#include "ExprBase.hpp"
-#include "StmtBase.hpp"
+#include "DeclBase.h"
+#include "ExprBase.h"
+#include "StmtBase.h"
 
-#include "sona/optional.hpp"
-#include "sona/pointer_plus.hpp"
+#include "sona/optional.h"
+#include "sona/pointer_plus.h"
 
 namespace ckx {
 namespace AST {
@@ -159,4 +159,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // STMT_HPP
+#endif // STMT_H

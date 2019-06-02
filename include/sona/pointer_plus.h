@@ -1,5 +1,5 @@
-#ifndef POINTER_PLUS_HPP
-#define POINTER_PLUS_HPP
+#ifndef POINTER_PLUS_H
+#define POINTER_PLUS_H
 
 #include <functional>
 #include <memory>
@@ -115,4 +115,4 @@ template <typename T> using refcount = std::shared_ptr<T>;
 
 } // namespace sona
 
-#endif // POINTER_PLUS_HPP
+#endif // POINTER_PLUS_H

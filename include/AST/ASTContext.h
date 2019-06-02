@@ -1,8 +1,8 @@
-#ifndef ASTCONTEXT_HPP
-#define ASTCONTEXT_HPP
+#ifndef ASTCONTEXT_H
+#define ASTCONTEXT_H
 
-#include "Type.hpp"
-#include "sona/pointer_plus.hpp"
+#include "Type.h"
+#include "sona/pointer_plus.h"
 #include <list>
 #include <unordered_set>
 
@@ -56,4 +56,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // ASTCONTEXT_HPP
+#endif // ASTCONTEXT_H

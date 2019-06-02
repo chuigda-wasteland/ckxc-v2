@@ -1,5 +1,5 @@
-#ifndef UTIL_HPP
-#define UTIL_HPP
+#ifndef UTIL_H
+#define UTIL_H
 
 #include <memory>
 
@@ -52,4 +52,4 @@ void assert_impl(bool cond, char const *file, int line, char const *func,
 #define sona_unreachable() sona_assert1(false, "Should be unreachable!")
 #define sona_unreachable1(desc) sona_assert1(false, desc)
 
-#endif // UTIL_HPP
+#endif // UTIL_H

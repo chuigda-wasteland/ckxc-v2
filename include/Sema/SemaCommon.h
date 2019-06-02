@@ -2,17 +2,17 @@
 #define SEMACOMMON_H
 
 #include "Sema/Scope.h"
-#include "Sema/UnresolvedDecl.hpp"
+#include "Sema/UnresolvedDecl.h"
 #include "Sema/Dependency.h"
 
 #include "Basic/Diagnose.h"
 #include "Syntax/CST.h"
-#include "AST/DeclFwd.hpp"
-#include "AST/ExprFwd.hpp"
-#include "AST/StmtFwd.hpp"
-#include "AST/TypeFwd.hpp"
+#include "AST/DeclFwd.h"
+#include "AST/ExprFwd.h"
+#include "AST/StmtFwd.h"
+#include "AST/TypeFwd.h"
 
-#include "sona/pointer_plus.hpp"
+#include "sona/pointer_plus.h"
 
 namespace ckx {
 namespace Sema {

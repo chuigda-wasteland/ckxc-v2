@@ -1,6 +1,6 @@
-#include "AST/Type.hpp"
-#include "AST/Decl.hpp"
-#include "sona/util.hpp"
+#include "AST/Type.h"
+#include "AST/Decl.h"
+#include "sona/util.h"
 
 #include <algorithm>
 #include <numeric>
