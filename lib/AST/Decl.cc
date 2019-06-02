@@ -3,18 +3,33 @@
 namespace ckx {
 namespace AST {
 
-sona::ref_ptr<Decl const>
-DeclContext::LookupDecl(sona::string_ref const& name) const {
-  (void)name;
-  sona_unreachable();
-  return nullptr;
+void DeclContext::LookupDeclContexts(
+    const sona::string_ref &name,
+    std::vector<sona::ref_ptr<const Decl>> &recv) const {
+  for (sona::ref_ptr<Decl const> decl : GetDecls()) {
+    if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit
+         || decl->GetDeclKind() == AST::Decl::DK_Enum
+         || decl->GetDeclKind() == AST::Decl::DK_ADT
+         || decl->GetDeclKind() == AST::Decl::DK_Class)
+        && decl.cast_unsafe<AST::NamedDecl const>()->GetName() == name) {
+      recv.push_back(decl);
+    }
+  }
 }
 
-sona::ref_ptr<Decl const>
-DeclContext::LookupDeclLocally(sona::string_ref const& name) const {
-  (void)name;
-  sona_unreachable();
-  return nullptr;
+void DeclContext::LookupTypeDecl(
+    const sona::string_ref &name,
+    std::vector<sona::ref_ptr<const Decl> > &recv) const {
+  for (sona::ref_ptr<Decl const> decl : GetDecls()) {
+    if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit
+         || decl->GetDeclKind() == AST::Decl::DK_Enum
+         || decl->GetDeclKind() == AST::Decl::DK_ADT
+         || decl->GetDeclKind() == AST::Decl::DK_Class
+         || decl->GetDeclKind() == AST::Decl::DK_Using)
+        && decl.cast_unsafe<AST::NamedDecl const>()->GetName() == name) {
+      recv.push_back(decl);
+    }
+  }
 }
 
 sona::ref_ptr<DeclContext> Decl::CastAsDeclContext() noexcept {

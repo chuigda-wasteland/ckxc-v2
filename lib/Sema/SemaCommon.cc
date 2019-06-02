@@ -92,16 +92,7 @@ SemaCommon::ChooseDeclContext(std::shared_ptr<Scope> scope,
 
   for (auto it = r1.begin() + 1; it != r1.end(); ++it) {
     std::vector<sona::ref_ptr<AST::Decl const>> collectedDecls;
-    for (auto decl : context->GetDecls()) {
-      if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit
-           || decl->GetDeclKind() == AST::Decl::DK_Enum
-           || decl->GetDeclKind() == AST::Decl::DK_ADT
-           || decl->GetDeclKind() == AST::Decl::DK_Class)
-          && decl.cast_unsafe<AST::NamedDecl const>()->GetName()
-             == (*it).first) {
-        collectedDecls.push_back(decl);
-      }
-    }
+    context->LookupDeclContexts((*it).first, collectedDecls);
     if (collectedDecls.size() < 1) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrNotScope, {(*it).first}),
@@ -141,20 +132,10 @@ SemaCommon::LookupType(std::shared_ptr<Scope> scope,
     return nullptr;
   }
 
-  std::vector<sona::ref_ptr<AST::Type const>> collectedTypes;
-  for (auto decl : context->GetDecls()) {
-    if ((decl->GetDeclKind() == AST::Decl::DK_Class
-         || decl->GetDeclKind() == AST::Decl::DK_Enum
-         || decl->GetDeclKind() == AST::Decl::DK_ADT
-         || decl->GetDeclKind() == AST::Decl::DK_Using)
-        && decl.cast_unsafe<AST::NamedDecl const>()->GetName()
-           == identifier.GetIdentifier()) {
-      collectedTypes.push_back
-          (decl.cast_unsafe<AST::TypeDecl const>()->GetTypeForDecl());
-    }
-  }
+  std::vector<sona::ref_ptr<AST::Decl const>> collectedDecls;
+  context->LookupTypeDecl(identifier.GetIdentifier(), collectedDecls);
 
-  if (collectedTypes.size() < 1) {
+  if (collectedDecls.size() < 1) {
     if (shouldDiag) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrNotDeclared,
@@ -164,7 +145,7 @@ SemaCommon::LookupType(std::shared_ptr<Scope> scope,
     return nullptr;
   }
 
-  if (collectedTypes.size() > 1) {
+  if (collectedDecls.size() > 1) {
     if (shouldDiag) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrAmbiguous,
@@ -174,7 +155,8 @@ SemaCommon::LookupType(std::shared_ptr<Scope> scope,
     return nullptr;
   }
 
-  return collectedTypes.front();
+  return collectedDecls.front().cast_unsafe<AST::TypeDecl const>()
+                       ->GetTypeForDecl();
 }
 
 } // namespace Sema

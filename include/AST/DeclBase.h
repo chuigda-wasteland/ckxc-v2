@@ -66,10 +66,12 @@ public:
     m_Decls.push_back(std::move(decl));
   }
 
-  sona::ref_ptr<AST::Decl const>
-  LookupDecl(sona::string_ref const& name) const;
-  sona::ref_ptr<AST::Decl const>
-  LookupDeclLocally(sona::string_ref const& name) const;
+  void LookupDeclContexts(
+         sona::string_ref const& name,
+         std::vector<sona::ref_ptr<Decl const>> &recv) const;
+
+  void LookupTypeDecl(sona::string_ref const& name,
+                      std::vector<sona::ref_ptr<Decl const>> &recv) const;
 
   auto GetDecls() const noexcept {
     (void)m_DeclKind;
