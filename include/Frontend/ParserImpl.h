@@ -50,7 +50,7 @@ protected:
 
   void ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators);
   void ParseDataConstructor(
-      std::vector<Syntax::ADTDecl::DataConstructor>& dataConstructors);
+      std::vector<Syntax::ADTDecl::ValueConstructor>& dataConstructors);
 
   sona::owner<Syntax::Type> ParseBuiltinType();
   sona::owner<Syntax::Type> ParseUserDefinedType();
@@ -60,6 +60,8 @@ protected:
   SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
 private:
+  sona::optional<std::pair<sona::string_ref, SourceRange>> ExpectTagId();
+
   Token const& CurrentToken() const noexcept;
   Token const& PeekToken(size_t peekCount = 1) const noexcept;
   void ConsumeToken() noexcept;
@@ -75,11 +77,11 @@ private:
   sona::string_ref PrettyPrintToken(Token const &token) const;
   sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) const;
 
-  static Syntax::BasicType::TypeKind
+  static Syntax::BuiltinType::TypeKind
   EvaluateIntTypeKind(std::int64_t i) noexcept;
-  static Syntax::BasicType::TypeKind
+  static Syntax::BuiltinType::TypeKind
   EvaluateUIntTypeKind(std::uint64_t u) noexcept;
-  static Syntax::BasicType::TypeKind
+  static Syntax::BuiltinType::TypeKind
   EvaluateFloatTypeKind(double d) noexcept;
 
   Diag::DiagnosticEngine &m_Diag;

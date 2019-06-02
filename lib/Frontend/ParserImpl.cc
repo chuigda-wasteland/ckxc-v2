@@ -1,7 +1,14 @@
 #include "Frontend/ParserImpl.h"
+#include "sona/global_counter.h"
 
 namespace ckx {
 namespace Frontend {
+
+#define FIRST_DECLS Token::TK_EOI
+
+static std::string CreateAnonymousName() {
+  return "<anonymous id=\"" + std::to_string(sona::global_count()) + "\"/>";
+}
 
 sona::owner<Syntax::TransUnit>
 ParserImpl::ParseTransUnit(
@@ -54,7 +61,6 @@ sona::owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
   ConsumeToken();
 
   if (!Expect(Token::TK_ID)) {
-    /// add proper skipping
     return nullptr;
   }
 
@@ -62,9 +68,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
-    return nullptr;
-  }
+  ExpectAndConsume(Token::TK_SYM_COLON);
 
   sona::owner<Syntax::Type> type = ParseType();
   return new Syntax::VarDecl(name, std::move(type), defRange, nameRange);
@@ -75,18 +79,25 @@ sona::owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
   SourceRange classRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  if (!Expect(Token::TK_ID)) {
-    /// add proper skipping
+  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  idResult = ExpectTagId();
+  if (!idResult.has_value()) {
     return nullptr;
   }
-
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
-  SourceRange nameRange = CurrentToken().GetSourceRange();
-  ConsumeToken();
+  sona::string_ref name = idResult.value().first;
+  SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
-    /// @todo add proper skipping
-    return nullptr;
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_SEMI) {
+      m_Diag.Diag(Diag::DIR_Note,
+                  Diag::Format(Diag::DMT_NoteNoForwardDecl, {}),
+                  CurrentToken().GetSourceRange());
+      ConsumeToken();
+      return new Syntax::ClassDecl(name, {}, classRange, nameRange);
+    }
+    else {
+      return nullptr;
+    }
   }
 
   std::vector<sona::owner<Syntax::Decl>> decls;
@@ -99,7 +110,14 @@ sona::owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
       ExpectAndConsume(Token::TK_SYM_SEMI);
       break;
     case Token::TK_KW_class: decls.push_back(ParseClassDecl()); break;
-    case Token::TK_KW_enum: decls.push_back(ParseEnumDecl()); break;
+    case Token::TK_KW_enum:
+      if (PeekToken().GetTokenKind() == Token::TK_KW_class) {
+        decls.push_back(ParseADTDecl());
+      }
+      else {
+        decls.push_back(ParseEnumDecl());
+      }
+      break;
     default:
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrExpectedGot, {
@@ -121,24 +139,38 @@ sona::owner<Syntax::Decl> ParserImpl::ParseEnumDecl() {
   SourceRange enumRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  if (!Expect(Token::TK_ID)) {
-    /// add proper skipping
+  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  idResult = ExpectTagId();
+  if (!idResult.has_value()) {
     return nullptr;
   }
-
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
-  SourceRange nameRange = CurrentToken().GetSourceRange();
-  ConsumeToken();
+  sona::string_ref name = idResult.value().first;
+  SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
-    /// @todo add proper skipping
-    return nullptr;
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_SEMI) {
+      m_Diag.Diag(Diag::DIR_Note,
+                  Diag::Format(Diag::DMT_NoteNoForwardDecl, {}),
+                  CurrentToken().GetSourceRange());
+      ConsumeToken();
+      return new Syntax::EnumDecl(name, {}, enumRange, nameRange);
+    }
+    else {
+      return nullptr;
+    }
   }
 
   std::vector<Syntax::EnumDecl::Enumerator> enumerators;
 
   while (CurrentToken().GetTokenKind() != Token::TK_EOI
          && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
+    if (CurrentToken().GetTokenKind() != Token::TK_ID) {
+      SkipToAnyOf({ Token::TK_ID, Token::TK_SYM_COMMA, Token::TK_SYM_RBRACE });
+      if (CurrentToken().GetTokenKind() == Token::TK_SYM_COMMA) {
+        ConsumeToken();
+        continue;
+      }
+    }
     ParseEnumerator(enumerators);
     ExpectAndConsume(Token::TK_SYM_SEMI);
   }
@@ -157,23 +189,38 @@ sona::owner<Syntax::Decl> ParserImpl::ParseADTDecl() {
   SourceRange classRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  if (!Expect(Token::TK_ID)) {
-    /// add proper skipping
+  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  idResult = ExpectTagId();
+  if (!idResult.has_value()) {
     return nullptr;
   }
-
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
-  SourceRange nameRange = CurrentToken().GetSourceRange();
-  ConsumeToken();
+  sona::string_ref name = idResult.value().first;
+  SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
-    return nullptr;
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_SEMI) {
+      m_Diag.Diag(Diag::DIR_Note,
+                  Diag::Format(Diag::DMT_NoteNoForwardDecl, {}),
+                  CurrentToken().GetSourceRange());
+      ConsumeToken();
+      return new Syntax::ADTDecl(name, {}, enumRange, classRange, nameRange);
+    }
+    else {
+      return nullptr;
+    }
   }
 
-  std::vector<Syntax::ADTDecl::DataConstructor> dataConstructors;
+  std::vector<Syntax::ADTDecl::ValueConstructor> dataConstructors;
 
   while (CurrentToken().GetTokenKind() != Token::TK_EOI
          && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
+    if (CurrentToken().GetTokenKind() != Token::TK_ID) {
+      SkipToAnyOf({ Token::TK_ID, Token::TK_SYM_SEMI, Token::TK_SYM_RBRACE });
+      if (CurrentToken().GetTokenKind() == Token::TK_SYM_SEMI) {
+        ConsumeToken();
+        continue;
+      }
+    }
     ParseDataConstructor(dataConstructors);
     ExpectAndConsume(Token::TK_SYM_SEMI);
   }
@@ -267,6 +314,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
 
   return new Syntax::UsingDecl(name, std::move(aliasee), usingRange, eqLoc);
 }
+
 void ParserImpl::
 ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
   if (!Expect(Token::TK_ID)) {
@@ -286,7 +334,7 @@ ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
   ConsumeToken();
 
   if (!Expect(Token::TK_LIT_INT)) {
-    return;
+    SkipToAnyOf({ Token::TK_ID, Token::TK_SYM_COMMA, Token::TK_SYM_RBRACE });
   }
 
   int64_t value = CurrentToken().GetIntValueUnsafe();
@@ -297,7 +345,7 @@ ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
 }
 
 void ParserImpl::ParseDataConstructor(
-  std::vector<Syntax::ADTDecl::DataConstructor> &dataConstructors) {
+  std::vector<Syntax::ADTDecl::ValueConstructor> &dataConstructors) {
   if (!Expect(Token::TK_ID)) {
     return;
   }
@@ -316,7 +364,21 @@ void ParserImpl::ParseDataConstructor(
   if (underlyingType.borrow() == nullptr) {
     return;
   }
-  ExpectAndConsume(Token::TK_SYM_RPAREN);
+  if (!ExpectAndConsume(Token::TK_SYM_RPAREN)) {
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_COMMA) {
+      m_Diag.Diag(Diag::DIR_Note,
+                  Diag::Format(Diag::DMT_NoteOneTypeInValueCtor, {}),
+                  CurrentToken().GetSourceRange());
+      dataConstructors.emplace_back(name, std::move(underlyingType), nameRange);
+    }
+
+    SkipToAnyOf({Token::TK_SYM_RPAREN, Token::TK_SYM_RBRACE,
+                 Token::TK_ID, Token::TK_SYM_SEMI});
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_RPAREN) {
+      ConsumeToken();
+    }
+    return;
+  }
 
   dataConstructors.emplace_back(name, std::move(underlyingType), nameRange);
 }
@@ -343,8 +405,9 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseExpr() {
-  /// @todo
-  return nullptr;
+  /// @todo this needs a bit fix to work. BianryOperator now does not contain
+  /// assignment operator.
+  return ParseBinaryExpr(Syntax::PrecOf(Syntax::BinaryOperator::BOP_Eq));
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseLiteralExpr() {
@@ -554,28 +617,28 @@ ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
 }
 
 sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
-  Syntax::BasicType::TypeKind kind;
+  Syntax::BuiltinType::TypeKind kind;
   switch (CurrentToken().GetTokenKind()) {
   case Token::TK_KW_int8:
-    kind = Syntax::BasicType::TypeKind::TK_Int8; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Int8; break;
   case Token::TK_KW_int16:
-    kind = Syntax::BasicType::TypeKind::TK_Int16; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Int16; break;
   case Token::TK_KW_int32:
-    kind = Syntax::BasicType::TypeKind::TK_Int32; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Int32; break;
   case Token::TK_KW_int64:
-    kind = Syntax::BasicType::TypeKind::TK_Int64; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Int64; break;
   case Token::TK_KW_uint8:
-    kind = Syntax::BasicType::TypeKind::TK_UInt8; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_UInt8; break;
   case Token::TK_KW_uint16:
-    kind = Syntax::BasicType::TypeKind::TK_UInt16; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_UInt16; break;
   case Token::TK_KW_uint32:
-    kind = Syntax::BasicType::TypeKind::TK_UInt32; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_UInt32; break;
   case Token::TK_KW_uint64:
-    kind = Syntax::BasicType::TypeKind::TK_UInt64; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_UInt64; break;
   case Token::TK_KW_float:
-    kind = Syntax::BasicType::TypeKind::TK_Float; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Float; break;
   case Token::TK_KW_double:
-    kind = Syntax::BasicType::TypeKind::TK_Double; break;
+    kind = Syntax::BuiltinType::TypeKind::TK_Double; break;
   default:
     return nullptr;
   }
@@ -583,7 +646,7 @@ sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   SourceRange range = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  return new Syntax::BasicType(kind, range);
+  return new Syntax::BuiltinType(kind, range);
 }
 
 sona::owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
@@ -630,6 +693,28 @@ void ParserImpl::
 SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream) {
   m_ParsingTokenStream = tokenStream;
   m_Index = 0;
+}
+
+sona::optional<std::pair<sona::string_ref, SourceRange>>
+ParserImpl::ExpectTagId() {
+  if (!Expect(Token::TK_ID)) {
+    if (CurrentToken().GetTokenKind() == Token::TK_SYM_LBRACE) {
+      m_Diag.Diag(Diag::DIR_Note,
+                  Diag::Format(Diag::DMT_NoteNoAnonymousDecl, {}),
+                  CurrentToken().GetSourceRange());
+      sona::string_ref name = CreateAnonymousName();
+      SourceRange range = CurrentToken().GetSourceRange();
+      return std::make_pair(name, range);
+    }
+    else {
+      return sona::empty_optional();
+    }
+  }
+
+  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange range = CurrentToken().GetSourceRange();
+  ConsumeToken();
+  return std::make_pair(name, range);
 }
 
 Token const& ParserImpl::CurrentToken() const noexcept {
@@ -683,47 +768,47 @@ ParserImpl::PrettyPrintTokenKind(Token::TokenKind tokenKind) const {
   return "";
 }
 
-Syntax::BasicType::TypeKind
+Syntax::BuiltinType::TypeKind
 ParserImpl::EvaluateIntTypeKind(int64_t i) noexcept {
   if (i <= std::numeric_limits<int8_t>::max()
       && i >= std::numeric_limits<int8_t>::min()) {
-    return Syntax::BasicType::TypeKind::TK_Int8;
+    return Syntax::BuiltinType::TypeKind::TK_Int8;
   }
   else if (i < std::numeric_limits<int16_t>::max()
            && i >= std::numeric_limits<int16_t>::min()) {
-    return Syntax::BasicType::TypeKind::TK_Int16;
+    return Syntax::BuiltinType::TypeKind::TK_Int16;
   }
   else if (i < std::numeric_limits<int32_t>::max()
            && i >= std::numeric_limits<int32_t>::min()) {
-    return Syntax::BasicType::TypeKind::TK_Int32;
+    return Syntax::BuiltinType::TypeKind::TK_Int32;
   }
   else {
-    return Syntax::BasicType::TypeKind::TK_Int64;
+    return Syntax::BuiltinType::TypeKind::TK_Int64;
   }
 }
 
-Syntax::BasicType::TypeKind
+Syntax::BuiltinType::TypeKind
 ParserImpl::EvaluateUIntTypeKind(uint64_t u) noexcept {
   if (u <= std::numeric_limits<uint8_t>::max()
       /* && u >= std::numeric_limits<uint8_t>::min() */) {
-    return Syntax::BasicType::TypeKind::TK_UInt8;
+    return Syntax::BuiltinType::TypeKind::TK_UInt8;
   }
   else if (u < std::numeric_limits<uint16_t>::max()
            /* && u >= std::numeric_limits<uint16_t>::min() */) {
-    return Syntax::BasicType::TypeKind::TK_UInt16;
+    return Syntax::BuiltinType::TypeKind::TK_UInt16;
   }
   else if (u < std::numeric_limits<uint32_t>::max()
            /* && u >= std::numeric_limits<uint32_t>::min() */) {
-    return Syntax::BasicType::TypeKind::TK_UInt32;
+    return Syntax::BuiltinType::TypeKind::TK_UInt32;
   }
   else {
-    return Syntax::BasicType::TypeKind::TK_UInt64;
+    return Syntax::BuiltinType::TypeKind::TK_UInt64;
   }
 }
 
-Syntax::BasicType::TypeKind
+Syntax::BuiltinType::TypeKind
 ParserImpl::EvaluateFloatTypeKind(double) noexcept {
-  return Syntax::BasicType::TypeKind::TK_Double;
+  return Syntax::BuiltinType::TypeKind::TK_Double;
 }
 
 sona::string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
@@ -755,14 +840,15 @@ sona::string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
 }
 
 void ParserImpl::SkipTo(Token::TokenKind tokenKind) {
-  SkipToAnyOf({ tokenKind, Token::TK_EOI });
+  SkipToAnyOf({ tokenKind  });
 }
 
 void ParserImpl::
 SkipToAnyOf(const std::initializer_list<Token::TokenKind>& tokenKinds) {
   SkipUntil([this, &tokenKinds] {
-    return std::find(tokenKinds.begin(), tokenKinds.end(),
-                     CurrentToken().GetTokenKind()) != tokenKinds.end();
+    return (std::find(tokenKinds.begin(), tokenKinds.end(),
+                     CurrentToken().GetTokenKind()) != tokenKinds.end())
+           || (CurrentToken().GetTokenKind() == Token::TK_EOI);
   });
 }
 

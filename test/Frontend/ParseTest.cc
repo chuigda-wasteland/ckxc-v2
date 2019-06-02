@@ -175,7 +175,7 @@ void test4() {
   sona::owner<Syntax::LiteralExpr> literalExpr =
       e.cast_unsafe<Syntax::LiteralExpr>();
 
-  VkAssertEquals(Syntax::BasicType::TypeKind::TK_Int32,
+  VkAssertEquals(Syntax::BuiltinType::TypeKind::TK_Int32,
                  literalExpr.borrow()->GetLiteralTypeKind());
   VkAssertEquals(123123,
                  literalExpr.borrow()->GetAsIntUnsafe());
@@ -201,7 +201,7 @@ void test5() {
   sona::owner<Syntax::UsingDecl> usingDecl =
       decl.cast_unsafe<Syntax::UsingDecl>();
   VkAssertEquals("ty", usingDecl.borrow()->GetName());
-  VkAssertEquals(Syntax::Type::NodeKind::CNK_BasicType,
+  VkAssertEquals(Syntax::Type::NodeKind::CNK_BuiltinType,
                  usingDecl.borrow()->GetAliasee()->GetNodeKind());
 }
 

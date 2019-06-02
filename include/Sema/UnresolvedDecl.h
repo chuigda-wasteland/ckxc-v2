@@ -110,7 +110,7 @@ class IncompleteEnumClassInternDecl : public IncompleteDecl {
 public:
   IncompleteEnumClassInternDecl(
       sona::ref_ptr<AST::Decl> halfway,
-      sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> concrete,
+      sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> concrete,
       std::vector<Dependency> &&dependencies,
       std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope, IDT_ECC),
@@ -124,7 +124,7 @@ public:
     return m_Halfway;
   }
 
-  sona::ref_ptr<Syntax::ADTDecl::DataConstructor const>
+  sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const>
   GetConcrete() const noexcept {
     return m_Concrete;
   }
@@ -133,7 +133,7 @@ public:
 
 private:
   sona::ref_ptr<AST::Decl> m_Halfway;
-  sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> m_Concrete;
+  sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> m_Concrete;
 };
 
 class IncompleteUsingDecl : public IncompleteDecl {

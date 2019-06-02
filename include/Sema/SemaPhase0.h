@@ -40,7 +40,7 @@ protected:
 #include "Syntax/Nodes.def"
 
   std::pair<sona::owner<AST::Decl>, bool>
-  ActOnADTConstructor(sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> dc);
+  ActOnADTConstructor(sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> dc);
 
   sona::ref_ptr<IncompleteDecl>
   SearchInUnfinished(sona::ref_ptr<AST::Decl const> decl);

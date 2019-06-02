@@ -14,8 +14,7 @@ enum class UnaryOperator {
   UOP_Deref,
   UOP_Positive,
   UOP_Negative,
-  UOP_BitReverse,
-  UOP_LogicNot
+  UOP_BitReverse, UOP_LogicNot
 };
 
 enum class BinaryOperator {

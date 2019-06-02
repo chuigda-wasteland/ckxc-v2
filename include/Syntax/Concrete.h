@@ -174,7 +174,7 @@ class Expr : public Node {
 public: Expr(NodeKind nodeKind) : Node(nodeKind) {}
 };
 
-class BasicType : public Type {
+class BuiltinType : public Type {
 public:
   enum class TypeKind {
     TK_Int8, TK_Int16, TK_Int32, TK_Int64,
@@ -183,8 +183,8 @@ public:
     TK_Void
   };
 
-  BasicType(TypeKind typeKind, SingleSourceRange const& range)
-    : Type(NodeKind::CNK_BasicType),
+  BuiltinType(TypeKind typeKind, SingleSourceRange const& range)
+    : Type(NodeKind::CNK_BuiltinType),
       m_TypeKind(typeKind), m_Range(range) {}
 
   TypeKind GetTypeKind() const noexcept { return m_TypeKind; }
@@ -516,15 +516,15 @@ private:
 
 class ADTDecl : public Decl {
 public:
-  class DataConstructor {
+  class ValueConstructor {
   public:
-    DataConstructor(sona::string_ref const& name,
+    ValueConstructor(sona::string_ref const& name,
                     sona::owner<Type> &&underlyingType,
                     SingleSourceRange const& nameRange)
       : m_Name(name), m_UnderlyingType(std::move(underlyingType)),
         m_NameRange(nameRange) {}
 
-    DataConstructor(sona::string_ref const& name,
+    ValueConstructor(sona::string_ref const& name,
                     SingleSourceRange const& nameRange)
       : m_Name(name), m_UnderlyingType(nullptr), m_NameRange(nameRange) {}
 
@@ -547,7 +547,7 @@ public:
   };
 
   ADTDecl(sona::string_ref const& name,
-          std::vector<DataConstructor> &&constructors,
+          std::vector<ValueConstructor> &&constructors,
           SingleSourceRange const& enumRange,
           SingleSourceRange const& classRange,
           SingleSourceRange const& nameRange)
@@ -561,7 +561,7 @@ public:
      return m_Name;
   }
 
-  std::vector<DataConstructor> const& GetConstructors() const noexcept {
+  std::vector<ValueConstructor> const& GetConstructors() const noexcept {
     return m_Constructors;
   }
 
@@ -579,7 +579,7 @@ public:
 
 private:
   sona::string_ref m_Name;
-  std::vector<DataConstructor> m_Constructors;
+  std::vector<ValueConstructor> m_Constructors;
   SingleSourceRange m_EnumRange;
   SingleSourceRange m_ClassRange;
   SingleSourceRange m_NameRange;
@@ -710,47 +710,47 @@ private:
 
 class LiteralExpr : public Expr {
 public:
-  LiteralExpr(std::int64_t intValue, BasicType::TypeKind ofType,
+  LiteralExpr(std::int64_t intValue, BuiltinType::TypeKind ofType,
               SourceRange const& range)
     : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
     m_Value.IntValue = intValue;
   }
 
-  LiteralExpr(std::uint64_t uIntValue, BasicType::TypeKind ofType,
+  LiteralExpr(std::uint64_t uIntValue, BuiltinType::TypeKind ofType,
               SourceRange const& range)
     : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
     m_Value.UIntValue = uIntValue;
   }
 
-  LiteralExpr(double floatValue, BasicType::TypeKind ofType,
+  LiteralExpr(double floatValue, BuiltinType::TypeKind ofType,
               SourceRange const& range)
     : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
     m_Value.FloatValue = floatValue;
   }
 
-  BasicType::TypeKind GetLiteralTypeKind() const noexcept {
+  BuiltinType::TypeKind GetLiteralTypeKind() const noexcept {
     return m_TypeKind;
   }
 
   std::int64_t GetAsIntUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BasicType::TypeKind::TK_Int8
-                || m_TypeKind == BasicType::TypeKind::TK_Int16
-                || m_TypeKind == BasicType::TypeKind::TK_Int32
-                || m_TypeKind == BasicType::TypeKind::TK_Int64);
+    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_Int8
+                || m_TypeKind == BuiltinType::TypeKind::TK_Int16
+                || m_TypeKind == BuiltinType::TypeKind::TK_Int32
+                || m_TypeKind == BuiltinType::TypeKind::TK_Int64);
     return m_Value.IntValue;
   }
 
   std::uint64_t GetAsUIntUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BasicType::TypeKind::TK_UInt8
-                || m_TypeKind == BasicType::TypeKind::TK_UInt16
-                || m_TypeKind == BasicType::TypeKind::TK_UInt32
-                || m_TypeKind == BasicType::TypeKind::TK_UInt64);
+    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_UInt8
+                || m_TypeKind == BuiltinType::TypeKind::TK_UInt16
+                || m_TypeKind == BuiltinType::TypeKind::TK_UInt32
+                || m_TypeKind == BuiltinType::TypeKind::TK_UInt64);
     return m_Value.UIntValue;
   }
 
   double GetAsFloatUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BasicType::TypeKind::TK_Float
-                || m_TypeKind == BasicType::TypeKind::TK_Double);
+    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_Float
+                || m_TypeKind == BuiltinType::TypeKind::TK_Double);
     return m_Value.FloatValue;
   }
 
@@ -764,7 +764,7 @@ private:
     std::uint64_t UIntValue;
     double FloatValue;
   } m_Value;
-  BasicType::TypeKind m_TypeKind;
+  BuiltinType::TypeKind m_TypeKind;
   SourceRange m_Range;
 };
 

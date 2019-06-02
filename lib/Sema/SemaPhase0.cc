@@ -162,7 +162,7 @@ SemaPhase0::ActOnDecl(sona::ref_ptr<const Syntax::Decl> decl) {
 }
 
 sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
-SemaPhase0::ResolveBasicType(sona::ref_ptr<Syntax::BasicType const> bty) {
+SemaPhase0::ResolveBuiltinType(sona::ref_ptr<Syntax::BuiltinType const> bty) {
   return SemaCommon::ResolveBasicTypeImpl(bty);
 }
 
@@ -318,7 +318,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
   PushDeclContext(enumClassDecl.borrow().cast_unsafe<AST::DeclContext>());
   PushScope(Scope::SF_ADT);
 
-  for (sona::ref_ptr<Syntax::ADTDecl::DataConstructor const> constructor
+  for (sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> constructor
        : decl->GetConstructors()) {
     auto result = ActOnADTConstructor(constructor);
     if (!result.second) {
@@ -350,7 +350,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnADTConstructor(
-    sona::ref_ptr<const Syntax::ADTDecl::DataConstructor> dc) {
+    sona::ref_ptr<const Syntax::ADTDecl::ValueConstructor> dc) {
   auto typeResult = ResolveType(dc->GetUnderlyingType());
   sona::owner<AST::Decl> ret0 =
       typeResult.contains_t1() ?

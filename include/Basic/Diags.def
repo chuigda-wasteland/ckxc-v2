@@ -16,6 +16,10 @@ DIAG_TEMPLATE(WarnInvalidConversion,
 /// Syntactic issues
 DIAG_TEMPLATE(ErrExpectedGot, "Unexpected {}, expected {}")
 DIAG_TEMPLATE(ErrUnexpectedInContext, "Unexpected token '{}' in {} context")
+DIAG_TEMPLATE(NoteNoAnonymousDecl, "There is no anonymous decl in ckx-lang")
+DIAG_TEMPLATE(NoteNoForwardDecl, "There is no normal forward decl in ckx-lang")
+DIAG_TEMPLATE(NoteOneTypeInValueCtor, \
+              "Sorry, only one type in one value-ctor is allowed")
 
 /// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")
