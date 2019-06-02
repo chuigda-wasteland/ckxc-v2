@@ -34,5 +34,6 @@ DIAG_TEMPLATE(ErrFuncCannotOverload, "two impls of '{}' cannot overload")
 DIAG_TEMPLATE(ErrNotScope, "{} is not a class, enum, ADT or module")
 DIAG_TEMPLATE(ErrAmbiguousScope, "multiple {} found in {}")
 DIAG_TEMPLATE(ErrAmbiguous, "multiple {} found")
+DIAG_TEMPLATE(ErrCircularDepend, "circular dependency while resolving {}")
 
 #undef DIAG_TEMPLATE

@@ -32,38 +32,33 @@ SemaPhase0::ActOnTransUnit(sona::ref_ptr<Syntax::TransUnit> transUnit) {
 }
 
 void SemaPhase0::PostSubstituteDepends() {
-  for (auto &ivar : m_IncompleteVars) {
-    std::shared_ptr<Scope> inScope = ivar.second.GetEnclosingScope();
-    for (auto &dep : ivar.second.GetDependencies()) {
+  auto r1 = sona::linq::from_container(m_IncompleteVars).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r2 = sona::linq::from_container(m_IncompleteTags).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r3 = sona::linq::from_container(m_IncompleteUsings).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+  auto r4 = sona::linq::from_container(m_IncompleteValueCtors).
+            transform([](auto& p) -> sona::ref_ptr<IncompleteDecl>
+                      { return static_cast<IncompleteDecl*>(&(p.second)); });
+
+  for (sona::ref_ptr<IncompleteDecl>
+       incomplete : r1.concat_with(r2).concat_with(r3).concat_with(r4)) {
+    std::shared_ptr<Scope> inScope = incomplete->GetEnclosingScope();
+    for (auto &dep : incomplete->GetDependencies()) {
       if (dep.IsDependByname()) {
         sona::ref_ptr<AST::Type const> type =
             LookupType(inScope, dep.GetIdUnsafe(), true);
-        sona::ref_ptr<AST::Decl const> decl =
-            AST::GetDeclOfUserDefinedType(type);
-         dep.ReplaceNameWithDecl(decl);
-      }
-    }
-  }
-
-  for (auto &iusing : m_IncompleteUsings) {
-    std::shared_ptr<Scope> inScope = iusing.second.GetEnclosingScope();
-    for (auto &dep : iusing.second.GetDependencies()) {
-      if (dep.IsDependByname()) {
-        sona::ref_ptr<AST::Type const> type =
-            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
-        sona::ref_ptr<AST::Decl const> decl =
-            AST::GetDeclOfUserDefinedType(type);
-         dep.ReplaceNameWithDecl(decl);
-      }
-    }
-  }
-
-  for (auto &idata : m_IncompleteValueCtors) {
-    std::shared_ptr<Scope> inScope = idata.second.GetEnclosingScope();
-    for (auto &dep : idata.second.GetDependencies()) {
-      if (dep.IsDependByname()) {
-        sona::ref_ptr<AST::Type const> type =
-            inScope->LookupType(dep.GetIdUnsafe().GetIdentifier());
+        if (type == nullptr) {
+          m_Diag.Diag(Diag::DIR_Error,
+                      Diag::Format(Diag::DMT_ErrNotDeclared,
+                      {dep.GetIdUnsafe().GetIdentifier()}),
+                      dep.GetIdUnsafe().GetIdSourceRange());
+          continue;
+        }
         sona::ref_ptr<AST::Decl const> decl =
             AST::GetDeclOfUserDefinedType(type);
          dep.ReplaceNameWithDecl(decl);
@@ -87,6 +82,10 @@ SemaPhase0::FindTranslationOrder() {
       return true;
     }
     if (temporaries.find(decl) != temporaries.cend()) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrCircularDepend,
+                               {decl->GetName()}),
+                  decl->GetRepresentingRange());
       return false;
     }
 
@@ -322,7 +321,7 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   if (!collectedDependencies.empty()) {
     m_IncompleteTags.emplace(
           classDecl.borrow().cast_unsafe<AST::Decl>(),
-          IncompleteTagDecl(classDecl.borrow().cast_unsafe<AST::Decl>(),
+          IncompleteTagDecl(classDecl.borrow().cast_unsafe<AST::TypeDecl>(),
                             std::move(collectedDependencies),
                             GetCurrentScope()));
   }
@@ -371,7 +370,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
     m_IncompleteTags.emplace(
           adtDecl.borrow().cast_unsafe<AST::Decl>(),
           IncompleteTagDecl(
-            adtDecl.borrow().cast_unsafe<AST::Decl>(),
+            adtDecl.borrow().cast_unsafe<AST::TypeDecl>(),
             std::move(collectedDependencies),
             GetCurrentScope()));
   }

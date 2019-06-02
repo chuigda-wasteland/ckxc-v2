@@ -25,7 +25,7 @@ char const *BuiltinType::GetTypeName() const noexcept {
   #define BUILTIN_TYPE(name, size, isint, \
                      issigned, signedver, unsignedver, token) \
   case BuiltinType::BuiltinTypeId::BTI_##name: \
-    return Frontend::PrettyPrintTokenKind(Frontend::Token::token).get().c_str();
+    return #name;
   #include "Syntax/BuiltinTypes.def"
   }
   return "";

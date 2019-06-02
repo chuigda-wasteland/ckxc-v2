@@ -52,6 +52,10 @@ public:
 
   IncompleteDeclType GetType() const noexcept { return m_IDeclType; }
 
+  virtual sona::string_ref const& GetName() const noexcept = 0;
+
+  virtual SourceRange const& GetRepresentingRange() const noexcept = 0;
+
 private:
   std::vector<Dependency> m_Dependencies;
   std::shared_ptr<Scope> m_InScope;
@@ -82,6 +86,14 @@ public:
 
   std::string ToString() const override;
 
+  sona::string_ref const& GetName() const noexcept override {
+    return GetConcrete()->GetName();
+  }
+
+  SourceRange const& GetRepresentingRange() const noexcept override {
+    return GetConcrete()->GetNameSourceRange();
+  }
+
 private:
   sona::ref_ptr<AST::VarDecl> m_Incomplete;
   sona::ref_ptr<Syntax::VarDecl const> m_Concrete;
@@ -90,20 +102,30 @@ private:
 
 class IncompleteTagDecl : public IncompleteDecl {
 public:
-  IncompleteTagDecl(sona::ref_ptr<AST::Decl> halfway,
+  IncompleteTagDecl(sona::ref_ptr<AST::TypeDecl> halfway,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope, IDT_Tag),
       m_Halfway(halfway) {}
 
-  sona::ref_ptr<AST::Decl const> GetHalfway() const noexcept {
+  sona::ref_ptr<AST::TypeDecl const> GetHalfway() const noexcept {
     return m_Halfway;
   }
 
   std::string ToString() const override;
 
+  sona::string_ref const& GetName() const noexcept override {
+    return GetHalfway()->GetName();
+  }
+
+  SourceRange const& GetRepresentingRange() const noexcept override {
+    // @todo implement this
+    static SourceRange ret(1, 0, 1);
+    return ret;
+  }
+
 private:
-  sona::ref_ptr<AST::Decl> m_Halfway;
+  sona::ref_ptr<AST::TypeDecl> m_Halfway;
 };
 
 class IncompleteValueCtorDecl : public IncompleteDecl {
@@ -130,6 +152,14 @@ public:
   }
 
   std::string ToString() const override;
+
+  sona::string_ref const& GetName() const noexcept override {
+    return GetConcrete()->GetName();
+  }
+
+  SourceRange const& GetRepresentingRange() const noexcept override {
+    return GetConcrete()->GetNameSourceRange();
+  }
 
 private:
   sona::ref_ptr<AST::Decl> m_Halfway;
@@ -159,6 +189,14 @@ public:
 
   std::string ToString() const override;
 
+  sona::string_ref const& GetName() const noexcept override {
+    return GetConcrete()->GetName();
+  }
+
+  SourceRange const& GetRepresentingRange() const noexcept override {
+    return GetConcrete()->GetNameRange();
+  }
+
 private:
   sona::ref_ptr<AST::UsingDecl> m_Halfway;
   sona::ref_ptr<Syntax::UsingDecl const> m_Concrete;
@@ -173,6 +211,14 @@ public:
       m_FuncDecl(funcDecl), m_InContext(inContext) {}
 
   std::string ToString() const override;
+
+  sona::string_ref const& GetName() const noexcept override {
+    return m_FuncDecl->GetName();
+  }
+
+  SourceRange const& GetRepresentingRange() const noexcept override {
+    return m_FuncDecl->GetNameSourceRange();
+  }
 
 private:
   sona::ref_ptr<Syntax::FuncDecl const> m_FuncDecl;
