@@ -34,9 +34,6 @@ protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
 
-  bool CheckDuplicateVar(sona::string_ref const& varName);
-  bool CheckDuplicateType(sona::string_ref const& typeName);
-
   sona::ref_ptr<const AST::Type>
   ResolveBuiltinTypeImpl(sona::ref_ptr<Syntax::BuiltinType const> basicType);
 

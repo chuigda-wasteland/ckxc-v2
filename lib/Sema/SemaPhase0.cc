@@ -248,6 +248,16 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
+  {
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
+    if (prevType != nullptr) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition, { decl->GetName() }),
+                  decl->GetNameSourceRange());
+      return std::make_pair(nullptr, false);
+    }
+  }
+
   auto typeResult = ResolveType(decl->GetType());
   if (typeResult.contains_t1()) {
     sona::owner<AST::Decl> varDecl =
@@ -276,6 +286,17 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
+  {
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetClassName());
+    if (prevType != nullptr) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition,
+                               { decl->GetClassName() }),
+                  decl->GetNameRange());
+      return std::make_pair(nullptr, false);
+    }
+  }
+
   std::vector<Dependency> collectedDependencies;
   sona::owner<AST::ClassDecl> classDecl =
       new AST::ClassDecl(GetCurrentDeclContext(), decl->GetClassName());
@@ -312,6 +333,17 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
+  {
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
+    if (prevType != nullptr) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition,
+                               { decl->GetName() }),
+                  decl->GetNameSourceRange());
+      return std::make_pair(nullptr, false);
+    }
+  }
+
   std::vector<Dependency> collectedDependencies;
   sona::owner<AST::ADTDecl> adtDecl =
     new AST::ADTDecl(GetCurrentDeclContext(), decl->GetName());
@@ -451,6 +483,17 @@ bool SemaPhase0::CheckUserDefinedTypeComplete(
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnUsingDecl(sona::ref_ptr<Syntax::UsingDecl const> decl) {
+  {
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
+    if (prevType != nullptr) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition,
+                               { decl->GetName() }),
+                  decl->GetNameRange());
+      return std::make_pair(nullptr, false);
+    }
+  }
+
   auto typeResult = ResolveType(decl->GetAliasee());
   sona::owner<AST::Decl> ret0 =
       typeResult.contains_t1() ?
@@ -484,14 +527,33 @@ SemaPhase0::ActOnFuncDecl(sona::ref_ptr<Syntax::FuncDecl const> decl) {
 
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
+  {
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
+    if (prevType != nullptr) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedefinition,
+                               { decl->GetName() }),
+                  decl->GetNameSourceRange());
+      return std::make_pair(nullptr, false);
+    }
+  }
+
   sona::owner<AST::EnumDecl> enumDecl =
       new AST::EnumDecl(GetCurrentDeclContext(), decl->GetName());
   PushDeclContext(enumDecl.borrow().cast_unsafe<AST::DeclContext>());
   PushScope(Scope::SF_Enum);
 
   std::int64_t value = 0;
+  std::unordered_set<sona::string_ref> collectedNames;
   for (Syntax::EnumDecl::Enumerator const& e : decl->GetEnumerators()) {
+    if (collectedNames.find(e.GetName()) != collectedNames.cend()) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrRedeclaration, { e.GetName() }),
+                  e.GetNameSourceRange());
+      continue;
+    }
     value = e.HasValue() ? e.GetValueUnsafe() : value;
+    collectedNames.insert(e.GetName());
     GetCurrentDeclContext()->AddDecl(
           new AST::EnumeratorDecl(GetCurrentDeclContext(), e.GetName(), value));
     value++;

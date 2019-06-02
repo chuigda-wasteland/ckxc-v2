@@ -48,11 +48,17 @@ sona::owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
       return ParseEnumDecl();
     }
   case Token::TK_KW_func: return ParseFuncDecl();
-    sona_unreachable1("not implemented");
+
   default:
-    sona_unreachable();
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(
+                  Diag::DMT_ErrExpectedGot,
+                  { PrettyPrintTokenKind(CurrentToken().GetTokenKind()),
+                    "declaration" }),
+                CurrentToken().GetSourceRange());
+    ConsumeToken();
+    return nullptr;
   }
-  return nullptr;
 }
 
 sona::owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
@@ -165,14 +171,21 @@ sona::owner<Syntax::Decl> ParserImpl::ParseEnumDecl() {
   while (CurrentToken().GetTokenKind() != Token::TK_EOI
          && CurrentToken().GetTokenKind() != Token::TK_SYM_RBRACE) {
     if (CurrentToken().GetTokenKind() != Token::TK_ID) {
-      SkipToAnyOf({ Token::TK_ID, Token::TK_SYM_COMMA, Token::TK_SYM_RBRACE });
-      if (CurrentToken().GetTokenKind() == Token::TK_SYM_COMMA) {
+      SkipToAnyOf({ Token::TK_ID, Token::TK_SYM_SEMI, Token::TK_SYM_RBRACE });
+      if (CurrentToken().GetTokenKind() == Token::TK_SYM_SEMI) {
         ConsumeToken();
         continue;
       }
     }
     ParseEnumerator(enumerators);
-    ExpectAndConsume(Token::TK_SYM_SEMI);
+    if (!ExpectAndConsume(Token::TK_SYM_SEMI)) {
+      if (CurrentToken().GetTokenKind() == Token::TK_SYM_COMMA) {
+        m_Diag.Diag(Diag::DIR_Note,
+                    Diag::Format(Diag::DMT_NoteEnumeratorSep, {}),
+                    CurrentToken().GetSourceRange());
+        ConsumeToken();
+      }
+    }
   }
 
   ExpectAndConsume(Token::TK_SYM_RBRACE);
@@ -299,6 +312,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
     return nullptr;
   }
   sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
   if (!Expect(Token::TK_SYM_EQ)) {
@@ -312,7 +326,8 @@ sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
   sona::owner<Syntax::Type> aliasee = ParseType();
   ExpectAndConsume(Token::TK_SYM_SEMI);
 
-  return new Syntax::UsingDecl(name, std::move(aliasee), usingRange, eqLoc);
+  return new Syntax::UsingDecl(name, std::move(aliasee), usingRange,
+                               nameRange, eqLoc);
 }
 
 void ParserImpl::

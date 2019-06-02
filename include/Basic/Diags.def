@@ -20,6 +20,8 @@ DIAG_TEMPLATE(NoteNoAnonymousDecl, "There is no anonymous decl in ckx-lang")
 DIAG_TEMPLATE(NoteNoForwardDecl, "There is no normal forward decl in ckx-lang")
 DIAG_TEMPLATE(NoteOneTypeInValueCtor, \
               "Sorry, only one type in one value-ctor is allowed")
+DIAG_TEMPLATE(NoteEnumeratorSep, \
+              "ckx-lang enumerators separates with ';' instead of ','")
 
 /// Semantic issues
 DIAG_TEMPLATE(ErrDupTyspec, "duplicate type specifier '{}'")

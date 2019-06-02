@@ -590,11 +590,13 @@ public:
   UsingDecl(sona::string_ref const& name,
             sona::owner<Type> &&aliasee,
             SingleSourceRange usingRange,
+            SingleSourceRange nameRange,
             SourceLocation eqLoc)
     : Decl(Node::NodeKind::CNK_UsingDecl),
       m_Name(name),
       m_Aliasee(std::move(aliasee)),
       m_UsingRange(usingRange),
+      m_NameRange(nameRange),
       m_EqLoc(eqLoc) {}
 
   sona::string_ref const& GetName() const noexcept {
@@ -609,6 +611,10 @@ public:
     return m_UsingRange;
   }
 
+  SingleSourceRange const& GetNameRange() const noexcept {
+    return m_NameRange;
+  }
+
   SourceLocation const& GetEqLoc() const noexcept {
     return m_EqLoc;
   }
@@ -617,6 +623,7 @@ private:
   sona::string_ref m_Name;
   sona::owner<Type> m_Aliasee;
   SingleSourceRange m_UsingRange;
+  SingleSourceRange m_NameRange;
   SourceLocation m_EqLoc;
 };
 

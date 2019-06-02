@@ -35,18 +35,6 @@ void SemaCommon::PopScope() {
   m_CurrentScope = m_CurrentScope->GetParentScope();
 }
 
-bool SemaCommon::CheckDuplicateVar(sona::string_ref const& varName) {
-  sona::ref_ptr<AST::VarDecl const> varDecl
-      = GetCurrentScope()->LookupVarDeclLocally(varName);
-  return varDecl == nullptr;
-}
-
-bool SemaCommon::CheckDuplicateType(sona::string_ref const& typeName) {
-  sona::ref_ptr<AST::Type const> typeDecl
-      = GetCurrentScope()->LookupTypeLocally(typeName);
-  return typeDecl == nullptr;
-}
-
 sona::ref_ptr<const AST::Type>
 SemaCommon::ResolveBuiltinTypeImpl(
     sona::ref_ptr<const Syntax::BuiltinType> basicType) {
