@@ -252,7 +252,7 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
     if (prevType != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition, { decl->GetName() }),
-                  decl->GetNameSourceRange());
+                  decl->GetNameRange());
       return std::make_pair(nullptr, false);
     }
   }
@@ -338,7 +338,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),
-                  decl->GetNameSourceRange());
+                  decl->GetNameRange());
       return std::make_pair(nullptr, false);
     }
   }
@@ -532,7 +532,7 @@ SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),
-                  decl->GetNameSourceRange());
+                  decl->GetNameRange());
       return std::make_pair(nullptr, false);
     }
   }
@@ -548,7 +548,7 @@ SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
     if (collectedNames.find(e.GetName()) != collectedNames.cend()) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedeclaration, { e.GetName() }),
-                  e.GetNameSourceRange());
+                  e.GetNameRange());
       continue;
     }
     value = e.HasValue() ? e.GetValueUnsafe() : value;

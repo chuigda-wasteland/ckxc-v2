@@ -91,7 +91,7 @@ public:
   }
 
   SourceRange const& GetRepresentingRange() const noexcept override {
-    return GetConcrete()->GetNameSourceRange();
+    return GetConcrete()->GetNameRange();
   }
 
 private:
@@ -158,7 +158,7 @@ public:
   }
 
   SourceRange const& GetRepresentingRange() const noexcept override {
-    return GetConcrete()->GetNameSourceRange();
+    return GetConcrete()->GetNameRange();
   }
 
 private:
@@ -217,7 +217,7 @@ public:
   }
 
   SourceRange const& GetRepresentingRange() const noexcept override {
-    return m_FuncDecl->GetNameSourceRange();
+    return m_FuncDecl->GetNameRange();
   }
 
 private:

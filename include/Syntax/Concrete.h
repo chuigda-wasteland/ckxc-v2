@@ -453,7 +453,7 @@ public:
       return m_Name;
     }
 
-    SingleSourceRange const& GetNameSourceRange() const noexcept {
+    SingleSourceRange const& GetNameRange() const noexcept {
       return m_NameRange;
     }
 
@@ -466,12 +466,12 @@ public:
       return m_Value.value();
     }
 
-    SingleSourceRange const& GetEqSourceLocUnsafe() const noexcept {
+    SingleSourceRange const& GetEqRangeUnsafe() const noexcept {
       sona_assert(HasValue());
       return m_EqLoc;
     }
 
-    SingleSourceRange const& GetValueSourceRangeUnsafe() const noexcept {
+    SingleSourceRange const& GetValueRangeUnsafe() const noexcept {
       sona_assert(HasValue());
       return m_ValueRange;
     }
@@ -500,11 +500,11 @@ public:
     return m_Enumerators;
   }
 
-  SingleSourceRange const& GetEnumSourceRange() const noexcept {
+  SingleSourceRange const& GetEnumRange() const noexcept {
     return m_EnumRange;
   }
 
-  SingleSourceRange const& GetNameSourceRange() const noexcept {
+  SingleSourceRange const& GetNameRange() const noexcept {
     return m_NameRange;
   }
 
@@ -536,7 +536,7 @@ public:
       return m_UnderlyingType.borrow();
     }
 
-    SingleSourceRange const& GetNameSourceRange() const noexcept {
+    SingleSourceRange const& GetNameRange() const noexcept {
       return m_NameRange;
     }
 
@@ -573,7 +573,7 @@ public:
     return m_ClassRange;
   }
 
-  SingleSourceRange const& GetNameSourceRange() const noexcept {
+  SingleSourceRange const& GetNameRange() const noexcept {
     return m_NameRange;
   }
 
@@ -667,11 +667,11 @@ public:
     return m_FuncBody.value().borrow();
   }
 
-  SingleSourceRange const& GetKeywordSourceRange() const noexcept {
+  SingleSourceRange const& GetKeywordRange() const noexcept {
     return m_FuncRange;
   }
 
-  SingleSourceRange const& GetNameSourceRange() const noexcept {
+  SingleSourceRange const& GetNameRange() const noexcept {
     return m_NameRange;
   }
 
@@ -701,11 +701,11 @@ public:
     return m_Type.borrow();
   }
 
-  SingleSourceRange const& GetKeywordSourceRange() const noexcept {
+  SingleSourceRange const& GetKeywordRange() const noexcept {
     return m_DefRange;
   }
 
-  SingleSourceRange const& GetNameSourceRange() const noexcept {
+  SingleSourceRange const& GetNameRange() const noexcept {
     return m_NameRange;
   }
 
@@ -819,7 +819,7 @@ public:
     return m_ContainedExpr.borrow();
   }
 
-  SourceRange const& GetSizeOfrange() const noexcept {
+  SourceRange const& GetSizeOfRange() const noexcept {
     return m_SizeOfRange;
   }
 
