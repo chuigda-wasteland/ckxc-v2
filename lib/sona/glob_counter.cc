@@ -5,7 +5,7 @@
 namespace sona {
 
 std::uint64_t global_count() {
-  static std::atomic_uint64_t counter(0);
+  static std::atomic<std::uint64_t> counter(0);
   return counter.fetch_add(1);
 }
 
