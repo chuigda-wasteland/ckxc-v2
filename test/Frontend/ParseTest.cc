@@ -95,7 +95,7 @@ void test2() {
   VkAssertNotEquals(nullptr, decl.borrow());
 
   owner<Syntax::ClassDecl> classDecl = decl.cast_unsafe<Syntax::ClassDecl>();
-  VkAssertEquals("A", classDecl.borrow()->GetClassName());
+  VkAssertEquals("A", classDecl.borrow()->GetName());
   VkAssertEquals(2uL, classDecl.borrow()->GetSubDecls().size());
 
   ref_ptr<Syntax::Decl const> d1 =

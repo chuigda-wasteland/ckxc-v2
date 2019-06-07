@@ -198,7 +198,6 @@ private:
 
 class UserDefinedType : public Type {
 public:
-  /// @todo use Syntax::Identifier for name
   UserDefinedType(Identifier&& name, SingleSourceRange const& range)
     : Type(NodeKind::CNK_UserDefinedType),
       m_Name(std::move(name)), m_Range(range) {}
@@ -396,21 +395,34 @@ private:
   SingleSourceRange m_TemplateRange;
 };
 
-class ClassDecl : public Decl {
+class TagDecl : public Decl {
+public:
+  TagDecl(NodeKind nodeKind, sona::string_ref const& name,
+          SourceRange nameRange)
+    : Decl(nodeKind), m_Name(name), m_NameRange(nameRange) {}
+
+  sona::string_ref const& GetName() const noexcept {
+    return m_Name;
+  }
+
+  SourceRange const& GetNameRange() const noexcept {
+    return m_NameRange;
+  }
+
+private:
+  sona::string_ref m_Name;
+  SourceRange m_NameRange;
+};
+
+class ClassDecl : public TagDecl {
 public:
   ClassDecl(sona::string_ref const& className,
             std::vector<sona::owner<Decl>> &&subDecls,
             SingleSourceRange const& classKwdRange,
             SingleSourceRange const& classNameRange)
-    : Decl(NodeKind::CNK_ClassDecl),
-      m_ClassName(className),
+    : TagDecl(NodeKind::CNK_ClassDecl, className, classNameRange),
       m_SubDecls(std::move(subDecls)),
-      m_ClassKwdRange(classKwdRange),
-      m_ClassNameRange(classNameRange) {}
-
-  sona::string_ref const& GetClassName() const noexcept {
-    return m_ClassName;
-  }
+      m_ClassKwdRange(classKwdRange) {}
 
   auto GetSubDecls() const noexcept {
     return sona::linq::from_container(m_SubDecls).
@@ -422,18 +434,12 @@ public:
     return m_ClassKwdRange;
   }
 
-  SourceRange const& GetNameRange() const noexcept {
-    return m_ClassNameRange;
-  }
-
 private:
-  sona::string_ref m_ClassName;
   std::vector<sona::owner<Decl>> m_SubDecls;
   SourceRange m_ClassKwdRange;
-  SourceRange m_ClassNameRange;
 };
 
-class EnumDecl : public Decl {
+class EnumDecl : public TagDecl {
 public:
   class Enumerator {
   public:
@@ -488,13 +494,8 @@ public:
            std::vector<Enumerator> &&enumerators,
            SingleSourceRange const& enumRange,
            SingleSourceRange const& nameRange)
-    : Decl(NodeKind::CNK_EnumDecl),
-      m_Name(name), m_Enumerators(std::move(enumerators)),
-      m_EnumRange(enumRange), m_NameRange(nameRange) {}
-
-  sona::string_ref const& GetName() const noexcept {
-    return m_Name;
-  }
+    : TagDecl(NodeKind::CNK_EnumDecl, name, nameRange),
+      m_Enumerators(std::move(enumerators)), m_EnumRange(enumRange) {}
 
   std::vector<Enumerator> const& GetEnumerators() const noexcept {
     return m_Enumerators;
@@ -504,17 +505,12 @@ public:
     return m_EnumRange;
   }
 
-  SingleSourceRange const& GetNameRange() const noexcept {
-    return m_NameRange;
-  }
-
 private:
-  sona::string_ref m_Name;
   std::vector<Enumerator> m_Enumerators;
-  SingleSourceRange m_EnumRange, m_NameRange;
+  SingleSourceRange m_EnumRange;
 };
 
-class ADTDecl : public Decl {
+class ADTDecl : public TagDecl {
 public:
   class ValueConstructor {
   public:
@@ -551,15 +547,10 @@ public:
           SingleSourceRange const& enumRange,
           SingleSourceRange const& classRange,
           SingleSourceRange const& nameRange)
-    : Decl(NodeKind::CNK_ADTDecl), m_Name(name),
+    : TagDecl(NodeKind::CNK_ADTDecl, name, nameRange),
       m_Constructors(std::move(constructors)),
       m_EnumRange(enumRange),
-      m_ClassRange(classRange),
-      m_NameRange(nameRange) {}
-
-  sona::string_ref const& GetName() const noexcept {
-     return m_Name;
-  }
+      m_ClassRange(classRange) {}
 
   std::vector<ValueConstructor> const& GetConstructors() const noexcept {
     return m_Constructors;
@@ -573,16 +564,10 @@ public:
     return m_ClassRange;
   }
 
-  SingleSourceRange const& GetNameRange() const noexcept {
-    return m_NameRange;
-  }
-
 private:
-  sona::string_ref m_Name;
   std::vector<ValueConstructor> m_Constructors;
   SingleSourceRange m_EnumRange;
   SingleSourceRange m_ClassRange;
-  SingleSourceRange m_NameRange;
 };
 
 class UsingDecl : public Decl {

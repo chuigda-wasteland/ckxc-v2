@@ -286,11 +286,11 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
 std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   {
-    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetClassName());
+    auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
     if (prevType != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
-                               { decl->GetClassName() }),
+                               { decl->GetName() }),
                   decl->GetNameRange());
       return std::make_pair(nullptr, false);
     }
@@ -298,7 +298,7 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
 
   std::vector<Dependency> collectedDependencies;
   sona::owner<AST::ClassDecl> classDecl =
-      new AST::ClassDecl(GetCurrentDeclContext(), decl->GetClassName());
+      new AST::ClassDecl(GetCurrentDeclContext(), decl->GetName());
   PushDeclContext(classDecl.borrow().cast_unsafe<AST::DeclContext>());
   PushScope(Scope::SF_Class);
 
@@ -314,7 +314,7 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   PopDeclContext();
 
   GetCurrentScope()->AddType(
-      decl->GetClassName(),
+      decl->GetName(),
       m_ASTContext.AddUserDefinedType(
           new AST::ClassType(classDecl.borrow())));
 
