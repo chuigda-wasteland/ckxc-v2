@@ -92,6 +92,8 @@ SemaPhase0::FindTranslationOrder() {
     temporaries.insert(decl);
     for (sona::ref_ptr<IncompleteDecl> dependingIncompleteDecl :
          sona::linq::from_container(decl->GetDependencies())
+           .filter([](Sema::Dependency const& dep)
+                   { return dep.IsStrong(); })
            .transform([](Sema::Dependency const& dep)
                       { return dep.GetDeclUnsafe(); })
            .transform([this](sona::ref_ptr<AST::Decl const> depDecl)
