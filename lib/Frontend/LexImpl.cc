@@ -48,7 +48,7 @@ void LexerImpl::LexAllTokens() {
       break;
 
     case '{': case '}': case '(': case ')': case ',': case ';': case ':':
-    case '[': case ']': case '=': case '.':
+    case '[': case ']': case '=': case '.': case '*': case '&':
       LexSymbol();
       break;
 
@@ -253,48 +253,50 @@ void LexerImpl::LexString() {
 void LexerImpl::LexSymbol() {
   switch (CurChar()) {
   case '{':
-    m_TokenStream.emplace_back(Token::TK_SYM_LBRACE, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_LBRACE, CurCharRange()); break;
 
   case '}':
-    m_TokenStream.emplace_back(Token::TK_SYM_RBRACE, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_RBRACE, CurCharRange()); break;
 
   case '[':
-    m_TokenStream.emplace_back(Token::TK_SYM_LBRACKET, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_LBRACKET, CurCharRange()); break;
 
   case ']':
-    m_TokenStream.emplace_back(Token::TK_SYM_RBRACKET, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_RBRACKET, CurCharRange()); break;
 
   case '(':
-    m_TokenStream.emplace_back(Token::TK_SYM_LPAREN, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_LPAREN, CurCharRange()); break;
 
   case ')':
-    m_TokenStream.emplace_back(Token::TK_SYM_RPAREN, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_RPAREN, CurCharRange()); break;
 
   case ',':
-    m_TokenStream.emplace_back(Token::TK_SYM_COMMA, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_COMMA, CurCharRange()); break;
 
   case ';':
-    m_TokenStream.emplace_back(Token::TK_SYM_SEMI, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_SEMI, CurCharRange()); break;
 
   case ':':
-    m_TokenStream.emplace_back(Token::TK_SYM_COLON, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_COLON, CurCharRange()); break;
 
   case '=':
-    m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange());
-    break;
+    m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange()); break;
 
   case '.':
-    m_TokenStream.emplace_back(Token::TK_SYM_DOT, CurCharRange());
+    m_TokenStream.emplace_back(Token::TK_SYM_DOT, CurCharRange()); break;
+
+  case '&':
+    if (PeekOneChar() == '&') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DAMP, CurCharRange());;
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_AMP, CurCharRange());
+    }
     break;
+
+  case '*':
+    m_TokenStream.emplace_back(Token::TK_SYM_ASTER, CurCharRange()); break;
   }
 
   NextChar();

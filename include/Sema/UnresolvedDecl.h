@@ -103,13 +103,18 @@ private:
 class IncompleteTagDecl : public IncompleteDecl {
 public:
   IncompleteTagDecl(sona::ref_ptr<AST::TypeDecl> halfway,
+                    sona::ref_ptr<Syntax::TagDecl const> concrete,
                     std::vector<Dependency> &&dependencies,
                     std::shared_ptr<Scope> const& inScope)
     : IncompleteDecl(std::move(dependencies), inScope, IDT_Tag),
-      m_Halfway(halfway) {}
+      m_Halfway(halfway), m_Concrete(concrete) {}
 
   sona::ref_ptr<AST::TypeDecl const> GetHalfway() const noexcept {
     return m_Halfway;
+  }
+
+  sona::ref_ptr<Syntax::TagDecl const> GetConcrete() const noexcept {
+    return m_Concrete;
   }
 
   std::string ToString() const override;
@@ -119,13 +124,12 @@ public:
   }
 
   SourceRange const& GetRepresentingRange() const noexcept override {
-    // @todo implement this
-    static SourceRange ret(1, 0, 1);
-    return ret;
+    return GetConcrete()->GetNameRange();
   }
 
 private:
   sona::ref_ptr<AST::TypeDecl> m_Halfway;
+  sona::ref_ptr<Syntax::TagDecl const> m_Concrete;
 };
 
 class IncompleteValueCtorDecl : public IncompleteDecl {

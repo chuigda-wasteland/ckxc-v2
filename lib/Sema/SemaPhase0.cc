@@ -322,6 +322,7 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
     m_IncompleteTags.emplace(
           classDecl.borrow().cast_unsafe<AST::Decl>(),
           IncompleteTagDecl(classDecl.borrow().cast_unsafe<AST::TypeDecl>(),
+                            decl.cast_unsafe<Syntax::TagDecl const>(),
                             std::move(collectedDependencies),
                             GetCurrentScope()));
   }
@@ -371,6 +372,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
           adtDecl.borrow().cast_unsafe<AST::Decl>(),
           IncompleteTagDecl(
             adtDecl.borrow().cast_unsafe<AST::TypeDecl>(),
+            decl.cast_unsafe<Syntax::TagDecl const>(),
             std::move(collectedDependencies),
             GetCurrentScope()));
   }

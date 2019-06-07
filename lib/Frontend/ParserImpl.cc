@@ -416,6 +416,35 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
                 CurrentToken().GetSourceRange());
   }
 
+  std::vector<Syntax::ComposedType::TypeSpecifier> tySpecs;
+  std::vector<SourceRange> tySpecRanges;
+  while (CurrentToken().GetTokenKind() == Token::TK_SYM_AMP
+         || CurrentToken().GetTokenKind() == Token::TK_SYM_DAMP
+         || CurrentToken().GetTokenKind() == Token::TK_SYM_ASTER) {
+    switch (CurrentToken().GetTokenKind()) {
+    case Token::TK_SYM_AMP:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Ref);
+      break;
+    case Token::TK_SYM_DAMP:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_RvRef);
+      break;
+    case Token::TK_SYM_ASTER:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Pointer);
+      break;
+
+    default:
+      sona_unreachable();
+    }
+    tySpecRanges.push_back(CurrentToken().GetSourceRange());
+    ConsumeToken();
+  }
+
+  if (tySpecs.size() != 0) {
+    sona_assert(tySpecs.size() == tySpecRanges.size())
+    ret = new Syntax::ComposedType(std::move(ret), std::move(tySpecs),
+                                   std::move(tySpecRanges));
+  }
+
   return ret;
 }
 
