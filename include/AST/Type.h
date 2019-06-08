@@ -52,7 +52,7 @@ private:
 
 class TupleType final : public Type {
 public:
-  using TupleElements_t = std::vector<sona::ref_ptr<Type>>;
+  using TupleElements_t = std::vector<QualType>;
 
   TupleType(TupleElements_t &&elemTypes)
       : Type(TypeId::TI_Tuple), m_ElemTypes(std::move(elemTypes)) {}
@@ -75,10 +75,10 @@ private:
 
 class ArrayType final : public Type {
 public:
-  ArrayType(sona::ref_ptr<Type> base, std::size_t size)
+  ArrayType(QualType base, std::size_t size)
       : Type(TypeId::TI_Array), m_Base(base), m_Size(size) {}
 
-  sona::ref_ptr<Type const> GetBase() const { return m_Base; }
+  QualType GetBase() const { return m_Base; }
   std::size_t GetSize() const { return m_Size; }
 
   std::size_t GetHash() const noexcept override;
@@ -88,16 +88,16 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
-  sona::ref_ptr<Type> m_Base;
+  QualType m_Base;
   std::size_t m_Size;
 };
 
 class PointerType final : public Type {
 public:
-  PointerType(sona::ref_ptr<Type const> pointee)
+  PointerType(QualType pointee)
       : Type(TypeId::TI_Pointer), m_Pointee(pointee) {}
 
-  sona::ref_ptr<Type const> GetPointee() const { return m_Pointee; }
+  QualType GetPointee() const { return m_Pointee; }
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;
@@ -106,19 +106,19 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
-  sona::ref_ptr<Type const> m_Pointee;
+  QualType m_Pointee;
 };
 
 class RefType : public Type {
 public:
   enum class RefTypeId { RTI_LValueRef, RTI_RValueRef };
-  RefType(RefTypeId refTypeId, sona::ref_ptr<Type const> referenced)
+  RefType(RefTypeId refTypeId, QualType referenced)
       : Type(TypeId::TI_Ref), m_RefTypeId(refTypeId),
         m_ReferencedType(referenced) {}
 
   RefTypeId GetRefTypeId() const noexcept { return m_RefTypeId; }
 
-  sona::ref_ptr<Type const> GetReferencedType() const noexcept {
+  QualType GetReferencedType() const noexcept {
     return m_ReferencedType;
   }
 
@@ -127,12 +127,12 @@ public:
 
 private:
   RefTypeId m_RefTypeId;
-  sona::ref_ptr<Type const> m_ReferencedType;
+  QualType m_ReferencedType;
 };
 
 class LValueRefType final : public RefType {
 public:
-  LValueRefType(sona::ref_ptr<Type const> referenced)
+  LValueRefType(QualType referenced)
       : RefType(RefTypeId::RTI_LValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;
@@ -144,7 +144,7 @@ public:
 
 class RValueRefType final : public RefType {
 public:
-  RValueRefType(sona::ref_ptr<Type const> referenced)
+  RValueRefType(QualType referenced)
       : RefType(RefTypeId::RTI_RValueRef, referenced) {}
 
   std::size_t GetHash() const noexcept override;
@@ -156,16 +156,16 @@ public:
 
 class FunctionType final : public Type {
 public:
-  FunctionType(std::vector<sona::ref_ptr<Type>> &&paramTypes,
-               sona::ref_ptr<Type> returnType)
+  FunctionType(std::vector<QualType> &&paramTypes,
+               QualType returnType)
       : Type(TypeId::TI_Function), m_ParamTypes(std::move(paramTypes)),
         m_ReturnType(std::move(returnType)) {}
 
-  std::vector<sona::ref_ptr<Type>> const& GetParamTypes() const {
+  std::vector<QualType> const& GetParamTypes() const {
     return m_ParamTypes;
   }
 
-  sona::ref_ptr<Type const> GetReturnType() const {
+  QualType GetReturnType() const {
     return m_ReturnType;
   }
 
@@ -176,8 +176,8 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 
 private:
-  std::vector<sona::ref_ptr<Type>> m_ParamTypes;
-  sona::ref_ptr<Type> m_ReturnType;
+  std::vector<QualType> m_ParamTypes;
+  QualType m_ReturnType;
 };
 
 class UserDefinedType : public Type {

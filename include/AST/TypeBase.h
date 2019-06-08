@@ -5,6 +5,7 @@
 #include "AST/TypeFwd.h"
 #include "Backend/ASTVisitor.h"
 
+#include "sona/ptr_int_pair.h"
 #include "sona/stringref.h"
 
 #include <cstdint>
@@ -47,6 +48,63 @@ protected:
 
 private:
   TypeId m_Id;
+};
+
+/// @note QualType itself can be safely treat as a pointer, so there is no need
+/// of ref_ptr + owner
+class QualType {
+public:
+  enum QualId : unsigned {
+    QUAL_Const = 0x01, QUAL_Volatile = 0x02, QUAL_Restrict = 0x04
+  };
+
+  QualType(sona::ref_ptr<Type const> type)
+    : m_PtrIntPair(type.operator->()) {}
+
+  sona::ref_ptr<Type const> GetType() const noexcept {
+    return m_PtrIntPair.operator->();
+  }
+
+  bool IsConst() const noexcept {
+    return m_PtrIntPair.get_value() & QUAL_Const;
+  }
+
+  bool IsVolatile() const noexcept {
+    return m_PtrIntPair.get_value() & QUAL_Volatile;
+  }
+
+  bool IsRestrict() const noexcept {
+    return m_PtrIntPair.get_value() & QUAL_Restrict;
+  }
+
+  void AddConst() noexcept {
+    m_PtrIntPair.set_value(m_PtrIntPair.get_value() | QUAL_Const);
+  }
+
+  void AddVolatile() noexcept {
+    m_PtrIntPair.set_value(m_PtrIntPair.get_value() | QUAL_Volatile);
+  }
+
+  void AddRestrict() noexcept {
+    m_PtrIntPair.set_value(m_PtrIntPair.get_value() | QUAL_Restrict);
+  }
+
+  unsigned GetCVR() const noexcept {
+    return m_PtrIntPair.get_value();
+  }
+
+  void SetCVR(unsigned value) noexcept {
+    sona_assert(value <= (QUAL_Const + QUAL_Volatile + QUAL_Restrict));
+    m_PtrIntPair.set_value(value);
+  }
+
+  bool EqualTo(QualType that) const noexcept {
+    return GetCVR() == that.GetCVR()
+        && GetType()->EqualTo(that.GetType().get());
+  }
+
+private:
+  sona::ptr_int_pair<AST::Type const, 3> m_PtrIntPair;
 };
 
 struct TypeEqual {

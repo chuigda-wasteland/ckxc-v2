@@ -20,24 +20,24 @@ public:
   sona::ref_ptr<TupleType const>
   CreateTupleType(TupleType::TupleElements_t &&elems);
 
-  sona::ref_ptr<ArrayType const> CreateArrayType(sona::ref_ptr<Type> base,
-                                                 size_t size);
+  sona::ref_ptr<ArrayType const>
+  CreateArrayType(QualType base, size_t size);
 
   sona::ref_ptr<PointerType const>
-  CreatePointerType(sona::ref_ptr<Type const> pointee);
+  CreatePointerType(QualType pointee);
 
   sona::ref_ptr<LValueRefType const>
-  CreateLValueRefType(sona::ref_ptr<Type const> referenced);
+  CreateLValueRefType(QualType referenced);
+
+  sona::ref_ptr<RValueRefType const>
+  CreateRValueRefType(QualType referenced);
 
   sona::ref_ptr<FunctionType const>
-  BuildFunctionType(std::vector<sona::ref_ptr<Type const>> const& paramTypes,
-                    sona::ref_ptr<Type const> retType);
+  BuildFunctionType(std::vector<QualType> const& paramTypes,
+                    QualType retType);
 
   sona::ref_ptr<Type const>
   GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
-
-  sona::ref_ptr<RValueRefType const>
-  CreateRValueRefType(sona::ref_ptr<Type const> referenced);
 
 private:
   template <typename Type_t>

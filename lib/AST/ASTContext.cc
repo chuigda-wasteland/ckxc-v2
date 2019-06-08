@@ -33,25 +33,25 @@ ASTContext::CreateTupleType(TupleType::TupleElements_t &&elems) {
 }
 
 sona::ref_ptr<ArrayType const>
-ASTContext::CreateArrayType(sona::ref_ptr<Type> base, size_t size) {
+ASTContext::CreateArrayType(QualType base, size_t size) {
   auto iter = m_ArrayTypes.emplace(base, size).first;
   return sona::ref_ptr<ArrayType const>(*iter);
 }
 
 sona::ref_ptr<PointerType const>
-ASTContext::CreatePointerType(sona::ref_ptr<Type const> pointee) {
+ASTContext::CreatePointerType(QualType pointee) {
   auto iter = m_PointerTypes.emplace(pointee).first;
   return sona::ref_ptr<PointerType const>(*iter);
 }
 
 sona::ref_ptr<LValueRefType const>
-ASTContext::CreateLValueRefType(sona::ref_ptr<const Type> referenced) {
+ASTContext::CreateLValueRefType(QualType referenced) {
   auto iter = m_LValueRefTypes.emplace(referenced).first;
   return *iter;
 }
 
 sona::ref_ptr<RValueRefType const>
-ASTContext::CreateRValueRefType(sona::ref_ptr<const Type> referenced) {
+ASTContext::CreateRValueRefType(QualType referenced) {
   auto iter = m_RValueRefTypes.emplace(referenced).first;
   return *iter;
 }

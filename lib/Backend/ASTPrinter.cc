@@ -126,7 +126,7 @@ ASTPrinter::VisitTupleType(
     sona::ref_ptr<const AST::TupleType> tupleType) {
   std::cerr << "T(";
   for (auto& tupleElem : tupleType->GetTupleElemTypes()) {
-    tupleElem->Accept(this);
+    tupleElem.GetType()->Accept(this);
     std::cerr << ", ";
   }
   std::cerr << ")";
@@ -137,7 +137,7 @@ sona::owner<ActionResult>
 ASTPrinter::VisitArrayType(
     sona::ref_ptr<const AST::ArrayType> arrayType) {
   std::cerr << "ArrayOf(";
-  arrayType->GetBase()->Accept(this);
+  arrayType->GetBase().GetType()->Accept(this);
   std::cerr << ")";
   return CreateDeclResult(VoidType());
 }
@@ -146,7 +146,7 @@ sona::owner<ActionResult>
 ASTPrinter::VisitPointerType(
     sona::ref_ptr<const AST::PointerType> ptrType) {
   std::cerr << "PointerTo(";
-  ptrType->GetPointee()->Accept(this);
+  ptrType->GetPointee().GetType()->Accept(this);
   std::cerr << ")";
   return CreateDeclResult(VoidType());
 }
@@ -155,7 +155,7 @@ sona::owner<ActionResult>
 ASTPrinter::VisitLValueRefType(
     sona::ref_ptr<const AST::LValueRefType> lvRefType) {
   std::cerr << "LValueRefTo(";
-  lvRefType->GetReferencedType()->Accept(this);
+  lvRefType->GetReferencedType().GetType()->Accept(this);
   std::cerr << ")";
   return CreateDeclResult(VoidType());
 }
@@ -164,7 +164,7 @@ sona::owner<ActionResult>
 ASTPrinter::VisitRValueRefType(
     sona::ref_ptr<const AST::RValueRefType> rvRefType) {
   std::cerr << "RValueRefTo(";
-  rvRefType->GetReferencedType()->Accept(this);
+  rvRefType->GetReferencedType().GetType()->Accept(this);
   std::cerr << ")";
   return CreateDeclResult(VoidType());
 }
@@ -174,10 +174,10 @@ ASTPrinter::VisitFunctionType(
     sona::ref_ptr<const AST::FunctionType> funcType) {
   std::cerr << "Function(";
   for (const auto& paramType : funcType->GetParamTypes()) {
-    paramType->Accept(this);
+    paramType.GetType()->Accept(this);
   }
   std::cerr << ")->";
-  funcType->GetReturnType()->Accept(this);
+  funcType->GetReturnType().GetType()->Accept(this);
   return CreateDeclResult(VoidType());
 }
 

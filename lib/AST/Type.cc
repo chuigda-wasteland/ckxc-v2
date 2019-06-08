@@ -103,8 +103,8 @@ bool BuiltinType::EqualTo(Type const &that) const noexcept {
 
 size_t TupleType::GetHash() const noexcept {
   auto rng = sona::linq::from_container(m_ElemTypes)
-             .transform([](sona::ref_ptr<Type const> t) {
-                return t.get().GetHash();
+             .transform([](QualType t) {
+                return t.GetType()->GetHash() + t.GetCVR() * 42;
               });
 
   return (size_t)std::accumulate(rng.begin(), rng.end(), 0);
@@ -117,8 +117,9 @@ bool TupleType::EqualTo(Type const &that) const noexcept {
       auto rng1 = sona::linq::from_container(GetTupleElemTypes());
       auto rng2 = sona::linq::from_container(t.GetTupleElemTypes());
       auto rng = rng1.zip_with(rng2).transform(
-          [](std::pair<sona::ref_ptr<Type>, sona::ref_ptr<Type>> p)
-          { return p.first.get().EqualTo(p.second.get()); });
+          [](std::pair<QualType, QualType> p)
+          { return p.first.GetType()->EqualTo(p.second.GetType().get())
+                   && p.first.GetCVR() == p.second.GetCVR(); });
 
       for (bool b : rng)
         if (!b) return false;
@@ -129,25 +130,29 @@ bool TupleType::EqualTo(Type const &that) const noexcept {
 }
 
 size_t ArrayType::GetHash() const noexcept {
-  return m_Base.get().GetHash() * GetSize() * 19937;
+  return m_Base.GetType().get().GetHash() * GetSize() * 19937
+         + m_Base.GetCVR() * 42;
 }
 
 bool ArrayType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Array) {
     ArrayType const &t = static_cast<ArrayType const &>(that);
-    return GetBase()->EqualTo(t.GetBase().get());
+    return GetBase().GetType()->EqualTo(t.GetBase().GetType().get())
+           && GetBase().GetCVR() == t.GetBase().GetCVR();
   }
   return false;
 }
 
 size_t PointerType::GetHash() const noexcept {
-  return m_Pointee.get().GetHash() * (9);
+  return m_Pointee.GetType().get().GetHash() * (9)
+         + m_Pointee.GetCVR() * 42;
 }
 
 bool PointerType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Pointer) {
     PointerType const &t = static_cast<PointerType const &>(that);
-    return t.GetPointee()->EqualTo(t.GetPointee().get());
+    return GetPointee().GetType()->EqualTo(t.GetPointee().GetType().get())
+           && GetPointee().GetCVR() == t.GetPointee().GetCVR();
   }
   return false;
 }
@@ -155,21 +160,26 @@ bool PointerType::EqualTo(Type const &that) const noexcept {
 size_t FunctionType::GetHash() const noexcept {
   auto rng =
       sona::linq::from_container(m_ParamTypes)
-          .transform([](sona::ref_ptr<Type const> t) { return t->GetHash(); });
+          .transform([](QualType t) {
+             return t.GetType()->GetHash() + t.GetCVR() * 42; });
   return (size_t)std::accumulate(rng.begin(), rng.end(), 0) +
-         m_ReturnType->GetHash();
+         m_ReturnType.GetType()->GetHash();
 }
 
 bool FunctionType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Function) {
     FunctionType const &t = static_cast<FunctionType const &>(that);
-    if (GetReturnType()->EqualTo(t.GetReturnType().get()) &&
-        GetParamTypes().size() == t.GetParamTypes().size()) {
+    if (GetReturnType().GetType()->EqualTo(t.GetReturnType().GetType().get())
+        && GetReturnType().GetCVR() == t.GetReturnType().GetCVR()
+        && GetParamTypes().size() == t.GetParamTypes().size()) {
       auto rng1 = sona::linq::from_container(GetParamTypes());
       auto rng2 = sona::linq::from_container(t.GetParamTypes());
       auto rng = rng1.zip_with(rng2).transform(
-          [](std::pair<sona::ref_ptr<Type const>, sona::ref_ptr<Type const>> p)
-          { return p.first.get().EqualTo(p.second.get()); });
+          [](std::pair<QualType, QualType> p)
+          { return
+                 p.first.GetType().get().EqualTo(p.second.GetType().get())
+                 && p.first.GetCVR() == p.second.GetCVR();
+          });
       for (bool b : rng)
         if (!b) return false;
       return true;
@@ -180,18 +190,22 @@ bool FunctionType::EqualTo(Type const &that) const noexcept {
 
 /// @todo remove magic numbers, use better hash algorithms
 std::size_t LValueRefType::GetHash() const noexcept {
-  return GetReferencedType().get().GetHash() * 19260817;
+  return GetReferencedType().GetType().get().GetHash() * 19260817
+         + GetReferencedType().GetCVR() * 42;
 }
 
 std::size_t RValueRefType::GetHash() const noexcept {
-  return GetReferencedType().get().GetHash() * 19660813;
+  return GetReferencedType().GetType().get().GetHash() * 19660813
+         + GetReferencedType().GetCVR() * 42;
 }
 
 bool RefType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Ref) {
     RefType const &t = static_cast<RefType const &>(that);
-    return (GetRefTypeId() == t.GetRefTypeId()) &&
-           (GetReferencedType()->EqualTo(t.GetReferencedType().get()));
+    return (GetRefTypeId() == t.GetRefTypeId())
+           && (GetReferencedType().GetType()->EqualTo(
+                t.GetReferencedType().GetType().get()))
+           && (GetReferencedType().GetCVR() == t.GetReferencedType().GetCVR());
   }
   return false;
 }

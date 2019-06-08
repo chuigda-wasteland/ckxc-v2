@@ -18,6 +18,7 @@ constexpr std::size_t MaxBitsCompressed = 3;
 
 template <typename T, size_t BitsCompressed> class ptr_int_pair_owner;
 
+/// @note please note that it is of no use to modify a "borrowed" ptr-int pair
 template <typename T, size_t BitsCompressed>
 class ptr_int_pair {
   static_assert(BitsCompressed <= MaxBitsCompressed,
@@ -26,9 +27,9 @@ class ptr_int_pair {
 public:
   enum { bit_mask = bitmask(BitsCompressed) };
 
-  ptr_int_pair(T* ptr, unsigned value = 0) {
+  explicit ptr_int_pair(T* ptr, unsigned value = 0) {
     sona_assert1(value < (1 << BitsCompressed), "value > BitsCompressed");
-    std::uintptr_t uptr = static_cast<std::uintptr_t>(ptr);
+    std::uintptr_t uptr = reinterpret_cast<std::uintptr_t>(ptr);
     sona_assert1((uptr & bit_mask) == 0,
                  "this pointer is not aligned or broken!");
     uptr |= value;
@@ -57,12 +58,12 @@ public:
   T* operator->() const noexcept {
     std::uintptr_t uptr = reinterpret_cast<std::uintptr_t>(ptr);
     uptr &= ~bit_mask;
-    return static_cast<T*>(uptr);
+    return reinterpret_cast<T*>(uptr);
   }
 
 private:
   struct owner_construct {};
-  ptr_int_pair(owner_construct, T* rawptr) {
+  explicit ptr_int_pair(owner_construct, T* rawptr) {
     ptr = rawptr;
   }
   
