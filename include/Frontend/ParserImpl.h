@@ -60,7 +60,7 @@ protected:
   SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
 private:
-  sona::optional<std::pair<sona::string_ref, SourceRange>> ExpectTagId();
+  sona::optional<std::pair<sona::strhdl_t, SourceRange>> ExpectTagId();
 
   Token const& CurrentToken() const noexcept;
   Token const& PeekToken(size_t peekCount = 1) const noexcept;
@@ -74,7 +74,7 @@ private:
 
   template <typename Cond> void SkipUntil(Cond cond);
 
-  sona::string_ref PrettyPrintToken(Token const &token) const;
+  sona::strhdl_t PrettyPrintToken(Token const &token) const;
 
   static Syntax::BuiltinType::TypeKind
   EvaluateIntTypeKind(std::int64_t i) noexcept;

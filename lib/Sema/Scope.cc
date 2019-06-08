@@ -29,7 +29,7 @@ void Scope::AddVarDecl(sona::ref_ptr<const AST::VarDecl> varDecl) {
   m_Variables.emplace(varDecl->GetVarName(), varDecl);
 }
 
-void Scope::AddType(sona::string_ref const& typeName,
+void Scope::AddType(sona::strhdl_t const& typeName,
                     sona::ref_ptr<const AST::Type> type) {
   m_Types.emplace(typeName, type);
 }
@@ -39,7 +39,7 @@ void Scope::AddFunction(sona::ref_ptr<const AST::FuncDecl> funcDecl) {
 }
 
 sona::ref_ptr<AST::VarDecl const>
-Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
+Scope::LookupVarDecl(const sona::strhdl_t &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;
        s = s->GetParentScope().get()) {
     sona::ref_ptr<AST::VarDecl const> localResult =
@@ -52,7 +52,7 @@ Scope::LookupVarDecl(const sona::string_ref &name) const noexcept {
 }
 
 sona::ref_ptr<AST::Type const>
-Scope::LookupType(const sona::string_ref &name) const noexcept {
+Scope::LookupType(const sona::strhdl_t &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;
        s = s->GetParentScope().get()) {
     sona::ref_ptr<AST::Type const> localResult =
@@ -65,7 +65,7 @@ Scope::LookupType(const sona::string_ref &name) const noexcept {
 }
 
 sona::ref_ptr<const AST::Type>
-Scope::LookupTypeLocally(const sona::string_ref& name) const noexcept {
+Scope::LookupTypeLocally(const sona::strhdl_t& name) const noexcept {
   auto it = m_Types.find(name);
   if (it != m_Types.cend()) {
     return it->second;
@@ -74,7 +74,7 @@ Scope::LookupTypeLocally(const sona::string_ref& name) const noexcept {
 }
 
 sona::ref_ptr<const AST::VarDecl>
-Scope::LookupVarDeclLocally(const sona::string_ref& name) const noexcept {
+Scope::LookupVarDeclLocally(const sona::strhdl_t& name) const noexcept {
   auto it = m_Variables.find(name);
   if (it != m_Variables.cend()) {
     return it->second;
@@ -83,7 +83,7 @@ Scope::LookupVarDeclLocally(const sona::string_ref& name) const noexcept {
 }
 
 sona::iterator_range<Scope::FunctionSet::const_iterator>
-Scope::GetAllFuncsLocal(const sona::string_ref &name) const noexcept {
+Scope::GetAllFuncsLocal(const sona::strhdl_t &name) const noexcept {
   auto it = m_Functions.find(name);
   if (it == m_Functions.cend()) {
     return sona::iterator_range<FunctionSet::const_iterator>(it, it);
@@ -96,7 +96,7 @@ Scope::GetAllFuncsLocal(const sona::string_ref &name) const noexcept {
 }
 
 sona::iterator_range<Scope::FunctionSet::const_iterator>
-Scope::GetAllFuncs(const sona::string_ref &name) const noexcept {
+Scope::GetAllFuncs(const sona::strhdl_t &name) const noexcept {
   auto localResult = GetAllFuncsLocal(name);
   if (localResult.size() == 0 && m_ParentScope != nullptr) {
     return m_ParentScope->GetAllFuncs(name);
@@ -104,7 +104,7 @@ Scope::GetAllFuncs(const sona::string_ref &name) const noexcept {
   return localResult;
 }
 
-void Scope::ReplaceVarDecl(const sona::string_ref& denotingName,
+void Scope::ReplaceVarDecl(const sona::strhdl_t& denotingName,
                            sona::ref_ptr<const AST::VarDecl> varDecl) {
   auto it = m_Variables.find(denotingName);
   sona_assert(it != m_Variables.end());

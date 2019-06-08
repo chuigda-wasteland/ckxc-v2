@@ -3,7 +3,7 @@
 namespace ckx {
 namespace Frontend {
 
-sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind) {
+sona::strhdl_t PrettyPrintTokenKind(Token::TokenKind tokenKind) {
   switch (tokenKind) {
 #define TOKEN_KWD(name, rep) \
   case Token::TK_KW_##name: return "'" + std::string(rep) + "'";

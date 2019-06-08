@@ -183,12 +183,12 @@ private:
 class UserDefinedType : public Type {
 public:
   enum class UDTypeId { UTI_Class, UTI_Enum, UTI_ADT, UTI_Using };
-  UserDefinedType(UDTypeId id, sona::string_ref const& typeName,
+  UserDefinedType(UDTypeId id, sona::strhdl_t const& typeName,
                   sona::ref_ptr<TypeDecl> typeDecl);
 
   UDTypeId GetUserDefinedTypeId() const noexcept { return m_Id; }
 
-  sona::string_ref const &GetTypeName() const noexcept { return m_TypeName; }
+  sona::strhdl_t const &GetTypeName() const noexcept { return m_TypeName; }
 
   std::size_t GetHash() const noexcept override final;
   bool EqualTo(Type const &that) const noexcept override final;
@@ -199,7 +199,7 @@ public:
 
 private:
   UDTypeId m_Id;
-  sona::string_ref m_TypeName;
+  sona::strhdl_t m_TypeName;
   sona::ref_ptr<AST::TypeDecl> m_TypeDecl;
 };
 

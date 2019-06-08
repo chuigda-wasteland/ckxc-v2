@@ -52,7 +52,7 @@ public:
 
   IncompleteDeclType GetType() const noexcept { return m_IDeclType; }
 
-  virtual sona::string_ref const& GetName() const noexcept = 0;
+  virtual sona::strhdl_t const& GetName() const noexcept = 0;
 
   virtual SourceRange const& GetRepresentingRange() const noexcept = 0;
 
@@ -86,7 +86,7 @@ public:
 
   std::string ToString() const override;
 
-  sona::string_ref const& GetName() const noexcept override {
+  sona::strhdl_t const& GetName() const noexcept override {
     return GetConcrete()->GetName();
   }
 
@@ -119,7 +119,7 @@ public:
 
   std::string ToString() const override;
 
-  sona::string_ref const& GetName() const noexcept override {
+  sona::strhdl_t const& GetName() const noexcept override {
     return GetHalfway()->GetName();
   }
 
@@ -157,7 +157,7 @@ public:
 
   std::string ToString() const override;
 
-  sona::string_ref const& GetName() const noexcept override {
+  sona::strhdl_t const& GetName() const noexcept override {
     return GetConcrete()->GetName();
   }
 
@@ -193,7 +193,7 @@ public:
 
   std::string ToString() const override;
 
-  sona::string_ref const& GetName() const noexcept override {
+  sona::strhdl_t const& GetName() const noexcept override {
     return GetConcrete()->GetName();
   }
 
@@ -216,7 +216,7 @@ public:
 
   std::string ToString() const override;
 
-  sona::string_ref const& GetName() const noexcept override {
+  sona::strhdl_t const& GetName() const noexcept override {
     return m_FuncDecl->GetName();
   }
 

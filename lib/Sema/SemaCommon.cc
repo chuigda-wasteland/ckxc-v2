@@ -54,7 +54,7 @@ SemaCommon::ResolveBuiltinTypeImpl(
 
 sona::ref_ptr<AST::DeclContext const>
 SemaCommon::ChooseDeclContext(std::shared_ptr<Scope> scope,
-                              std::vector<sona::string_ref> const& nns,
+                              std::vector<sona::strhdl_t> const& nns,
                               bool shouldDiag,
                               std::vector<SingleSourceRange> const& nnsRanges) {
   sona::ref_ptr<AST::Type const> topLevelType = scope->LookupType(nns.front());

@@ -51,13 +51,13 @@ void test0() {
 
   sona::ref_ptr<AST::Type const> ACType =
       sema0.LookupType(sema0.GetGlobalScope(),
-                       Syntax::Identifier(std::vector<sona::string_ref>{"A"},
+                       Syntax::Identifier(std::vector<sona::strhdl_t>{"A"},
                                           "C", std::vector<SourceRange>{},
                                           SourceRange(0, 0, 0)), false);
 
   sona::ref_ptr<AST::Type const> BCType =
       sema0.LookupType(sema0.GetGlobalScope(),
-                       Syntax::Identifier(std::vector<sona::string_ref>{"B"},
+                       Syntax::Identifier(std::vector<sona::strhdl_t>{"B"},
                                           "C", std::vector<SourceRange>{},
                                           SourceRange(0, 0, 0)), false);
 

@@ -67,10 +67,10 @@ public:
   }
 
   void LookupDeclContexts(
-         sona::string_ref const& name,
+         sona::strhdl_t const& name,
          std::vector<sona::ref_ptr<Decl const>> &recv) const;
 
-  void LookupTypeDecl(sona::string_ref const& name,
+  void LookupTypeDecl(sona::strhdl_t const& name,
                       std::vector<sona::ref_ptr<Decl const>> &recv) const;
 
   auto GetDecls() const noexcept {

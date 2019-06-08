@@ -4,7 +4,7 @@ namespace ckx {
 namespace AST {
 
 void DeclContext::LookupDeclContexts(
-    const sona::string_ref &name,
+    const sona::strhdl_t &name,
     std::vector<sona::ref_ptr<const Decl>> &recv) const {
   for (sona::ref_ptr<Decl const> decl : GetDecls()) {
     if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit
@@ -18,7 +18,7 @@ void DeclContext::LookupDeclContexts(
 }
 
 void DeclContext::LookupTypeDecl(
-    const sona::string_ref &name,
+    const sona::strhdl_t &name,
     std::vector<sona::ref_ptr<const Decl> > &recv) const {
   for (sona::ref_ptr<Decl const> decl : GetDecls()) {
     if ((decl->GetDeclKind() == AST::Decl::DK_TransUnit

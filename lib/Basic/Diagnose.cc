@@ -9,7 +9,7 @@ namespace Diag {
 
 std::string
 Format(DiagMessageTemplate messageTemplate,
-       std::vector<sona::string_ref> const& paramStrings) {
+       std::vector<sona::strhdl_t> const& paramStrings) {
   char const *templateStr = nullptr;
   switch (messageTemplate) {
   #define DIAG_TEMPLATE(ID, STR) \

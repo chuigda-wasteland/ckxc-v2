@@ -252,7 +252,7 @@ sona::ref_ptr<const UsingDecl> UsingType::GetUsingDecl() const noexcept {
 }
 
 UserDefinedType::UserDefinedType(UserDefinedType::UDTypeId id,
-                                 const sona::string_ref& typeName,
+                                 const sona::strhdl_t& typeName,
                                  sona::ref_ptr<TypeDecl> typeDecl)
   : Type(TypeId::TI_UserDefined), m_Id(id),
     m_TypeName(typeName), m_TypeDecl(typeDecl) {

@@ -70,7 +70,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseVarDecl() {
     return nullptr;
   }
 
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -85,12 +85,12 @@ sona::owner<Syntax::Decl> ParserImpl::ParseClassDecl() {
   SourceRange classRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  sona::optional<std::pair<sona::strhdl_t, SourceRange>>
   idResult = ExpectTagId();
   if (!idResult.has_value()) {
     return nullptr;
   }
-  sona::string_ref name = idResult.value().first;
+  sona::strhdl_t name = idResult.value().first;
   SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
@@ -145,12 +145,12 @@ sona::owner<Syntax::Decl> ParserImpl::ParseEnumDecl() {
   SourceRange enumRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  sona::optional<std::pair<sona::strhdl_t, SourceRange>>
   idResult = ExpectTagId();
   if (!idResult.has_value()) {
     return nullptr;
   }
-  sona::string_ref name = idResult.value().first;
+  sona::strhdl_t name = idResult.value().first;
   SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
@@ -202,12 +202,12 @@ sona::owner<Syntax::Decl> ParserImpl::ParseADTDecl() {
   SourceRange classRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  sona::optional<std::pair<sona::string_ref, SourceRange>>
+  sona::optional<std::pair<sona::strhdl_t, SourceRange>>
   idResult = ExpectTagId();
   if (!idResult.has_value()) {
     return nullptr;
   }
-  sona::string_ref name = idResult.value().first;
+  sona::strhdl_t name = idResult.value().first;
   SourceRange nameRange = idResult.value().second;
 
   if (!ExpectAndConsume(Token::TK_SYM_LBRACE)) {
@@ -253,7 +253,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
     return nullptr;
   }
 
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -261,14 +261,14 @@ sona::owner<Syntax::Decl> ParserImpl::ParseFuncDecl() {
     return nullptr;
   }
 
-  std::vector<sona::string_ref> paramNames;
+  std::vector<sona::strhdl_t> paramNames;
   std::vector<sona::owner<Syntax::Type>> paramTypes;
 
   while (CurrentToken().GetTokenKind() != Token::TK_EOI) {
     if (!Expect(Token::TK_ID)) {
       continue;
     }
-    sona::string_ref paramName = CurrentToken().GetStrValueUnsafe();
+    sona::strhdl_t paramName = CurrentToken().GetStrValueUnsafe();
     ConsumeToken();
 
     if (!ExpectAndConsume(Token::TK_SYM_COLON)) {
@@ -311,7 +311,7 @@ sona::owner<Syntax::Decl> ParserImpl::ParseUsingDecl() {
   if (!Expect(Token::TK_ID)) {
     return nullptr;
   }
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -336,7 +336,7 @@ ParseEnumerator(std::vector<Syntax::EnumDecl::Enumerator> &enumerators) {
     return;
   }
 
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -365,7 +365,7 @@ void ParserImpl::ParseDataConstructor(
     return;
   }
 
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange nameRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
@@ -689,7 +689,7 @@ sona::owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {
 Syntax::Identifier ParserImpl::ParseIdentifier() {
   sona_assert(CurrentToken().GetTokenKind() == Token::TK_ID);
 
-  std::vector<sona::string_ref> parsedParts;
+  std::vector<sona::strhdl_t> parsedParts;
   std::vector<SourceRange> parsedPartRanges;
 
   parsedParts.push_back(CurrentToken().GetStrValueUnsafe());
@@ -711,7 +711,7 @@ Syntax::Identifier ParserImpl::ParseIdentifier() {
     ConsumeToken();
   }
 
-  sona::string_ref idItself = parsedParts.back();
+  sona::strhdl_t idItself = parsedParts.back();
   SourceRange idItselfRange = parsedPartRanges.back();
   parsedParts.pop_back();
   parsedPartRanges.pop_back();
@@ -726,14 +726,14 @@ SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream) {
   m_Index = 0;
 }
 
-sona::optional<std::pair<sona::string_ref, SourceRange>>
+sona::optional<std::pair<sona::strhdl_t, SourceRange>>
 ParserImpl::ExpectTagId() {
   if (!Expect(Token::TK_ID)) {
     if (CurrentToken().GetTokenKind() == Token::TK_SYM_LBRACE) {
       m_Diag.Diag(Diag::DIR_Note,
                   Diag::Format(Diag::DMT_NoteNoAnonymousDecl, {}),
                   CurrentToken().GetSourceRange());
-      sona::string_ref name = CreateAnonymousName();
+      sona::strhdl_t name = CreateAnonymousName();
       SourceRange range = CurrentToken().GetSourceRange();
       return std::make_pair(name, range);
     }
@@ -742,7 +742,7 @@ ParserImpl::ExpectTagId() {
     }
   }
 
-  sona::string_ref name = CurrentToken().GetStrValueUnsafe();
+  sona::strhdl_t name = CurrentToken().GetStrValueUnsafe();
   SourceRange range = CurrentToken().GetSourceRange();
   ConsumeToken();
   return std::make_pair(name, range);
@@ -826,7 +826,7 @@ ParserImpl::EvaluateFloatTypeKind(double) noexcept {
   return Syntax::BuiltinType::TypeKind::TK_Double;
 }
 
-sona::string_ref ParserImpl::PrettyPrintToken(Token const& token) const {
+sona::strhdl_t ParserImpl::PrettyPrintToken(Token const& token) const {
   switch (token.GetTokenKind()) {
 #define TOKEN_KWD(name, rep) \
   case Token::TK_KW_##name: return "'" + std::string(rep) + "'";

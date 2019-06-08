@@ -17,12 +17,12 @@ namespace Syntax {
 
 class Identifier {
 public:
-  Identifier(sona::string_ref const& identifier,
+  Identifier(sona::strhdl_t const& identifier,
              SingleSourceRange const& idRange)
     : m_Identifier(identifier), m_IdRange(idRange) {}
 
-  Identifier(std::vector<sona::string_ref> &&nestedNameSpecifiers,
-             sona::string_ref identifier,
+  Identifier(std::vector<sona::strhdl_t> &&nestedNameSpecifiers,
+             sona::strhdl_t identifier,
              std::vector<SingleSourceRange> &&nnsRanges,
              SingleSourceRange idRange)
     : m_NestedNameSpecifiers(std::move(nestedNameSpecifiers)),
@@ -40,15 +40,15 @@ public:
   Identifier& operator=(Identifier const&) = delete;
 
   Identifier ExplicitlyClone() const {
-    std::vector<sona::string_ref> copyOfNNS = m_NestedNameSpecifiers;
-    sona::string_ref copyOfIdentifier = m_Identifier;
+    std::vector<sona::strhdl_t> copyOfNNS = m_NestedNameSpecifiers;
+    sona::strhdl_t copyOfIdentifier = m_Identifier;
     std::vector<SingleSourceRange> copyOfNNSRanges = m_NNSRanges;
     SingleSourceRange copyOfIdRange = m_IdRange;
     return Identifier(std::move(copyOfNNS), std::move(copyOfIdentifier),
                       std::move(copyOfNNSRanges), std::move(copyOfIdRange));
   }
 
-  sona::string_ref const& GetIdentifier() const noexcept {
+  sona::strhdl_t const& GetIdentifier() const noexcept {
     return m_Identifier;
   }
 
@@ -56,7 +56,7 @@ public:
     return m_IdRange;
   }
 
-  std::vector<sona::string_ref> const&
+  std::vector<sona::strhdl_t> const&
   GetNestedNameSpecifiers() const noexcept {
     return m_NestedNameSpecifiers;
   }
@@ -66,8 +66,8 @@ public:
   }
 
 private:
-  std::vector<sona::string_ref> m_NestedNameSpecifiers;
-  sona::string_ref m_Identifier;
+  std::vector<sona::strhdl_t> m_NestedNameSpecifiers;
+  sona::strhdl_t m_Identifier;
   std::vector<SingleSourceRange> m_NNSRanges;
   SingleSourceRange m_IdRange;
 };
@@ -100,8 +100,8 @@ class AttributeList : public Node {
 public:
   class Attribute {
   public:
-    Attribute(sona::string_ref const& attributeName,
-              sona::string_ref const& attributeValue,
+    Attribute(sona::strhdl_t const& attributeName,
+              sona::strhdl_t const& attributeValue,
               SingleSourceRange nameRange,
               SingleSourceRange valueRange)
       : m_AttributeName(attributeName),
@@ -109,7 +109,7 @@ public:
         m_NameRange(nameRange),
         m_ValueRange(valueRange) {}
 
-    Attribute(sona::string_ref const& attributeName,
+    Attribute(sona::strhdl_t const& attributeName,
               SingleSourceRange nameRange,
               SingleSourceRange valueRange)
       : m_AttributeName(attributeName),
@@ -117,7 +117,7 @@ public:
         m_NameRange(nameRange),
         m_ValueRange(valueRange) {}
 
-    sona::string_ref const& GetAttributeName() const noexcept {
+    sona::strhdl_t const& GetAttributeName() const noexcept {
       return m_AttributeName;
     }
 
@@ -125,7 +125,7 @@ public:
       return m_AttributeValue.has_value();
     }
 
-    sona::string_ref const& GetAttributeValueUnsafe() const noexcept {
+    sona::strhdl_t const& GetAttributeValueUnsafe() const noexcept {
       return m_AttributeValue.value();
     }
 
@@ -138,8 +138,8 @@ public:
     }
 
   private:
-    sona::string_ref m_AttributeName;
-    sona::optional<sona::string_ref> m_AttributeValue;
+    sona::strhdl_t m_AttributeName;
+    sona::optional<sona::strhdl_t> m_AttributeValue;
     SingleSourceRange m_NameRange;
     SingleSourceRange m_ValueRange;
   };
@@ -334,7 +334,7 @@ private:
 class ForwardDecl : public Decl {
 public:
   enum class ForwardDeclKind { FDK_Class, FDK_Enum, FDK_ADT };
-  ForwardDecl(ForwardDeclKind fdk, sona::string_ref const& name,
+  ForwardDecl(ForwardDeclKind fdk, sona::strhdl_t const& name,
                  SingleSourceRange const& keywordRange,
                  SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_ForwardDecl),
@@ -346,7 +346,7 @@ public:
     return m_ForwardDeclKind;
   }
 
-  sona::string_ref const& GetName() const noexcept {
+  sona::strhdl_t const& GetName() const noexcept {
     return m_Name;
   }
 
@@ -360,7 +360,7 @@ public:
 
 private:
   ForwardDeclKind m_ForwardDeclKind;
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
   SingleSourceRange m_KeywordRange;
   SingleSourceRange m_NameRange;
 };
@@ -368,7 +368,7 @@ private:
 class TemplatedDecl : public Decl {
 public:
   TemplatedDecl(
-      std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> tparams,
+      std::vector<sona::either<sona::strhdl_t, sona::owner<Expr>>> tparams,
       sona::owner<Decl> underlyingDecl,
       SingleSourceRange templateRange)
     : Decl(NodeKind::CNK_TemplatedDecl),
@@ -376,7 +376,7 @@ public:
       m_UnderlyingDecl(std::move(underlyingDecl)),
       m_TemplateRange(templateRange) {}
 
-  std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> const&
+  std::vector<sona::either<sona::strhdl_t, sona::owner<Expr>>> const&
   GetTemplateParams() const noexcept {
     return m_TParams;
   }
@@ -390,18 +390,18 @@ public:
   }
 
 private:
-  std::vector<sona::either<sona::string_ref, sona::owner<Expr>>> m_TParams;
+  std::vector<sona::either<sona::strhdl_t, sona::owner<Expr>>> m_TParams;
   sona::owner<Decl> m_UnderlyingDecl;
   SingleSourceRange m_TemplateRange;
 };
 
 class TagDecl : public Decl {
 public:
-  TagDecl(NodeKind nodeKind, sona::string_ref const& name,
+  TagDecl(NodeKind nodeKind, sona::strhdl_t const& name,
           SourceRange nameRange)
     : Decl(nodeKind), m_Name(name), m_NameRange(nameRange) {}
 
-  sona::string_ref const& GetName() const noexcept {
+  sona::strhdl_t const& GetName() const noexcept {
     return m_Name;
   }
 
@@ -410,13 +410,13 @@ public:
   }
 
 private:
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
   SourceRange m_NameRange;
 };
 
 class ClassDecl : public TagDecl {
 public:
-  ClassDecl(sona::string_ref const& className,
+  ClassDecl(sona::strhdl_t const& className,
             std::vector<sona::owner<Decl>> &&subDecls,
             SingleSourceRange const& classKwdRange,
             SingleSourceRange const& classNameRange)
@@ -443,7 +443,7 @@ class EnumDecl : public TagDecl {
 public:
   class Enumerator {
   public:
-    Enumerator(sona::string_ref const& name,
+    Enumerator(sona::strhdl_t const& name,
                int64_t value,
                SingleSourceRange nameRange,
                SingleSourceRange eqLoc,
@@ -451,11 +451,11 @@ public:
       : m_Name(name), m_Value(value),
         m_NameRange(nameRange), m_EqLoc(eqLoc), m_ValueRange(valueRange) {}
 
-    Enumerator(const sona::string_ref &name, SingleSourceRange nameRange)
+    Enumerator(const sona::strhdl_t &name, SingleSourceRange nameRange)
       : m_Name(name), m_Value(sona::empty_optional()),
         m_NameRange(nameRange), m_EqLoc(0, 0, 0), m_ValueRange(0, 0, 0) {}
 
-    sona::string_ref const& GetName() const noexcept {
+    sona::strhdl_t const& GetName() const noexcept {
       return m_Name;
     }
 
@@ -483,14 +483,14 @@ public:
     }
 
   private:
-    sona::string_ref m_Name;
+    sona::strhdl_t m_Name;
     sona::optional<int64_t> m_Value;
     SingleSourceRange m_NameRange;
     SingleSourceRange m_EqLoc;
     SingleSourceRange m_ValueRange;
   };
 
-  EnumDecl(sona::string_ref const& name,
+  EnumDecl(sona::strhdl_t const& name,
            std::vector<Enumerator> &&enumerators,
            SingleSourceRange const& enumRange,
            SingleSourceRange const& nameRange)
@@ -514,17 +514,17 @@ class ADTDecl : public TagDecl {
 public:
   class ValueConstructor {
   public:
-    ValueConstructor(sona::string_ref const& name,
+    ValueConstructor(sona::strhdl_t const& name,
                     sona::owner<Type> &&underlyingType,
                     SingleSourceRange const& nameRange)
       : m_Name(name), m_UnderlyingType(std::move(underlyingType)),
         m_NameRange(nameRange) {}
 
-    ValueConstructor(sona::string_ref const& name,
+    ValueConstructor(sona::strhdl_t const& name,
                     SingleSourceRange const& nameRange)
       : m_Name(name), m_UnderlyingType(nullptr), m_NameRange(nameRange) {}
 
-    sona::string_ref const& GetName() const noexcept {
+    sona::strhdl_t const& GetName() const noexcept {
       return m_Name;
     }
 
@@ -537,12 +537,12 @@ public:
     }
 
   private:
-    sona::string_ref m_Name;
+    sona::strhdl_t m_Name;
     sona::owner<Type> m_UnderlyingType;
     SingleSourceRange m_NameRange;
   };
 
-  ADTDecl(sona::string_ref const& name,
+  ADTDecl(sona::strhdl_t const& name,
           std::vector<ValueConstructor> &&constructors,
           SingleSourceRange const& enumRange,
           SingleSourceRange const& classRange,
@@ -572,7 +572,7 @@ private:
 
 class UsingDecl : public Decl {
 public:
-  UsingDecl(sona::string_ref const& name,
+  UsingDecl(sona::strhdl_t const& name,
             sona::owner<Type> &&aliasee,
             SingleSourceRange usingRange,
             SingleSourceRange nameRange,
@@ -584,7 +584,7 @@ public:
       m_NameRange(nameRange),
       m_EqLoc(eqLoc) {}
 
-  sona::string_ref const& GetName() const noexcept {
+  sona::strhdl_t const& GetName() const noexcept {
     return m_Name;
   }
 
@@ -605,7 +605,7 @@ public:
   }
 
 private:
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
   sona::owner<Type> m_Aliasee;
   SingleSourceRange m_UsingRange;
   SingleSourceRange m_NameRange;
@@ -614,9 +614,9 @@ private:
 
 class FuncDecl : public Decl {
 public:
-  FuncDecl(sona::string_ref const& name,
+  FuncDecl(sona::strhdl_t const& name,
            std::vector<sona::owner<Type>> &&paramTypes,
-           std::vector<sona::string_ref> &&paramNames,
+           std::vector<sona::strhdl_t> &&paramNames,
            sona::owner<Type> &&retType,
            sona::optional<sona::owner<Stmt>> &&funcBody,
            SingleSourceRange funcRange,
@@ -629,14 +629,14 @@ public:
     m_FuncBody(std::move(funcBody)),
     m_FuncRange(funcRange), m_NameRange(nameRange) {}
 
-  sona::string_ref const& GetName() const noexcept { return m_Name; }
+  sona::strhdl_t const& GetName() const noexcept { return m_Name; }
 
   auto GetParamTypes() const noexcept {
     return sona::linq::from_container(m_ParamTypes).transform(
           [](sona::owner<Type> const& it) { return it.borrow(); });
   }
 
-  std::vector<sona::string_ref> const& GetParamNames() const noexcept {
+  std::vector<sona::strhdl_t> const& GetParamNames() const noexcept {
     return m_ParamNames;
   }
 
@@ -661,9 +661,9 @@ public:
   }
 
 private:
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
   std::vector<sona::owner<Type>> m_ParamTypes;
-  std::vector<sona::string_ref> m_ParamNames;
+  std::vector<sona::strhdl_t> m_ParamNames;
   sona::owner<Type> m_RetType;
   sona::optional<sona::owner<Stmt>> m_FuncBody;
   SingleSourceRange m_FuncRange, m_NameRange;
@@ -671,14 +671,14 @@ private:
 
 class VarDecl : public Decl {
 public:
-  VarDecl(sona::string_ref const& name, sona::owner<Type> type,
+  VarDecl(sona::strhdl_t const& name, sona::owner<Type> type,
           SingleSourceRange const& defRange,
           SingleSourceRange const& nameRange)
     : Decl(NodeKind::CNK_VarDecl),
       m_Name(name), m_Type(std::move(type)),
       m_DefRange(defRange), m_NameRange(nameRange) {}
 
-  sona::string_ref const& GetName() const noexcept {
+  sona::strhdl_t const& GetName() const noexcept {
     return m_Name;
   }
 
@@ -695,7 +695,7 @@ public:
   }
 
 private:
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
   sona::owner<Type> m_Type;
   SingleSourceRange m_DefRange, m_NameRange;
 };
@@ -762,11 +762,11 @@ private:
 
 class StringLiteralExpr : public Expr {
 public:
-  StringLiteralExpr(sona::string_ref const& strValue, SourceRange const& range)
+  StringLiteralExpr(sona::strhdl_t const& strValue, SourceRange const& range)
     : Expr(NodeKind::CNK_StringLiteralExpr),
       m_StrValue(strValue), m_Range(range) {}
 
-  sona::string_ref const& GetValue() const noexcept {
+  sona::strhdl_t const& GetValue() const noexcept {
     return m_StrValue;
   }
 
@@ -775,7 +775,7 @@ public:
   }
 
 private:
-  sona::string_ref m_StrValue;
+  sona::strhdl_t m_StrValue;
   SourceRange m_Range;
 };
 

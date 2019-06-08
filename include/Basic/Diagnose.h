@@ -23,7 +23,7 @@ enum DiagnosticInfoRank {
 
 std::string
 Format(DiagMessageTemplate messageTemplate,
-       const std::vector<sona::string_ref>& paramStrings);
+       const std::vector<sona::strhdl_t>& paramStrings);
 
 class DiagnosticEngine {
 private:

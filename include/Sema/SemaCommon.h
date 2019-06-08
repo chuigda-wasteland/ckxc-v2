@@ -39,7 +39,7 @@ protected:
 
   sona::ref_ptr<const AST::DeclContext>
   ChooseDeclContext(std::shared_ptr<Scope> scope,
-                    const std::vector<sona::string_ref>& nns, bool shouldDiag,
+                    const std::vector<sona::strhdl_t>& nns, bool shouldDiag,
                     const std::vector<SingleSourceRange>& nnsRanges);
 
   sona::ref_ptr<AST::Type const>

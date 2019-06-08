@@ -546,7 +546,7 @@ SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
   PushScope(Scope::SF_Enum);
 
   std::int64_t value = 0;
-  std::unordered_set<sona::string_ref> collectedNames;
+  std::unordered_set<sona::strhdl_t> collectedNames;
   for (Syntax::EnumDecl::Enumerator const& e : decl->GetEnumerators()) {
     if (collectedNames.find(e.GetName()) != collectedNames.cend()) {
       m_Diag.Diag(Diag::DIR_Error,

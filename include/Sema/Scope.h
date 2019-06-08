@@ -14,7 +14,7 @@ namespace Sema {
 class Scope {
 public:
   using FunctionSet =
-  std::map<sona::string_ref, sona::ref_ptr<AST::FuncDecl const>>;
+  std::map<sona::strhdl_t, sona::ref_ptr<AST::FuncDecl const>>;
 
   enum ScopeFlags {
     SF_None          = 0x0000,
@@ -58,28 +58,28 @@ public:
 
   void AddVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl);
 
-  void AddType(const sona::string_ref& typeName,
+  void AddType(const sona::strhdl_t& typeName,
                sona::ref_ptr<AST::Type const> type);
 
   void AddFunction(sona::ref_ptr<AST::FuncDecl const> funcDecl);
 
   sona::ref_ptr<AST::Type const>
-  LookupType(sona::string_ref const& name) const noexcept;
+  LookupType(sona::strhdl_t const& name) const noexcept;
 
   sona::ref_ptr<AST::VarDecl const>
-  LookupVarDecl(sona::string_ref const& name) const noexcept;
+  LookupVarDecl(sona::strhdl_t const& name) const noexcept;
 
   sona::ref_ptr<AST::Type const>
-  LookupTypeLocally(sona::string_ref const& name) const noexcept;
+  LookupTypeLocally(sona::strhdl_t const& name) const noexcept;
 
   sona::ref_ptr<AST::VarDecl const>
-  LookupVarDeclLocally(sona::string_ref const& name) const noexcept;
+  LookupVarDeclLocally(sona::strhdl_t const& name) const noexcept;
 
   sona::iterator_range<FunctionSet::const_iterator>
-  GetAllFuncsLocal(sona::string_ref const& name) const noexcept;
+  GetAllFuncsLocal(sona::strhdl_t const& name) const noexcept;
 
   sona::iterator_range<FunctionSet::const_iterator>
-  GetAllFuncs(sona::string_ref const& name) const noexcept;
+  GetAllFuncs(sona::strhdl_t const& name) const noexcept;
 
   void SetDeclContext(sona::ref_ptr<AST::DeclContext> declContext) noexcept {
     m_UnderlyingDeclContext = declContext;
@@ -95,7 +95,7 @@ public:
 
   /// @note only used for replacing unresolved var declaration
   /// into abstract declaraion
-  void ReplaceVarDecl(sona::string_ref const& denotingName,
+  void ReplaceVarDecl(sona::strhdl_t const& denotingName,
                       sona::ref_ptr<AST::VarDecl const> varDecl);
 
 private:
@@ -104,11 +104,11 @@ private:
   sona::ref_ptr<Scope> m_EnclosingLoopScope;
   ScopeFlags m_ScopeFlags;
 
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Decl const>>
+  std::unordered_map<sona::strhdl_t, sona::ref_ptr<AST::Decl const>>
   m_Tags;
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::VarDecl const>>
+  std::unordered_map<sona::strhdl_t, sona::ref_ptr<AST::VarDecl const>>
   m_Variables;
-  std::unordered_map<sona::string_ref, sona::ref_ptr<AST::Type const>>
+  std::unordered_map<sona::strhdl_t, sona::ref_ptr<AST::Type const>>
   m_Types;
 
   FunctionSet m_Functions;

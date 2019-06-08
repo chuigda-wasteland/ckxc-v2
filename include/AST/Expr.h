@@ -146,13 +146,13 @@ private:
 
 class IdExpr : public Expr {
 public:
-  IdExpr(sona::string_ref const& idString)
+  IdExpr(sona::strhdl_t const& idString)
     : Expr(ExprId::EI_ID), m_IdString(idString) {}
 
-  sona::string_ref const &GetIdString() const noexcept { return m_IdString; }
+  sona::strhdl_t const &GetIdString() const noexcept { return m_IdString; }
 
 private:
-  sona::string_ref m_IdString;
+  sona::strhdl_t m_IdString;
 };
 
 class LiteralExpr : public Expr {

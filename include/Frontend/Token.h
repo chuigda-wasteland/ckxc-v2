@@ -43,7 +43,7 @@ public:
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        sona::string_ref const& StrValue)
+        sona::strhdl_t const& StrValue)
     : m_TokenKind(tokenKind), m_SourceRange(sourceRange),
       m_StrValue(StrValue) {}
 
@@ -70,7 +70,7 @@ public:
     return m_Value.FloatValue;
   }
 
-  sona::string_ref const& GetStrValueUnsafe() const noexcept {
+  sona::strhdl_t const& GetStrValueUnsafe() const noexcept {
     sona_assert(GetTokenKind() == TK_LIT_STR || GetTokenKind() == TK_ID);
     sona_assert(m_StrValue.has_value());
     return m_StrValue.value();
@@ -86,10 +86,10 @@ private:
     double FloatValue;
   } m_Value;
 
-  sona::optional<sona::string_ref> m_StrValue;
+  sona::optional<sona::strhdl_t> m_StrValue;
 };
 
-sona::string_ref PrettyPrintTokenKind(Token::TokenKind tokenKind);
+sona::strhdl_t PrettyPrintTokenKind(Token::TokenKind tokenKind);
 
 } // namespace Frontend
 } // namespace ckx

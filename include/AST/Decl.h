@@ -30,19 +30,19 @@ private:
 class NamedDecl : public Decl {
 public:
   NamedDecl(sona::ref_ptr<DeclContext> declContext, DeclKind declKind,
-            sona::string_ref const& name)
+            sona::strhdl_t const& name)
     : Decl(declKind, declContext), m_Name(name) {}
 
-  sona::string_ref const &GetName() const noexcept { return m_Name; }
+  sona::strhdl_t const &GetName() const noexcept { return m_Name; }
 
 private:
-  sona::string_ref m_Name;
+  sona::strhdl_t m_Name;
 };
 
 class TypeDecl : public NamedDecl {
 public:
   TypeDecl(sona::ref_ptr<DeclContext> declContext, DeclKind declKind,
-           sona::string_ref const& name)
+           sona::strhdl_t const& name)
     : NamedDecl(declContext, declKind, name), m_TypeForDecl(nullptr) {}
 
   sona::ref_ptr<AST::Type> GetTypeForDecl() noexcept {
@@ -64,24 +64,24 @@ private:
 class LabelDecl final : public Decl {
 public:
   LabelDecl(sona::ref_ptr<DeclContext> context,
-            sona::string_ref const& labelString)
+            sona::strhdl_t const& labelString)
       : Decl(DeclKind::DK_Label, context), m_LabelString(labelString) {}
 
   sona::owner<Backend::ActionResult> 
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
-  sona::string_ref const& GetLabelString() const noexcept {
+  sona::strhdl_t const& GetLabelString() const noexcept {
     return m_LabelString;
   }
 
 private:
-  sona::string_ref m_LabelString;
+  sona::strhdl_t m_LabelString;
 };
 
 class ClassDecl final : public TypeDecl, public DeclContext {
 public:
   ClassDecl(sona::ref_ptr<DeclContext> context,
-            sona::string_ref const& className)
+            sona::strhdl_t const& className)
       : TypeDecl(context, DeclKind::DK_Class, className),
         DeclContext(DeclKind::DK_Class) {}
         
@@ -92,7 +92,7 @@ public:
 class EnumDecl final : public TypeDecl, public DeclContext {
 public:
   EnumDecl(sona::ref_ptr<DeclContext> context,
-           sona::string_ref const& enumName)
+           sona::strhdl_t const& enumName)
       : TypeDecl(context, DeclKind::DK_Enum, enumName),
         DeclContext(DeclKind::DK_Enum) {}
         
@@ -103,13 +103,13 @@ public:
 class ValueCtorDecl final : public Decl {
 public:
   ValueCtorDecl(sona::ref_ptr<DeclContext> context,
-                sona::string_ref const& constructorName,
+                sona::strhdl_t const& constructorName,
                 QualType type)
     : Decl(DeclKind::DK_ValueCtor, context),
       m_ConstructorName(constructorName),
       m_Type(type) {}
 
-  sona::string_ref const& GetConstructorName() const noexcept {
+  sona::strhdl_t const& GetConstructorName() const noexcept {
     return m_ConstructorName;
   }
 
@@ -125,14 +125,14 @@ public:
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
-  sona::string_ref m_ConstructorName;
+  sona::strhdl_t m_ConstructorName;
   QualType m_Type;
 };
 
 class ADTDecl final : public TypeDecl, public DeclContext {
 public:
   ADTDecl(sona::ref_ptr<DeclContext> context,
-                sona::string_ref const& adtName)
+                sona::strhdl_t const& adtName)
     : TypeDecl(context, DeclKind::DK_ADT, adtName),
       DeclContext(DeclKind::DK_ADT) {}
       
@@ -143,7 +143,7 @@ public:
 class UsingDecl final : public TypeDecl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
-            sona::string_ref const& aliasName,
+            sona::strhdl_t const& aliasName,
             QualType aliasee)
     : TypeDecl(context, DeclKind::DK_Using, aliasName), m_Aliasee(aliasee) {}
 
@@ -167,12 +167,12 @@ private:
 class EnumeratorDecl final : public Decl {
 public:
   EnumeratorDecl(sona::ref_ptr<DeclContext> context,
-                 sona::string_ref const& enumeratorName,
+                 sona::strhdl_t const& enumeratorName,
                  int64_t init)
       : Decl(DeclKind::DK_Enumerator, context),
         m_EnumeratorName(enumeratorName), m_Init(init) {}
 
-  sona::string_ref const &GetEnumeratorName() const noexcept {
+  sona::strhdl_t const &GetEnumeratorName() const noexcept {
     return m_EnumeratorName;
   }
 
@@ -184,16 +184,16 @@ public:
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
-  sona::string_ref m_EnumeratorName;
+  sona::strhdl_t m_EnumeratorName;
   int64_t m_Init;
 };
 
 class FuncDecl final : public Decl, public DeclContext {
 public:
   FuncDecl(sona::ref_ptr<DeclContext> context,
-           sona::string_ref const& functionName,
+           sona::strhdl_t const& functionName,
            std::vector<sona::ref_ptr<Type const>> &&paramTypes,
-           std::vector<sona::string_ref> &&paramNames,
+           std::vector<sona::strhdl_t> &&paramNames,
            sona::ref_ptr<Type const> retType)
     : Decl(DeclKind::DK_Func, context), DeclContext(DeclKind::DK_Func),
       m_FunctionName(functionName),
@@ -201,7 +201,7 @@ public:
       m_ParamNames(std::move(paramNames)),
       m_RetType(retType) {}
 
-  sona::string_ref const& GetName() const noexcept {
+  sona::strhdl_t const& GetName() const noexcept {
     return m_FunctionName;
   }
 
@@ -210,7 +210,7 @@ public:
     return m_ParamTypes;
   }
 
-  std::vector<sona::string_ref> const& GetParamNames() const noexcept {
+  std::vector<sona::strhdl_t> const& GetParamNames() const noexcept {
     return m_ParamNames;
   }
 
@@ -227,21 +227,21 @@ public:
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
-  sona::string_ref m_FunctionName;
+  sona::strhdl_t m_FunctionName;
   std::vector<sona::ref_ptr<Type const>> m_ParamTypes;
-  std::vector<sona::string_ref> m_ParamNames;
+  std::vector<sona::strhdl_t> m_ParamNames;
   sona::ref_ptr<Type const> m_RetType;
 };
 
 class VarDecl final : public Decl {
 public:
   VarDecl(sona::ref_ptr<DeclContext> context,
-          QualType type, DeclSpec spec, sona::string_ref const& varName)
+          QualType type, DeclSpec spec, sona::strhdl_t const& varName)
       : Decl(DeclKind::DK_Var, context), m_Type(type), m_DeclSpec(spec),
         m_VarName(varName) {}
 
   DeclSpec GetDeclSpec() const noexcept { return m_DeclSpec; }
-  sona::string_ref const &GetVarName() const noexcept { return m_VarName; }
+  sona::strhdl_t const &GetVarName() const noexcept { return m_VarName; }
   void SetType(QualType type) noexcept { m_Type = type; }
   QualType GetType() const noexcept { return m_Type; }
 
@@ -251,7 +251,7 @@ public:
 private:
   QualType m_Type;
   DeclSpec m_DeclSpec;
-  sona::string_ref m_VarName;
+  sona::strhdl_t m_VarName;
 };
 
 // class ParamDecl : public VarDecl {};
