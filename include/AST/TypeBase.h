@@ -61,7 +61,7 @@ public:
   QualType(sona::ref_ptr<Type const> type)
     : m_PtrIntPair(type.operator->()) {}
 
-  sona::ref_ptr<Type const> GetType() const noexcept {
+  sona::ref_ptr<Type const> GetUnqualTy() const noexcept {
     return m_PtrIntPair.operator->();
   }
 
@@ -100,7 +100,7 @@ public:
 
   bool EqualTo(QualType that) const noexcept {
     return GetCVR() == that.GetCVR()
-        && GetType()->EqualTo(that.GetType().get());
+        && GetUnqualTy()->EqualTo(that.GetUnqualTy().get());
   }
 
 private:

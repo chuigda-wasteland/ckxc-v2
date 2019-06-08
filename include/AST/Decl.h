@@ -149,7 +149,7 @@ public:
 
   /// @note only use this for refilling after dependency resolution
   void FillAliasee(QualType aliasee) noexcept {
-    sona_assert(m_Aliasee.GetType() == nullptr);
+    sona_assert(m_Aliasee.GetUnqualTy() == nullptr);
     m_Aliasee = aliasee;
   }
 

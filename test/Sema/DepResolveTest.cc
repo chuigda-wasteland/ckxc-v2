@@ -205,7 +205,7 @@ void test2() {
         VkAssertEquals(nullptr,
                        dep.GetDeclUnsafe()
                           .cast_unsafe<AST::ValueCtorDecl const>()
-                          ->GetType().GetType());
+                          ->GetType().GetUnqualTy());
       }
     }
   }

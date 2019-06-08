@@ -445,14 +445,14 @@ bool SemaPhase0::CheckTypeComplete(sona::ref_ptr<const AST::Type> type) {
 
   case AST::Type::TypeId::TI_Array:
     return CheckTypeComplete(type.cast_unsafe<AST::ArrayType const>()
-                                 ->GetBase().GetType());
+                                 ->GetBase().GetUnqualTy());
   case AST::Type::TypeId::TI_Tuple: {
     sona::ref_ptr<AST::TupleType const> tupleType =
         type.cast_unsafe<AST::TupleType const>();
     return std::accumulate(tupleType->GetTupleElemTypes().begin(),
                            tupleType->GetTupleElemTypes().end(), true,
                            [this](bool cur, AST::QualType qty) {
-                             return cur && CheckTypeComplete(qty.GetType());
+                             return cur && CheckTypeComplete(qty.GetUnqualTy());
                            });
   }
 
