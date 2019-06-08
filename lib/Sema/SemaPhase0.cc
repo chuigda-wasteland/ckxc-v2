@@ -354,7 +354,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
 
   for (sona::ref_ptr<Syntax::ADTDecl::ValueConstructor const> constructor
        : decl->GetConstructors()) {
-    auto result = ActOnADTConstructor(constructor);
+    auto result = ActOnValueConstructor(constructor);
     if (!result.second) {
       collectedDependencies.emplace_back(result.first.borrow(), true);
     }
@@ -384,7 +384,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
-SemaPhase0::ActOnADTConstructor(
+SemaPhase0::ActOnValueConstructor(
     sona::ref_ptr<const Syntax::ADTDecl::ValueConstructor> dc) {
   auto typeResult = ResolveType(dc->GetUnderlyingType());
   sona::owner<AST::Decl> ret0 =

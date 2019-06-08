@@ -1,6 +1,8 @@
 #ifndef PTR_INT_PAIR_H
 #define PTR_INT_PAIR_H
 
+#include "sona/util.h"
+
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
@@ -25,10 +27,10 @@ public:
   enum { bit_mask = bitmask(BitsCompressed) };
 
   ptr_int_pair(T* ptr, unsigned value = 0) {
-    // TODO replace assert with sona_assert
-    assert(value < (1 << BitsCompressed) && "value > BitsCompressed");
+    sona_assert1(value < (1 << BitsCompressed), "value > BitsCompressed");
     std::uintptr_t uptr = static_cast<std::uintptr_t>(ptr);
-    assert((uptr & bit_mask) == 0 && "this pointer is not aligned or broken!");
+    sona_assert1((uptr & bit_mask) == 0,
+                 "this pointer is not aligned or broken!");
     uptr |= value;
     this->ptr = reinterpret_cast<T*>(uptr);
   }
@@ -76,10 +78,10 @@ public:
   enum { bit_mask = bitmask(BitsCompressed) };
 
   ptr_int_pair_owner(T* ptr, unsigned value = 0) {
-    // TODO replace assert with sona_assert
-    assert(value < (1 << BitsCompressed) && "value > BitsCompressed");
+    sona_assert1(value < (1 << BitsCompressed), "value > BitsCompressed");
     std::uintptr_t uptr = reinterpret_cast<std::uintptr_t>(ptr);
-    assert((uptr & bit_mask) == 0 && "this pointer is not aligned or broken!");
+    sona_assert1((uptr & bit_mask) == 0,
+                 "this pointer is not aligned or broken!");
     uptr |= value;
     this->ptr = reinterpret_cast<T*>(uptr);
   }
