@@ -22,15 +22,14 @@ public:
   std::vector<Sema::IncompleteFuncDecl> &GetIncompleteFuncs();
 
 protected:
-  sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
+  sona::either<AST::QualType, std::vector<Dependency>>
   ResolveType(sona::ref_ptr<Syntax::Type const> type);
 
   std::pair<sona::owner<AST::Decl>, bool>
   ActOnDecl(sona::ref_ptr<Syntax::Decl const> decl);
 
 #define CST_TYPE(name) \
-  sona::either<sona::ref_ptr<AST::Type const>, \
-               std::vector<Dependency>> \
+  sona::either<AST::QualType, std::vector<Dependency>> \
   Resolve##name(sona::ref_ptr<Syntax::name const> type);
 
 #define CST_DECL(name) \

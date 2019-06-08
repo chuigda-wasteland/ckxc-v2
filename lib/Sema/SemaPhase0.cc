@@ -136,8 +136,7 @@ std::vector<IncompleteFuncDecl> &SemaPhase0::GetIncompleteFuncs() {
   return m_IncompleteFuncs;
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
-SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
+sona::either<AST::QualType, std::vector<Dependency> > SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
@@ -146,7 +145,7 @@ SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
   default:
     sona_unreachable();
   }
-  return sona::ref_ptr<AST::Type const>(nullptr);
+  return AST::QualType(nullptr);
 }
 
 std::pair<sona::owner<AST::Decl>, bool>
@@ -162,12 +161,12 @@ SemaPhase0::ActOnDecl(sona::ref_ptr<const Syntax::Decl> decl) {
   return std::make_pair(nullptr, false);
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
+sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::ResolveBuiltinType(sona::ref_ptr<Syntax::BuiltinType const> bty) {
-  return SemaCommon::ResolveBuiltinTypeImpl(bty);
+  return AST::QualType(SemaCommon::ResolveBuiltinTypeImpl(bty));
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
+sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::
 ResolveUserDefinedType(
 sona::ref_ptr<Syntax::UserDefinedType const> uty) {
@@ -181,21 +180,21 @@ sona::ref_ptr<Syntax::UserDefinedType const> uty) {
       return std::move(dependencies);
     }
 
-    return lookupResult;
+    return AST::QualType(lookupResult);
   }
 
   std::vector<Dependency> dependencies;
   dependencies.emplace_back(uty->GetName().ExplicitlyClone(), true);
 
-  return sona::either<sona::ref_ptr<AST::Type const>,
+  return sona::either<AST::QualType,
                       std::vector<Dependency>>(std::move(dependencies));
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
+sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::
 ResolveTemplatedType(sona::ref_ptr<Syntax::TemplatedType const>) {
   sona_unreachable1("not implemented");
-  return sona::ref_ptr<AST::Type const>(nullptr);
+  return AST::QualType(nullptr);
 }
 
 static bool IsPtrOrRefType(sona::ref_ptr<Syntax::ComposedType const> cty) {
@@ -209,7 +208,7 @@ static bool IsPtrOrRefType(sona::ref_ptr<Syntax::ComposedType const> cty) {
   });
 }
 
-sona::either<sona::ref_ptr<AST::Type const>, std::vector<Dependency>>
+sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::
 ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
   auto rootTypeResult = ResolveType(cty->GetRootType());
@@ -243,7 +242,7 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
     }
   }
 
-  return sona::either<sona::ref_ptr<AST::Type const>,
+  return sona::either<AST::QualType,
                       std::vector<Dependency>>(std::move(dependencies));
 }
 
@@ -272,7 +271,7 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
   }
 
   sona::owner<AST::Decl> incomplete =
-      new AST::VarDecl(GetCurrentDeclContext(), nullptr,
+      new AST::VarDecl(GetCurrentDeclContext(), AST::QualType(nullptr),
                        AST::DeclSpec::DS_None /*TODO*/, decl->GetName());
   GetCurrentScope()->AddVarDecl(incomplete.borrow()
                                           .cast_unsafe<AST::VarDecl>());
@@ -392,7 +391,7 @@ SemaPhase0::ActOnValueConstructor(
         new AST::ValueCtorDecl(GetCurrentDeclContext(),
                                      dc->GetName(), typeResult.as_t1())
       : new AST::ValueCtorDecl(GetCurrentDeclContext(),
-                                     dc->GetName(), nullptr);
+                                     dc->GetName(), AST::QualType(nullptr));
   if (typeResult.contains_t2()) {
     m_IncompleteValueCtors.emplace(
           ret0.borrow().cast_unsafe<AST::ValueCtorDecl>(),
@@ -503,7 +502,7 @@ SemaPhase0::ActOnUsingDecl(sona::ref_ptr<Syntax::UsingDecl const> decl) {
         new AST::UsingDecl(GetCurrentDeclContext(),
                            decl->GetName(), typeResult.as_t1())
       : new AST::UsingDecl(GetCurrentDeclContext(),
-                           decl->GetName(), nullptr);
+                           decl->GetName(), AST::QualType(nullptr));
   sona::ref_ptr<AST::UsingDecl> usingDecl =
       ret0.borrow().cast_unsafe<AST::UsingDecl>();
   GetCurrentScope()->AddType(

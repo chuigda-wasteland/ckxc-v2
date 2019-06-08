@@ -104,7 +104,7 @@ class ValueCtorDecl final : public Decl {
 public:
   ValueCtorDecl(sona::ref_ptr<DeclContext> context,
                 sona::string_ref const& constructorName,
-                sona::ref_ptr<AST::Type const> type)
+                QualType type)
     : Decl(DeclKind::DK_ValueCtor, context),
       m_ConstructorName(constructorName),
       m_Type(type) {}
@@ -113,11 +113,11 @@ public:
     return m_ConstructorName;
   }
 
-  sona::ref_ptr<AST::Type const> GetType() const noexcept {
+  QualType GetType() const noexcept {
     return m_Type;
   }
 
-  void SetType(sona::ref_ptr<AST::Type const> type) noexcept {
+  void SetType(QualType type) noexcept {
     m_Type = type;
   }
 
@@ -126,7 +126,7 @@ public:
 
 private:
   sona::string_ref m_ConstructorName;
-  sona::ref_ptr<AST::Type const> m_Type;
+  QualType m_Type;
 };
 
 class ADTDecl final : public TypeDecl, public DeclContext {
@@ -144,16 +144,16 @@ class UsingDecl final : public TypeDecl {
 public:
   UsingDecl(sona::ref_ptr<DeclContext> context,
             sona::string_ref const& aliasName,
-            sona::ref_ptr<AST::Type const> aliasee)
+            QualType aliasee)
     : TypeDecl(context, DeclKind::DK_Using, aliasName), m_Aliasee(aliasee) {}
 
   /// @note only use this for refilling after dependency resolution
-  void FillAliasee(sona::ref_ptr<AST::Type const> aliasee) noexcept {
-    sona_assert(m_Aliasee == nullptr);
+  void FillAliasee(QualType aliasee) noexcept {
+    sona_assert(m_Aliasee.GetType() == nullptr);
     m_Aliasee = aliasee;
   }
 
-  sona::ref_ptr<AST::Type const> GetAliasee() const noexcept {
+  QualType GetAliasee() const noexcept {
     return m_Aliasee;
   }
 
@@ -161,7 +161,7 @@ public:
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
-  sona::ref_ptr<AST::Type const> m_Aliasee;
+  QualType m_Aliasee;
 };
 
 class EnumeratorDecl final : public Decl {
@@ -236,21 +236,20 @@ private:
 class VarDecl final : public Decl {
 public:
   VarDecl(sona::ref_ptr<DeclContext> context,
-          sona::ref_ptr<Type const> type,
-          DeclSpec spec, sona::string_ref const& varName)
+          QualType type, DeclSpec spec, sona::string_ref const& varName)
       : Decl(DeclKind::DK_Var, context), m_Type(type), m_DeclSpec(spec),
         m_VarName(varName) {}
 
   DeclSpec GetDeclSpec() const noexcept { return m_DeclSpec; }
   sona::string_ref const &GetVarName() const noexcept { return m_VarName; }
-  void SetType(sona::ref_ptr<Type const> type) noexcept { m_Type = type; }
-  sona::ref_ptr<Type const> GetType() const noexcept { return m_Type; }
+  void SetType(QualType type) noexcept { m_Type = type; }
+  QualType GetType() const noexcept { return m_Type; }
 
   sona::owner<Backend::ActionResult>
   Accept(sona::ref_ptr<Backend::DeclVisitor> visitor) const override;
 
 private:
-  sona::ref_ptr<Type const> m_Type;
+  QualType m_Type;
   DeclSpec m_DeclSpec;
   sona::string_ref m_VarName;
 };

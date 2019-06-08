@@ -69,7 +69,7 @@ ASTPrinter::VisitValueCtor(
   std::cerr << "ADT constructor declaration "
             << valueCtorDecl->GetConstructorName().get()
             << " of type ";
-  valueCtorDecl->GetType()->Accept(this);
+  valueCtorDecl->GetType().GetType()->Accept(this);
   std::cerr << " @" << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
@@ -109,7 +109,7 @@ ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
   Indent();
   std::cerr << "Variable declaration " << varDecl->GetVarName().get()
             << " of type ";
-  varDecl->GetType()->Accept(this);
+  varDecl->GetType().GetType()->Accept(this);
   std::cerr << " @ " << (void*)this << std::endl;
   return CreateDeclResult(VoidType());
 }
@@ -208,7 +208,7 @@ ASTPrinter::VisitADTType(
 sona::owner<ActionResult>
 ASTPrinter::VisitUsingType(sona::ref_ptr<const AST::UsingType> usingType) {
   std::cerr << "Alias " << usingType->GetTypeName().get() << " to (";
-  usingType->GetUsingDecl()->GetAliasee()->Accept(this);
+  usingType->GetUsingDecl()->GetAliasee().GetType()->Accept(this);
   std::cerr << ")";
   return CreateDeclResult(VoidType());
 }
