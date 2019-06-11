@@ -238,7 +238,7 @@ private:
 class ComposedType : public Type {
 public:
   enum class TypeSpecifier {
-    CTS_Const, CTS_Volatile, CTS_Pointer, CTS_Ref, CTS_RvRef
+    CTS_Const, CTS_Volatile, CTS_Restrict, CTS_Pointer, CTS_Ref, CTS_RvRef
   };
 
   ComposedType(sona::owner<Type> rootType,
@@ -258,7 +258,7 @@ public:
   }
 
   std::vector<SingleSourceRange> const&
-  GetTypeSpecSourceRanges() const noexcept {
+  GetTypeSpecRanges() const noexcept {
     return m_TypeSpecifierRanges;
   }
 

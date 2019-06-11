@@ -214,8 +214,11 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
   auto rootTypeResult = ResolveType(cty->GetRootType());
   if (rootTypeResult.contains_t1()) {
     auto ret = rootTypeResult.as_t1();
-    for (Syntax::ComposedType::TypeSpecifier ts : cty->GetTypeSpecifiers()) {
-      switch (ts) {
+    auto r = sona::linq::from_container(cty->GetTypeSpecifiers())
+              .zip_with(
+               sona::linq::from_container(cty->GetTypeSpecRanges()));
+    for (const auto &p : r) {
+      switch (p.first) {
       case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
         ret = m_ASTContext.CreatePointerType(ret)
                           .cast_unsafe<AST::Type const>();
@@ -227,6 +230,26 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
       case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
         ret = m_ASTContext.CreateRValueRefType(ret)
                           .cast_unsafe<AST::Type const>();
+        break;
+      case Syntax::ComposedType::TypeSpecifier::CTS_Const:
+        if (ret.IsConst()) {
+          m_Diag.Diag(Diag::DIR_Error,
+                      Diag::Format(Diag::DMT_ErrDuplicateQual, {"const"}),
+                      p.second);
+        }
+        else {
+          ret.AddConst();
+        }
+        break;
+      case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
+        if (ret.IsVolatile()) {
+          m_Diag.Diag(Diag::DIR_Error,
+                      Diag::Format(Diag::DMT_ErrDuplicateQual, {"volatile"}),
+                      p.second);
+        }
+        else {
+          ret.AddVolatile();
+        }
         break;
       default:
         sona_unreachable1("not implemented");

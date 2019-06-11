@@ -11,14 +11,14 @@ namespace Frontend {
 void LexerImpl::LexAllTokens() {
   while (CurChar() != '\0') {
     switch (CurChar()) {
-    case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h':
-    case 'i': case 'u':
+    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+    case 'h': case 'i': case 'n': case 'q': case 'r': case 's':
+    case 'u':  case 'v':
       LexIdOrKeyword();
       break;
 
-    case 'a': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o':
-    case 'p': case 'q': case 'r': case 's': case 't': case 'v': case 'w':
-    case 'x': case 'y': case 'z':
+    case 'g': case 'j': case 'k': case 'l': case 'm': case 'o': case 'p':
+    case 't': case 'w': case 'x': case 'y': case 'z':
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
     case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O':
     case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V':

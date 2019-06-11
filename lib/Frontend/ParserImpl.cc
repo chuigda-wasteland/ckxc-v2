@@ -420,7 +420,10 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
   std::vector<SourceRange> tySpecRanges;
   while (CurrentToken().GetTokenKind() == Token::TK_SYM_AMP
          || CurrentToken().GetTokenKind() == Token::TK_SYM_DAMP
-         || CurrentToken().GetTokenKind() == Token::TK_SYM_ASTER) {
+         || CurrentToken().GetTokenKind() == Token::TK_SYM_ASTER
+         || CurrentToken().GetTokenKind() == Token::TK_KW_const
+         || CurrentToken().GetTokenKind() == Token::TK_KW_volatile
+         || CurrentToken().GetTokenKind() == Token::TK_KW_restrict) {
     switch (CurrentToken().GetTokenKind()) {
     case Token::TK_SYM_AMP:
       tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Ref);
@@ -430,6 +433,15 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
       break;
     case Token::TK_SYM_ASTER:
       tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Pointer);
+      break;
+    case Token::TK_KW_const:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Const);
+      break;
+    case Token::TK_KW_volatile:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Volatile);
+      break;
+    case Token::TK_KW_restrict:
+      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Restrict);
       break;
 
     default:
