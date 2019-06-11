@@ -61,7 +61,6 @@ void test0() {
 
   AST::ASTContext astContext;
   std::vector<sona::ref_ptr<AST::DeclContext>> declContexts;
-  std::vector<std::shared_ptr<Sema::Scope>> scopeChains;
 
   SemaPhase0Test sema0(astContext, declContexts, diag);
 

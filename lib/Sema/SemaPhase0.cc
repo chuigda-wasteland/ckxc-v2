@@ -136,7 +136,8 @@ std::vector<IncompleteFuncDecl> &SemaPhase0::GetIncompleteFuncs() {
   return m_IncompleteFuncs;
 }
 
-sona::either<AST::QualType, std::vector<Dependency> > SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
+sona::either<AST::QualType, std::vector<Dependency>>
+SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
   case Syntax::Node::NodeKind::CNK_##name: \
@@ -249,6 +250,16 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
         }
         else {
           ret.AddVolatile();
+        }
+        break;
+      case Syntax::ComposedType::TypeSpecifier::CTS_Restrict:
+        if (ret.IsRestrict()) {
+          m_Diag.Diag(Diag::DIR_Error,
+                      Diag::Format(Diag::DMT_ErrDuplicateQual, {"restrict"}),
+                      p.second);
+        }
+        else {
+          ret.AddRestrict();
         }
         break;
       default:

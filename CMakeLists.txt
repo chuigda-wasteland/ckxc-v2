@@ -53,6 +53,9 @@ target_link_libraries (TestLex Frontend Syntax Basic sona)
 add_executable (TestParse test/Frontend/ParseTest.cc)
 target_link_libraries (TestParse Frontend Syntax Basic sona)
 
+add_executable (TestSemaBasis test/Sema/SemaBasisTest.cc)
+target_link_libraries (TestSemaBasis Sema Frontend Syntax AST Basic sona)
+
 add_executable (TestDepResolve test/Sema/DepResolveTest.cc)
 target_link_libraries (TestDepResolve Sema Frontend Syntax AST Basic sona)
 
