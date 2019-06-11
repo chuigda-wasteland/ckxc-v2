@@ -59,15 +59,15 @@ protected:
   void
   SetParsingTokenStream(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
-private:
-  sona::optional<std::pair<sona::strhdl_t, SourceRange>> ExpectTagId();
-
   Token const& CurrentToken() const noexcept;
   Token const& PeekToken(size_t peekCount = 1) const noexcept;
   void ConsumeToken() noexcept;
 
   bool Expect(Token::TokenKind tokenKind) const noexcept;
   bool ExpectAndConsume(Token::TokenKind tokenKind) noexcept;
+
+private:
+  sona::optional<std::pair<sona::strhdl_t, SourceRange>> ExpectTagId();
 
   void SkipTo(Token::TokenKind tokenKind);
   void SkipToAnyOf(std::initializer_list<Token::TokenKind> const& tokenKinds);

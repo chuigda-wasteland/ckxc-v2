@@ -20,12 +20,13 @@ public:
   using ParserImpl::ParseUsingDecl;
   using ParserImpl::ParseFuncDecl;
   using ParserImpl::ParseLiteralExpr;
+  using ParserImpl::ExpectAndConsume;
 };
 
 void test0() {
   VkTestSectionStart("Parsing variable declaration");
 
-  string file = R"aacaac(def a : int16;)aacaac";
+  string file = R"aacaac(def a : int16; def b : int16 const * const;)aacaac";
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("a.c", lines);
@@ -36,14 +37,40 @@ void test0() {
 
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseVarDecl();
+  testContext.ExpectAndConsume(Frontend::Token::TK_SYM_SEMI);
+  owner<Syntax::Decl> decl2 = testContext.ParseVarDecl();
+  testContext.ExpectAndConsume(Frontend::Token::TK_SYM_SEMI);
 
+  VkAssertFalse(diag.HasPendingDiags());
+  VkAssertNotEquals(nullptr, decl.borrow());
+  VkAssertNotEquals(nullptr, decl2.borrow());
   VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl,
                    decl.borrow()->GetNodeKind());
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl,
+                   decl2.borrow()->GetNodeKind());
 
   ref_ptr<Syntax::VarDecl> varDecl =
       decl.borrow().cast_unsafe<Syntax::VarDecl>();
-  VkAssertFalse(diag.HasPendingDiags());
+  ref_ptr<Syntax::VarDecl> varDecl2 =
+      decl2.borrow().cast_unsafe<Syntax::VarDecl>();
   VkAssertEquals("a", varDecl->GetName());
+  VkAssertEquals("b", varDecl2->GetName());
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_ComposedType,
+                 varDecl2->GetType()->GetNodeKind());
+  ref_ptr<Syntax::ComposedType const> ty2 =
+      varDecl2->GetType().cast_unsafe<Syntax::ComposedType const>();
+  VkAssertEquals(3uL, ty2->GetTypeSpecifiers().size());
+  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Const,
+                 ty2->GetTypeSpecifiers()[0]);
+  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Pointer,
+                 ty2->GetTypeSpecifiers()[1]);
+  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Const,
+                 ty2->GetTypeSpecifiers()[2]);
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_BuiltinType,
+                 ty2->GetRootType()->GetNodeKind());
+  ref_ptr<Syntax::BuiltinType const> ty3 =
+      ty2->GetRootType().cast_unsafe<Syntax::BuiltinType const>();
+  VkAssertEquals(Syntax::BuiltinType::TypeKind::TK_Int16, ty3->GetTypeKind());
 
   diag.EmitDiags();
 }
