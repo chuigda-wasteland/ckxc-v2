@@ -4,6 +4,7 @@
 #include "DeclBase.h"
 #include "ExprBase.h"
 #include "StmtBase.h"
+#include "TypeBase.h"
 
 #include "sona/either.h"
 #include "sona/optional.h"
@@ -69,6 +70,109 @@ enum class AssignmentOperator {
 
   AOP_BitwiseLShiftAssign,
   AOP_BitwiseRShiftAssign
+};
+
+enum class ExplicitCastOperator {
+  ECOP_Static,
+  ECOP_Const,
+  ECOP_Bit
+};
+
+enum class CastStepKind {
+  // Implicits
+  ICSK_IntPromote,
+  ICSK_FloatPromote,
+  ICSK_LValue2RValue,
+  ICSK_AddConst,
+
+  // Explicits
+  ECSK_IntDowngrade,
+  ECSK_FloatDowngrade,
+  ECSK_Int2Float,
+  ECSK_UInt2Float,
+  ECSK_Float2Int,
+  ECSK_FLoat2UInt
+};
+
+class CastStep {
+public:
+  CastStep(CastStepKind CSK, QualType destTy) :
+    m_CSK(CSK), m_DestTy(destTy) {}
+
+  CastStepKind GetCSK() const noexcept {
+    return m_CSK;
+  }
+
+  QualType GetDestTy() const noexcept {
+    return m_DestTy;
+  }
+
+private:
+  CastStepKind m_CSK;
+  QualType m_DestTy;
+};
+
+class ImplicitCast : public Expr {
+public:
+  ImplicitCast(sona::owner<Expr> &&castedExpr,
+               std::vector<CastStep> &&castSteps)
+    : Expr(ExprId::EI_ImplicitCast),
+      m_CastedExpr(std::move(castedExpr)),
+      m_CastSteps(std::move(castSteps)) {}
+
+  sona::ref_ptr<Expr const> GetCastedExpr() const noexcept {
+    return m_CastedExpr.borrow();
+  }
+
+  std::vector<CastStep> const& GetCastSteps() const noexcept {
+    return m_CastSteps;
+  }
+
+private:
+  sona::owner<Expr> m_CastedExpr;
+  std::vector<CastStep> m_CastSteps;
+};
+
+class ExplicitCastExpr : public Expr {
+public:
+  ExplicitCastExpr(ExplicitCastOperator castOp,
+                   sona::owner<Expr> &&castedExpr, QualType destTy)
+    : Expr(ExprId::EI_ExplicitCast),
+      m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
+      m_MaybeCastSteps(sona::empty_optional()), m_DestTy(destTy) {
+    sona_assert1(castOp != ExplicitCastOperator::ECOP_Static,
+                 "static_cast requires cast step chain");
+  }
+
+  ExplicitCastExpr(ExplicitCastOperator castOp,
+                   sona::owner<Expr> &&castedExpr,
+                   std::vector<CastStep> &&castSteps)
+    : Expr(ExprId::EI_ExplicitCast),
+      m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
+      m_MaybeCastSteps(std::move(castSteps)),
+      m_DestTy(m_MaybeCastSteps.value().back().GetDestTy()) {
+    sona_assert1(castOp == ExplicitCastOperator::ECOP_Static,
+                 "only static_cast can have cast step chain");
+  }
+
+  ExplicitCastOperator GetCastOp() const noexcept { return m_CastOp; }
+
+  sona::ref_ptr<Expr const> GetCastedExpr() const noexcept {
+    return m_CastedExpr.borrow();
+  }
+
+  std::vector<CastStep> const& GetCastStepsUnsafe() const noexcept {
+    sona_assert(m_MaybeCastSteps.has_value());
+    return m_MaybeCastSteps.value();
+  }
+
+  QualType GetDestTy() const noexcept { return m_DestTy; }
+
+private:
+  ExplicitCastOperator m_CastOp;
+  sona::owner<Expr> m_CastedExpr;
+  sona::optional<std::vector<CastStep>> m_MaybeCastSteps;
+  QualType m_DestTy;
 };
 
 class AssignExpr : public Expr {

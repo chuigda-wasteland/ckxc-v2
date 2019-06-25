@@ -11,6 +11,7 @@ namespace AST {
 class Expr {
 public:
   enum class ExprId {
+    // Directly corresponds to syntactical structure
     EI_Unary,
     EI_Binary,
     EI_Assign,
@@ -22,7 +23,11 @@ public:
     EI_String,
     EI_Tuple,
     EI_Array,
-    EI_Paren
+    EI_Paren,
+    EI_ExplicitCast,
+
+    // Intermediate expressions created by Sema
+    EI_ImplicitCast
   };
 
   virtual ~Expr() = default;
