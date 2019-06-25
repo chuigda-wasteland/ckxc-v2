@@ -274,8 +274,8 @@ public:
   template <typename Integer_t>
   IntegralLiteralExpr(Integer_t value)
       : LiteralExpr(ExprId::EI_Integral), m_Value(value) {
-    static_assert(std::is_same<Integer_t, std::int64_t>::value ||
-                      std::is_same<Integer_t, std::uint64_t>::value,
+    static_assert(std::is_same<Integer_t, std::int64_t>::value
+                  || std::is_same<Integer_t, std::uint64_t>::value,
                   "Not an integer!");
   }
 

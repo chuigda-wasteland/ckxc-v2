@@ -21,13 +21,14 @@ public:
     EI_Floating,
     EI_Char,
     EI_String,
+    EI_Bool,
     EI_Tuple,
     EI_Array,
     EI_Paren,
     EI_ExplicitCast,
 
     // Intermediate expressions created by Sema
-    EI_ImplicitCast
+    EI_ImplicitCast,
   };
 
   virtual ~Expr() = default;

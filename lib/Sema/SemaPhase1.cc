@@ -1,5 +1,8 @@
 #include "Sema/SemaPhase1.h"
 
+#include "AST/Expr.h"
+#include "Syntax/Concrete.h"
+
 namespace ckx {
 namespace Sema {
 
@@ -129,6 +132,38 @@ ResolveComposedType(std::shared_ptr<Scope> scope,
     }
   }
   return ret;
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::LiteralExpr const> literalExpr) {
+  /// @todo we had to hand write this since we have different process for
+  /// integral, unsigned and floating types.
+  switch (literalExpr->GetLiteralTypeKind()) {
+  case Syntax::BuiltinType::TypeKind::TK_Int8:
+  case Syntax::BuiltinType::TypeKind::TK_Int16:
+  case Syntax::BuiltinType::TypeKind::TK_Int32:
+  case Syntax::BuiltinType::TypeKind::TK_Int64:
+    return new AST::IntegralLiteralExpr(literalExpr->GetAsIntUnsafe());
+    break;
+
+  case Syntax::BuiltinType::TypeKind::TK_UInt8:
+  case Syntax::BuiltinType::TypeKind::TK_UInt16:
+  case Syntax::BuiltinType::TypeKind::TK_UInt32:
+  case Syntax::BuiltinType::TypeKind::TK_UInt64:
+    return new AST::FloatingLiteralExpr(literalExpr->GetAsUIntUnsafe());
+    break;
+
+  case Syntax::BuiltinType::TypeKind::TK_Float:
+  case Syntax::BuiltinType::TypeKind::TK_Double:
+  case Syntax::BuiltinType::TypeKind::TK_Quad:
+    return new AST::FloatingLiteralExpr(literalExpr->GetAsFloatUnsafe());
+    break;
+
+  default:
+    sona_unreachable1("not implemented");
+  }
 }
 
 } // namespace Sema

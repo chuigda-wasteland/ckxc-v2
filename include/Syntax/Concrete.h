@@ -742,7 +742,8 @@ public:
 
   double GetAsFloatUnsafe() const noexcept {
     sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_Float
-                || m_TypeKind == BuiltinType::TypeKind::TK_Double);
+                || m_TypeKind == BuiltinType::TypeKind::TK_Double
+                || m_TypeKind == BuiltinType::TypeKind::TK_Quad);
     return m_Value.FloatValue;
   }
 
