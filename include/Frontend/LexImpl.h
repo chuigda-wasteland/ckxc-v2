@@ -28,6 +28,7 @@ private:
   void LexNumber();
   void LexBinNumber();
   void LexHexNumber();
+  void LexChar();
   void LexString();
   void LexSymbol();
   void SkipWhitespace();

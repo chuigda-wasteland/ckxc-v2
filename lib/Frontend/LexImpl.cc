@@ -43,6 +43,10 @@ void LexerImpl::LexAllTokens() {
       LexNumber();
       break;
 
+    case '\'':
+      LexChar();
+      break;
+
     case '"':
       LexString();
       break;
@@ -200,6 +204,51 @@ void LexerImpl::LexHexNumber() {
 
   m_TokenStream.emplace_back(Token::TK_LIT_INT,
                              SourceRange(GetLine(), col1, GetCol()), value);
+}
+
+void LexerImpl::LexChar() {
+  sona_assert(CurChar() == '\'');
+  std::uint16_t col1 = GetCol();
+  NextChar();
+  char ch = '\0';
+  if (CurChar() == '\\') {
+    switch (PeekOneChar()) {
+    case 'a': ch = '\a'; NextChar(); NextChar(); break;
+    case 'b': ch = '\b'; NextChar(); NextChar(); break;
+    case 'n': ch = '\n'; NextChar(); NextChar(); break;
+    case 'r': ch = '\r'; NextChar(); NextChar(); break;
+    case 'v': ch = '\v'; NextChar(); NextChar(); break;
+    case 't': ch = '\t'; NextChar(); NextChar(); break;
+    case 'f': ch = '\f'; NextChar(); NextChar(); break;
+    case '"': ch = '"';  NextChar(); NextChar(); break;
+    case '0': ch = '\0'; NextChar(); NextChar(); break;
+    case '\\': ch = '\\'; NextChar(); NextChar(); break;
+    default:
+      m_Diag.Diag(Diag::DIR_Warning0,
+                  Diag::Format(Diag::DMT_WarnInvalidConversion,
+                               { std::to_string(PeekOneChar()) }),
+                  SourceRange(GetLine(), GetCol()+1, GetCol()+2));
+      ch = CurChar();
+      NextChar(); NextChar();
+    }
+  }
+  else {
+    ch = CurChar();
+    NextChar();
+  }
+
+  if (CurChar() != '\'') {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrExpectedCharGot,
+                             {std::to_string(CurChar()), "'"}),
+                SourceRange(GetLine(), GetCol(), GetCol()));
+  }
+  else {
+    NextChar();
+  }
+
+  m_TokenStream.emplace_back(Token::TK_LIT_CHAR,
+                             SourceRange(GetLine(), col1, GetCol()), ch);
 }
 
 void LexerImpl::LexString() {

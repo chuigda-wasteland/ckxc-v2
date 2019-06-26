@@ -43,6 +43,12 @@ public:
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
+        char CharValue)
+    : Token(tokenKind, sourceRange) {
+    m_Value.CharValue = CharValue;
+  }
+
+  Token(TokenKind tokenKind, SourceRange const& sourceRange,
         sona::strhdl_t const& StrValue)
     : m_TokenKind(tokenKind), m_SourceRange(sourceRange),
       m_StrValue(StrValue) {}
@@ -70,6 +76,11 @@ public:
     return m_Value.FloatValue;
   }
 
+  char GetCharValueUnsafe() const noexcept {
+    sona_assert(GetTokenKind() == TK_LIT_CHAR);
+    return m_Value.CharValue;
+  }
+
   sona::strhdl_t const& GetStrValueUnsafe() const noexcept {
     sona_assert(GetTokenKind() == TK_LIT_STR || GetTokenKind() == TK_ID);
     sona_assert(m_StrValue.has_value());
@@ -84,6 +95,7 @@ private:
     std::int64_t IntValue;
     std::uint64_t UIntValue;
     double FloatValue;
+    char CharValue;
   } m_Value;
 
   sona::optional<sona::strhdl_t> m_StrValue;

@@ -98,9 +98,8 @@ public:
     m_PtrIntPair.set_value(value);
   }
 
-  bool EqualTo(QualType that) const noexcept {
-    return GetCVR() == that.GetCVR()
-        && GetUnqualTy()->EqualTo(that.GetUnqualTy().get());
+  bool operator==(QualType that) const noexcept {
+    return m_PtrIntPair == that.m_PtrIntPair;
   }
 
 private:

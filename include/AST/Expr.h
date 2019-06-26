@@ -116,7 +116,7 @@ class ImplicitCast : public Expr {
 public:
   ImplicitCast(sona::owner<Expr> &&castedExpr,
                std::vector<CastStep> &&castSteps)
-    : Expr(ExprId::EI_ImplicitCast),
+    : Expr(ExprId::EI_ImplicitCast, castSteps.back().GetDestTy()),
       m_CastedExpr(std::move(castedExpr)),
       m_CastSteps(std::move(castSteps)) {}
 
@@ -137,9 +137,9 @@ class ExplicitCastExpr : public Expr {
 public:
   ExplicitCastExpr(ExplicitCastOperator castOp,
                    sona::owner<Expr> &&castedExpr, QualType destTy)
-    : Expr(ExprId::EI_ExplicitCast),
+    : Expr(ExprId::EI_ExplicitCast, destTy),
       m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
-      m_MaybeCastSteps(sona::empty_optional()), m_DestTy(destTy) {
+      m_MaybeCastSteps(sona::empty_optional()) {
     sona_assert1(castOp != ExplicitCastOperator::ECOP_Static,
                  "static_cast requires cast step chain");
   }
@@ -147,10 +147,9 @@ public:
   ExplicitCastExpr(ExplicitCastOperator castOp,
                    sona::owner<Expr> &&castedExpr,
                    std::vector<CastStep> &&castSteps)
-    : Expr(ExprId::EI_ExplicitCast),
+    : Expr(ExprId::EI_ExplicitCast, castSteps.back().GetDestTy()),
       m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
-      m_MaybeCastSteps(std::move(castSteps)),
-      m_DestTy(m_MaybeCastSteps.value().back().GetDestTy()) {
+      m_MaybeCastSteps(std::move(castSteps)) {
     sona_assert1(castOp == ExplicitCastOperator::ECOP_Static,
                  "only static_cast can have cast step chain");
   }
@@ -166,20 +165,18 @@ public:
     return m_MaybeCastSteps.value();
   }
 
-  QualType GetDestTy() const noexcept { return m_DestTy; }
-
 private:
   ExplicitCastOperator m_CastOp;
   sona::owner<Expr> m_CastedExpr;
   sona::optional<std::vector<CastStep>> m_MaybeCastSteps;
-  QualType m_DestTy;
 };
 
 class AssignExpr : public Expr {
 public:
   AssignExpr(AssignmentOperator op, sona::owner<Expr> &&assigned,
              sona::owner<Expr> &&assignee)
-      : Expr(ExprId::EI_Assign), m_Operator(op),
+      : Expr(ExprId::EI_Assign, assigned.borrow()->GetExprType()),
+        m_Operator(op),
         m_Assigned(std::move(assigned)), m_Assignee(std::move(assignee)) {}
 
   AssignmentOperator GetOperator() const noexcept { return m_Operator; }
@@ -199,8 +196,8 @@ private:
 
 class UnaryExpr : public Expr {
 public:
-  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand)
-    : Expr(ExprId::EI_Unary), m_Operator(op),
+  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand, QualType exprType)
+    : Expr(ExprId::EI_Unary, exprType), m_Operator(op),
       m_Operand(std::move(operand)) {}
 
   UnaryOperator GetOperator() const noexcept { return m_Operator; }
@@ -217,8 +214,8 @@ private:
 class BinaryExpr : public Expr {
 public:
   BinaryExpr(BinaryOperator op, sona::owner<Expr> &&leftOperand,
-             sona::owner<Expr> &&rightOperand)
-    : Expr(ExprId::EI_Binary), m_Operator(op),
+             sona::owner<Expr> &&rightOperand, QualType exprType)
+    : Expr(ExprId::EI_Binary, exprType), m_Operator(op),
       m_LeftOperand(std::move(leftOperand)),
       m_RightOperand(std::move(rightOperand)){}
 
@@ -241,8 +238,13 @@ class CondExpr : public Expr {
 public:
   CondExpr(sona::owner<Expr> &&condExpr, sona::owner<Expr> &&thenExpr,
            sona::owner<Expr> &&elseExpr)
-    : Expr(ExprId::EI_Cond), m_CondExpr(std::move(condExpr)),
-      m_ThenExpr(std::move(thenExpr)), m_ElseExpr(std::move(elseExpr)) {}
+    : Expr(ExprId::EI_Cond, thenExpr.borrow()->GetExprType()),
+      m_CondExpr(std::move(condExpr)),
+      m_ThenExpr(std::move(thenExpr)),
+      m_ElseExpr(std::move(elseExpr)) {
+    sona_assert(m_ThenExpr.borrow()->GetExprType()
+                == m_ElseExpr.borrow()->GetExprType());
+  }
 
 private:
   sona::owner<Expr> m_CondExpr, m_ThenExpr, m_ElseExpr;
@@ -250,8 +252,8 @@ private:
 
 class IdExpr : public Expr {
 public:
-  IdExpr(sona::strhdl_t const& idString)
-    : Expr(ExprId::EI_ID), m_IdString(idString) {}
+  IdExpr(sona::strhdl_t const& idString, QualType exprType)
+    : Expr(ExprId::EI_ID, exprType), m_IdString(idString) {}
 
   sona::strhdl_t const &GetIdString() const noexcept { return m_IdString; }
 
@@ -261,7 +263,8 @@ private:
 
 class LiteralExpr : public Expr {
 protected:
-  LiteralExpr(ExprId literalId) : Expr(literalId) {
+  LiteralExpr(ExprId literalId, QualType exprType)
+    : Expr(literalId, exprType) {
     sona_assert(literalId >= ExprId::EI_Integral &&
                 literalId <= ExprId::EI_String);
   }
@@ -269,6 +272,8 @@ protected:
 private:
 };
 
+/// @todo re-design the inheritance tree
+/*
 class IntegralLiteralExpr : public LiteralExpr {
 public:
   template <typename Integer_t>
@@ -344,11 +349,13 @@ public:
 private:
   std::vector<sona::owner<Expr>> m_ElementExprs;
 };
+*/
 
 class ParenExpr : public Expr {
 public:
   ParenExpr(sona::owner<Expr> &&expr)
-    : Expr(ExprId::EI_Paren), m_Expr(std::move(expr)) {}
+    : Expr(ExprId::EI_Paren, expr.borrow()->GetExprType()),
+      m_Expr(std::move(expr)) {}
 
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
 

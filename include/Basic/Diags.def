@@ -8,6 +8,7 @@ DIAG_TEMPLATE(Example2, "'{}' first defined here:")
 /// Lexical issues
 DIAG_TEMPLATE(ErrExpectedDigit, "Expected digit here")
 DIAG_TEMPLATE(ErrUnexpectedChar, "Unexpected character '{}'")
+DIAG_TEMPLATE(ErrExpectedCharGot, "Unexpected character '{}', expected '{}'")
 DIAG_TEMPLATE(ErrUnexpectedCharInContext,
               "Unexpected character '{}' in {} context")
 DIAG_TEMPLATE(WarnInvalidConversion,

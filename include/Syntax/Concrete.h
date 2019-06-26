@@ -733,6 +733,19 @@ private:
   std::uint64_t m_UIntValue;
 };
 
+class CharLiteralExpr : public LiteralExpr {
+public:
+  CharLiteralExpr(char cValue, SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_CharLiteralExpr, range), m_CharValue(cValue) {}
+
+  char GetValue() const noexcept { return m_CharValue; }
+
+private:
+  /// @todo use char32_t instead
+  /// since a unicode char may be enclosed by single quote
+  char m_CharValue;
+};
+
 class StringLiteralExpr : public LiteralExpr {
 public:
   StringLiteralExpr(sona::strhdl_t const& strValue, SourceRange const& range)

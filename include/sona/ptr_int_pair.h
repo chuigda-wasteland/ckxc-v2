@@ -61,6 +61,10 @@ public:
     return reinterpret_cast<T*>(uptr);
   }
 
+  bool operator==(ptr_int_pair const& that) const noexcept {
+    return ptr == that.ptr;
+  }
+
 private:
   struct owner_construct {};
   explicit ptr_int_pair(owner_construct, T* rawptr) {

@@ -66,6 +66,7 @@ TOKEN_MISC(ID, "identifier")
 TOKEN_MISC(LIT_INT, "integral literal")
 TOKEN_MISC(LIT_UINT, "uint literal")
 TOKEN_MISC(LIT_FLOAT, "floating literal")
+TOKEN_MISC(LIT_CHAR, "char literal")
 TOKEN_MISC(LIT_STR, "string literal")
 TOKEN_MISC(EOI, "end of input")
 

@@ -2,6 +2,7 @@
 #define EXPRBASE_H
 
 #include "ExprFwd.h"
+#include "TypeBase.h"
 
 #include "sona/stringref.h"
 
@@ -33,13 +34,16 @@ public:
 
   virtual ~Expr() = default;
 
-protected:
-  Expr(ExprId id) : m_ExprId(id) {}
+  ExprId GetExprId() const noexcept { return m_ExprId; }
 
-  ExprId GetExprId() const { return m_ExprId; }
+  QualType GetExprType() const noexcept { return m_ExprType; }
+
+protected:
+  Expr(ExprId id, QualType exprType) : m_ExprId(id), m_ExprType(exprType) {}
 
 private:
   ExprId m_ExprId;
+  QualType m_ExprType;
 };
 
 } // namespace AST
