@@ -469,22 +469,31 @@ sona::owner<Syntax::Expr> ParserImpl::ParseExpr() {
 sona::owner<Syntax::Expr> ParserImpl::ParseLiteralExpr() {
   sona::owner<Syntax::Expr> ret = nullptr;
   switch (CurrentToken().GetTokenKind()) {
+  case Token::TK_KW_true:
+    ret = new Syntax::BoolLiteralExpr(true, CurrentToken().GetSourceRange());
+    break;
+
+  case Token::TK_KW_false:
+    ret = new Syntax::BoolLiteralExpr(false, CurrentToken().GetSourceRange());
+    break;
+
+  case Token::TK_KW_nullptr:
+    ret = new Syntax::NullLiteralExpr(CurrentToken().GetSourceRange());
+    break;
+
   case Token::TK_LIT_INT:
-    ret = new Syntax::LiteralExpr(
+    ret = new Syntax::IntLiteralExpr(
             CurrentToken().GetIntValueUnsafe(),
-            EvaluateIntTypeKind(CurrentToken().GetIntValueUnsafe()),
             CurrentToken().GetSourceRange());
     break;
   case Token::TK_LIT_UINT:
-    ret = new Syntax::LiteralExpr(
+    ret = new Syntax::UIntLiteralExpr(
             CurrentToken().GetUIntValueUnsafe(),
-            EvaluateUIntTypeKind(CurrentToken().GetUIntValueUnsafe()),
             CurrentToken().GetSourceRange());
     break;
   case Token::TK_LIT_FLOAT:
-    ret = new Syntax::LiteralExpr(
+    ret = new Syntax::FloatLiteralExpr(
             CurrentToken().GetFloatValueUnsafe(),
-            EvaluateFloatTypeKind(CurrentToken().GetFloatValueUnsafe()),
             CurrentToken().GetSourceRange());
     break;
   case Token::TK_LIT_STR:
@@ -793,49 +802,6 @@ bool ParserImpl::ExpectAndConsume(Token::TokenKind tokenKind) noexcept {
     ConsumeToken();
   }
   return got;
-}
-
-Syntax::BuiltinType::TypeKind
-ParserImpl::EvaluateIntTypeKind(int64_t i) noexcept {
-  if (i <= std::numeric_limits<int8_t>::max()
-      && i >= std::numeric_limits<int8_t>::min()) {
-    return Syntax::BuiltinType::TypeKind::TK_Int8;
-  }
-  else if (i < std::numeric_limits<int16_t>::max()
-           && i >= std::numeric_limits<int16_t>::min()) {
-    return Syntax::BuiltinType::TypeKind::TK_Int16;
-  }
-  else if (i < std::numeric_limits<int32_t>::max()
-           && i >= std::numeric_limits<int32_t>::min()) {
-    return Syntax::BuiltinType::TypeKind::TK_Int32;
-  }
-  else {
-    return Syntax::BuiltinType::TypeKind::TK_Int64;
-  }
-}
-
-Syntax::BuiltinType::TypeKind
-ParserImpl::EvaluateUIntTypeKind(uint64_t u) noexcept {
-  if (u <= std::numeric_limits<uint8_t>::max()
-      /* && u >= std::numeric_limits<uint8_t>::min() */) {
-    return Syntax::BuiltinType::TypeKind::TK_UInt8;
-  }
-  else if (u < std::numeric_limits<uint16_t>::max()
-           /* && u >= std::numeric_limits<uint16_t>::min() */) {
-    return Syntax::BuiltinType::TypeKind::TK_UInt16;
-  }
-  else if (u < std::numeric_limits<uint32_t>::max()
-           /* && u >= std::numeric_limits<uint32_t>::min() */) {
-    return Syntax::BuiltinType::TypeKind::TK_UInt32;
-  }
-  else {
-    return Syntax::BuiltinType::TypeKind::TK_UInt64;
-  }
-}
-
-Syntax::BuiltinType::TypeKind
-ParserImpl::EvaluateFloatTypeKind(double) noexcept {
-  return Syntax::BuiltinType::TypeKind::TK_Double;
 }
 
 sona::strhdl_t ParserImpl::PrettyPrintToken(Token const& token) const {

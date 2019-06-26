@@ -13,12 +13,12 @@ void LexerImpl::LexAllTokens() {
     switch (CurChar()) {
     case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
     case 'h': case 'i': case 'n': case 'q': case 'r': case 's':
-    case 'u':  case 'v':
+    case 't': case 'u':  case 'v':
       LexIdOrKeyword();
       break;
 
     case 'g': case 'j': case 'k': case 'l': case 'm': case 'o': case 'p':
-    case 't': case 'w': case 'x': case 'y': case 'z':
+    case 'w': case 'x': case 'y': case 'z':
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
     case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O':
     case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V':

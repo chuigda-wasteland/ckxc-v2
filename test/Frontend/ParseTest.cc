@@ -193,19 +193,16 @@ void test4() {
   testContext.SetParsingTokenStream(tokens);
   sona::owner<Syntax::Expr> e = testContext.ParseLiteralExpr();
 
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_LiteralExpr,
+  VkAssertEquals(Syntax::Node::NodeKind::CNK_IntLiteralExpr,
                    e.borrow()->GetNodeKind());
   VkAssertFalse(diag.HasPendingDiags());
 
   diag.EmitDiags();
 
-  sona::owner<Syntax::LiteralExpr> literalExpr =
-      e.cast_unsafe<Syntax::LiteralExpr>();
+  sona::owner<Syntax::IntLiteralExpr> literalExpr =
+      e.cast_unsafe<Syntax::IntLiteralExpr>();
 
-  VkAssertEquals(Syntax::BuiltinType::TypeKind::TK_Int32,
-                 literalExpr.borrow()->GetLiteralTypeKind());
-  VkAssertEquals(123123,
-                 literalExpr.borrow()->GetAsIntUnsafe());
+  VkAssertEquals(123123, literalExpr.borrow()->GetValue());
 }
 
 void test5() {

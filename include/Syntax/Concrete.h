@@ -702,82 +702,76 @@ private:
 
 class LiteralExpr : public Expr {
 public:
-  LiteralExpr(std::int64_t intValue, BuiltinType::TypeKind ofType,
-              SourceRange const& range)
-    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
-    m_Value.IntValue = intValue;
-  }
+  LiteralExpr(NodeKind nodeKind, SourceRange const& range)
+    : Expr(nodeKind), m_Range(range) {}
 
-  LiteralExpr(std::uint64_t uIntValue, BuiltinType::TypeKind ofType,
-              SourceRange const& range)
-    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
-    m_Value.UIntValue = uIntValue;
-  }
-
-  LiteralExpr(double floatValue, BuiltinType::TypeKind ofType,
-              SourceRange const& range)
-    : Expr(NodeKind::CNK_LiteralExpr), m_TypeKind(ofType), m_Range(range) {
-    m_Value.FloatValue = floatValue;
-  }
-
-  BuiltinType::TypeKind GetLiteralTypeKind() const noexcept {
-    return m_TypeKind;
-  }
-
-  std::int64_t GetAsIntUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_Int8
-                || m_TypeKind == BuiltinType::TypeKind::TK_Int16
-                || m_TypeKind == BuiltinType::TypeKind::TK_Int32
-                || m_TypeKind == BuiltinType::TypeKind::TK_Int64);
-    return m_Value.IntValue;
-  }
-
-  std::uint64_t GetAsUIntUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_UInt8
-                || m_TypeKind == BuiltinType::TypeKind::TK_UInt16
-                || m_TypeKind == BuiltinType::TypeKind::TK_UInt32
-                || m_TypeKind == BuiltinType::TypeKind::TK_UInt64);
-    return m_Value.UIntValue;
-  }
-
-  double GetAsFloatUnsafe() const noexcept {
-    sona_assert(m_TypeKind == BuiltinType::TypeKind::TK_Float
-                || m_TypeKind == BuiltinType::TypeKind::TK_Double
-                || m_TypeKind == BuiltinType::TypeKind::TK_Quad);
-    return m_Value.FloatValue;
-  }
-
-  SourceRange const& GetSourceRange() const noexcept {
-    return m_Range;
-  }
+  SourceRange GetRange() const noexcept { return m_Range; }
 
 private:
-  union {
-    std::int64_t IntValue;
-    std::uint64_t UIntValue;
-    double FloatValue;
-  } m_Value;
-  BuiltinType::TypeKind m_TypeKind;
   SourceRange m_Range;
 };
 
-class StringLiteralExpr : public Expr {
+class IntLiteralExpr : public LiteralExpr {
+public:
+  IntLiteralExpr(std::int64_t iValue, SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_IntLiteralExpr, range), m_IntValue(iValue) {}
+
+  std::int64_t GetValue() const noexcept { return m_IntValue; }
+
+private:
+  std::int64_t m_IntValue;
+};
+
+class UIntLiteralExpr : public LiteralExpr {
+public:
+  UIntLiteralExpr(std::uint64_t uValue, SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_UIntLiteralExpr, range), m_UIntValue(uValue) {}
+
+  std::uint64_t GetValue() const noexcept { return m_UIntValue; }
+
+private:
+  std::uint64_t m_UIntValue;
+};
+
+class StringLiteralExpr : public LiteralExpr {
 public:
   StringLiteralExpr(sona::strhdl_t const& strValue, SourceRange const& range)
-    : Expr(NodeKind::CNK_StringLiteralExpr),
-      m_StrValue(strValue), m_Range(range) {}
+    : LiteralExpr(NodeKind::CNK_StringLiteralExpr, range),
+      m_StrValue(strValue) {}
 
-  sona::strhdl_t const& GetValue() const noexcept {
-    return m_StrValue;
-  }
-
-  SourceRange const& GetRange() const noexcept {
-    return m_Range;
-  }
+  sona::strhdl_t const& GetValue() const noexcept { return m_StrValue; }
 
 private:
   sona::strhdl_t m_StrValue;
-  SourceRange m_Range;
+};
+
+class BoolLiteralExpr : public LiteralExpr {
+public:
+  BoolLiteralExpr(bool bValue, SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_BoolLiteralExpr, range), m_BoolValue(bValue) {}
+
+  bool GetValue() const noexcept { return m_BoolValue; }
+
+private:
+  bool m_BoolValue;
+};
+
+class FloatLiteralExpr : public LiteralExpr {
+public:
+  FloatLiteralExpr(double fValue, SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_FloatLiteralExpr, range),
+      m_FloatValue(fValue) {}
+
+  double GetValue() const noexcept { return m_FloatValue; }
+
+private:
+  double m_FloatValue;
+};
+
+class NullLiteralExpr : public LiteralExpr {
+public:
+  NullLiteralExpr(SourceRange const& range)
+    : LiteralExpr(NodeKind::CNK_NullLiteralExpr, range) {}
 };
 
 class IdRefExpr : public Expr {

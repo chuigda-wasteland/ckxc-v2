@@ -66,8 +66,14 @@ CST_ABSTRACT(Node)
 
   CST_ABSTRACT(Expr)
 
-    CST_EXPR(LiteralExpr)
-    CST_EXPR(StringLiteralExpr)
+    CST_ABSTRACT(LiteralExpr)
+      CST_EXPR(IntLiteralExpr)
+      CST_EXPR(UIntLiteralExpr)
+      CST_EXPR(StringLiteralExpr)
+      CST_EXPR(BoolLiteralExpr)
+      CST_EXPR(FloatLiteralExpr)
+      CST_EXPR(NullLiteralExpr)
+
     CST_EXPR(IdRefExpr)
     CST_EXPR(ArraySubscriptExpr)
     CST_EXPR(FuncCallExpr)

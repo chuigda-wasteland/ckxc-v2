@@ -38,7 +38,7 @@ protected:
 #define CST_EXPR(name) \
   sona::ref_ptr<AST::Expr const> \
   ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const>\type);
+              sona::ref_ptr<Syntax::name const> type);
 
 #include "Syntax/Nodes.def"
 };

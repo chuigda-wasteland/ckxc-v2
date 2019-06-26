@@ -76,13 +76,6 @@ private:
 
   sona::strhdl_t PrettyPrintToken(Token const &token) const;
 
-  static Syntax::BuiltinType::TypeKind
-  EvaluateIntTypeKind(std::int64_t i) noexcept;
-  static Syntax::BuiltinType::TypeKind
-  EvaluateUIntTypeKind(std::uint64_t u) noexcept;
-  static Syntax::BuiltinType::TypeKind
-  EvaluateFloatTypeKind(double d) noexcept;
-
   Diag::DiagnosticEngine &m_Diag;
   sona::ref_ptr<std::vector<Token> const> m_ParsingTokenStream = nullptr;
   size_t m_Index;
