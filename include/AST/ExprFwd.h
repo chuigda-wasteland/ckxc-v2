@@ -4,19 +4,21 @@
 namespace ckx {
 namespace AST {
 
+/// @todo replace hand-written codes with tablegen
 class Expr;
 class AssignExpr;
 class UnaryExpr;
 class BinaryExpr;
 class CondExpr;
 class IdExpr;
-class LiteralExpr;
-class IntegralLiteralExpr;
-class FloatingLiteralExpr;
+class IntLiteralExpr;
+class FloatLiteralExpr;
 class CharLiteralExpr;
 class StringLiteralExpr;
-class TupleLiteralExpr;
-class ArrayLiteralExpr;
+class BoolLiteralExpr;
+class NullptrLiteralExpr;
+// class TupleLiteralExpr;
+// class ArrayLiteralExpr;
 class ParenExpr;
 
 } // namespace AST

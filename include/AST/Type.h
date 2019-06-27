@@ -50,6 +50,7 @@ private:
   using NumericBuiltinTypeId = std::underlying_type_t<BuiltinTypeId>;
 };
 
+/// @todo It may be hard to implement tuple with current type system.
 class TupleType final : public Type {
 public:
   using TupleElements_t = std::vector<QualType>;

@@ -15,6 +15,12 @@
 namespace ckx {
 namespace AST {
 
+/// @note Some kinds of expressions could have determined their types on
+/// themselves. However, our current infrastructure requires all types must
+/// be singleton and thus must come from Sema's ASTContext directly or
+/// indirectly. As a result, an extra QualType argument must be provided
+/// to construct an Expr object.
+
 enum class UnaryOperator {
   UOP_Incr,
   UOP_Decr,
@@ -261,52 +267,21 @@ private:
   sona::strhdl_t m_IdString;
 };
 
-class LiteralExpr : public Expr {
-protected:
-  LiteralExpr(ExprId literalId, QualType exprType)
-    : Expr(literalId, exprType) {
-    sona_assert(literalId >= ExprId::EI_Integral &&
-                literalId <= ExprId::EI_String);
-  }
+class IntLiteralExpr : public Expr {
+public:
+  IntLiteralExpr(std::int64_t value, QualType type)
+    : Expr(ExprId::EI_IntLiteral, type), m_Value(value) {}
+
+  std::int64_t GetValue() const noexcept { return m_Value; }
 
 private:
+  std::int64_t m_Value;
 };
 
-/// @todo re-design the inheritance tree
-/*
-class IntegralLiteralExpr : public LiteralExpr {
+class FloatLiteralExpr : public Expr {
 public:
-  template <typename Integer_t>
-  IntegralLiteralExpr(Integer_t value)
-      : LiteralExpr(ExprId::EI_Integral), m_Value(value) {
-    static_assert(std::is_same<Integer_t, std::int64_t>::value
-                  || std::is_same<Integer_t, std::uint64_t>::value,
-                  "Not an integer!");
-  }
-
-  bool IsSignedInt() const noexcept { return m_Value.contains_t1(); }
-
-  bool IsUnsignedInt() const noexcept { return !IsSignedInt(); }
-
-  std::int64_t GetAsSIntUnsafe() const noexcept {
-    sona_assert(IsSignedInt());
-    return m_Value.as_t1();
-  }
-
-  std::uint64_t GetAsUIntUnsafe() const noexcept {
-    sona_assert(IsUnsignedInt());
-    return m_Value.as_t2();
-  }
-
-private:
-  sona::either<std::int64_t, std::uint64_t> m_Value;
-};
-
-class FloatingLiteralExpr : public LiteralExpr {
-public:
-  FloatingLiteralExpr(double value)
-      : LiteralExpr(ExprId::EI_Floating),
-        m_Value(value) {}
+  FloatLiteralExpr(double value, QualType type)
+    : Expr(ExprId::EI_FloatLiteral, type), m_Value(value) {}
 
   double GetValue() const noexcept { return m_Value; }
 
@@ -314,42 +289,44 @@ private:
   double m_Value;
 };
 
-/// @todo implement char then
-class CharLiteralExpr : public LiteralExpr {};
-
-/// @todo implement string then
-class StringLiteralExpr : public LiteralExpr {};
-
-class TupleLiteralExpr : public Expr {
+class CharLiteralExpr : public Expr {
 public:
-  TupleLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs)
-    : Expr(ExprId::EI_Tuple), m_ElementExprs(std::move(elementExprs)) {}
+  CharLiteralExpr(char value, QualType type)
+    : Expr(ExprId::EI_CharLiteral, type), m_Value(value) {}
 
-  auto GetElementExprs() const noexcept {
-    return sona::linq::from_container(m_ElementExprs).
-      transform([](sona::owner<Expr> const& it)
-          { return it.borrow(); });
-  }
+  char GetValue() const noexcept { return m_Value; }
 
 private:
-  std::vector<sona::owner<Expr>> m_ElementExprs;
+  /// @todo use char32_t or other wider types to represent one char
+  char m_Value;
 };
 
-class ArrayLiteralExpr : public Expr {
+class StringLiteralExpr : public Expr {
 public:
-  ArrayLiteralExpr(std::vector<sona::owner<Expr>> &&elementExprs)
-    : Expr(ExprId::EI_Array), m_ElementExprs(std::move(elementExprs)) {}
+  StringLiteralExpr(sona::strhdl_t value, QualType type)
+    : Expr(ExprId::EI_CharLiteral, type), m_Value(value) {}
 
-  auto GetElementExprs() const noexcept {
-    return sona::linq::from_container(m_ElementExprs).
-      transform([](sona::owner<Expr> const& it)
-    { return it.borrow(); });
-  }
+  sona::strhdl_t GetValue() const noexcept { return m_Value; }
 
 private:
-  std::vector<sona::owner<Expr>> m_ElementExprs;
+  sona::strhdl_t m_Value;
 };
-*/
+
+class BoolLiteralExpr : public Expr {
+public:
+  BoolLiteralExpr(bool value, QualType type)
+    : Expr(ExprId::EI_BoolLiteral, type), m_Value(value) {}
+
+  bool GetValue() const noexcept { return m_Value; }
+
+private:
+  bool m_Value;
+};
+
+class NullptrLiteralExpr : public Expr {
+public:
+  NullptrLiteralExpr(QualType type) : Expr(ExprId::EI_NullptrLiteral, type) {}
+};
 
 class ParenExpr : public Expr {
 public:
