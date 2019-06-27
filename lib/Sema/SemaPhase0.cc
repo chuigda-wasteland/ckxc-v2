@@ -50,9 +50,8 @@ void SemaPhase0::PostSubstituteDepends() {
     std::shared_ptr<Scope> inScope = incomplete->GetEnclosingScope();
     for (auto &dep : incomplete->GetDependencies()) {
       if (dep.IsDependByname()) {
-        sona::ref_ptr<AST::Type const> type =
-            LookupType(inScope, dep.GetIdUnsafe(), true);
-        if (type == nullptr) {
+        AST::QualType type = LookupType(inScope, dep.GetIdUnsafe(), true);
+        if (type.GetUnqualTy() == nullptr) {
           m_Diag.Diag(Diag::DIR_Error,
                       Diag::Format(Diag::DMT_ErrNotDeclared,
                       {dep.GetIdUnsafe().GetIdentifier()}),
@@ -60,7 +59,7 @@ void SemaPhase0::PostSubstituteDepends() {
           continue;
         }
         sona::ref_ptr<AST::Decl const> decl =
-            AST::GetDeclOfUserDefinedType(type);
+            AST::GetDeclOfUserDefinedType(type.GetUnqualTy());
          dep.ReplaceNameWithDecl(decl);
       }
     }
@@ -171,13 +170,13 @@ sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::
 ResolveUserDefinedType(
 sona::ref_ptr<Syntax::UserDefinedType const> uty) {
-  sona::ref_ptr<AST::Type const> lookupResult =
+  AST::QualType lookupResult =
       LookupType(GetCurrentScope(), uty->GetName(), false);
-  if (lookupResult != nullptr) {
-    if (!CheckTypeComplete(lookupResult)) {
+  if (lookupResult.GetUnqualTy() != nullptr) {
+    if (!CheckTypeComplete(lookupResult.GetUnqualTy())) {
       std::vector<Dependency> dependencies;
       dependencies.emplace_back(
-        AST::GetDeclOfUserDefinedType(lookupResult), true);
+        AST::GetDeclOfUserDefinedType(lookupResult.GetUnqualTy()), true);
       return std::move(dependencies);
     }
 
@@ -221,16 +220,13 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
     for (const auto &p : r) {
       switch (p.first) {
       case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
-        ret = m_ASTContext.CreatePointerType(ret)
-                          .cast_unsafe<AST::Type const>();
+        ret = m_ASTContext.CreatePointerType(ret);
         break;
       case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
-        ret = m_ASTContext.CreateLValueRefType(ret)
-                          .cast_unsafe<AST::Type const>();
+        ret = m_ASTContext.CreateLValueRefType(ret);
         break;
       case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
-        ret = m_ASTContext.CreateRValueRefType(ret)
-                          .cast_unsafe<AST::Type const>();
+        ret = m_ASTContext.CreateRValueRefType(ret);
         break;
       case Syntax::ComposedType::TypeSpecifier::CTS_Const:
         if (ret.IsConst()) {
@@ -284,7 +280,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
   {
     auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
-    if (prevType != nullptr) {
+    if (prevType.GetUnqualTy() != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition, { decl->GetName() }),
                   decl->GetNameRange());
@@ -322,7 +318,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
   {
     auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
-    if (prevType != nullptr) {
+    if (prevType.GetUnqualTy() != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),
@@ -370,7 +366,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
   {
     auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
-    if (prevType != nullptr) {
+    if (prevType.GetUnqualTy() != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),
@@ -521,7 +517,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnUsingDecl(sona::ref_ptr<Syntax::UsingDecl const> decl) {
   {
     auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
-    if (prevType != nullptr) {
+    if (prevType.GetUnqualTy() != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),
@@ -565,7 +561,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
   {
     auto prevType = GetCurrentScope()->LookupTypeLocally(decl->GetName());
-    if (prevType != nullptr) {
+    if (prevType.GetUnqualTy() != nullptr) {
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrRedefinition,
                                { decl->GetName() }),

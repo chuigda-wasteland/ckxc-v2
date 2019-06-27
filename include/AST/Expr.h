@@ -278,6 +278,17 @@ private:
   std::int64_t m_Value;
 };
 
+class UIntLiteralExpr : public Expr {
+public:
+  UIntLiteralExpr(std::uint64_t value, QualType type)
+    : Expr(ExprId::EI_UIntLiteral, type), m_Value(value) {}
+
+  std::uint64_t GetValue() const noexcept { return m_Value; }
+
+private:
+  std::uint64_t m_Value;
+};
+
 class FloatLiteralExpr : public Expr {
 public:
   FloatLiteralExpr(double value, QualType type)

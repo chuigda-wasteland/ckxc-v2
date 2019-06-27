@@ -29,8 +29,7 @@ void Scope::AddVarDecl(sona::ref_ptr<const AST::VarDecl> varDecl) {
   m_Variables.emplace(varDecl->GetVarName(), varDecl);
 }
 
-void Scope::AddType(sona::strhdl_t const& typeName,
-                    sona::ref_ptr<const AST::Type> type) {
+void Scope::AddType(sona::strhdl_t const& typeName, AST::QualType type) {
   m_Types.emplace(typeName, type);
 }
 
@@ -51,26 +50,24 @@ Scope::LookupVarDecl(const sona::strhdl_t &name) const noexcept {
   return nullptr;
 }
 
-sona::ref_ptr<AST::Type const>
-Scope::LookupType(const sona::strhdl_t &name) const noexcept {
+AST::QualType Scope::LookupType(const sona::strhdl_t &name) const noexcept {
   for (sona::ref_ptr<Scope const> s = this; s != nullptr;
        s = s->GetParentScope().get()) {
-    sona::ref_ptr<AST::Type const> localResult =
-        s->LookupTypeLocally(name);
-    if (localResult != nullptr) {
+    AST::QualType localResult = s->LookupTypeLocally(name);
+    if (localResult.GetUnqualTy() != nullptr) {
       return localResult;
     }
   }
-  return nullptr;
+  return AST::QualType(nullptr);
 }
 
-sona::ref_ptr<const AST::Type>
+AST::QualType
 Scope::LookupTypeLocally(const sona::strhdl_t& name) const noexcept {
   auto it = m_Types.find(name);
   if (it != m_Types.cend()) {
     return it->second;
   }
-  return nullptr;
+  return AST::QualType(nullptr);
 }
 
 sona::ref_ptr<const AST::VarDecl>

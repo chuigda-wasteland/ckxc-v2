@@ -58,19 +58,16 @@ public:
 
   void AddVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl);
 
-  void AddType(const sona::strhdl_t& typeName,
-               sona::ref_ptr<AST::Type const> type);
+  void AddType(const sona::strhdl_t& typeName, AST::QualType type);
 
   void AddFunction(sona::ref_ptr<AST::FuncDecl const> funcDecl);
 
-  sona::ref_ptr<AST::Type const>
-  LookupType(sona::strhdl_t const& name) const noexcept;
+  AST::QualType LookupType(sona::strhdl_t const& name) const noexcept;
 
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDecl(sona::strhdl_t const& name) const noexcept;
 
-  sona::ref_ptr<AST::Type const>
-  LookupTypeLocally(sona::strhdl_t const& name) const noexcept;
+  AST::QualType LookupTypeLocally(sona::strhdl_t const& name) const noexcept;
 
   sona::ref_ptr<AST::VarDecl const>
   LookupVarDeclLocally(sona::strhdl_t const& name) const noexcept;
@@ -108,8 +105,7 @@ private:
   m_Tags;
   std::unordered_map<sona::strhdl_t, sona::ref_ptr<AST::VarDecl const>>
   m_Variables;
-  std::unordered_map<sona::strhdl_t, sona::ref_ptr<AST::Type const>>
-  m_Types;
+  std::unordered_map<sona::strhdl_t, AST::QualType> m_Types;
 
   FunctionSet m_Functions;
 

@@ -19,9 +19,8 @@ public:
   void TranslateFunctions(std::vector<IncompleteFuncDecl> &funcs);
 
 protected:
-  sona::ref_ptr<AST::Type const>
-  ResolveType(std::shared_ptr<Scope> scope,
-              sona::ref_ptr<Syntax::Type const> type);
+  AST::QualType ResolveType(std::shared_ptr<Scope> scope,
+                            sona::ref_ptr<Syntax::Type const> type);
 
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
@@ -31,7 +30,7 @@ protected:
       sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
 
 #define CST_TYPE(name) \
-  sona::ref_ptr<AST::Type const> \
+  AST::QualType \
   Resolve##name(std::shared_ptr<Scope> scope, \
                 sona::ref_ptr<Syntax::name const> type);
 

@@ -19,6 +19,7 @@ public:
     EI_Cond,
     EI_ID,
     EI_IntLiteral,
+    EI_UIntLiteral,
     EI_FloatLiteral,
     EI_CharLiteral,
     EI_StringLiteral,

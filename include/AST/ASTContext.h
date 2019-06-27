@@ -15,29 +15,15 @@ public:
   ASTContext() = default;
   ~ASTContext() = default;
 
-  sona::ref_ptr<Type> AddUserDefinedType(sona::owner<AST::Type> &&type);
-
-  sona::ref_ptr<TupleType const>
-  CreateTupleType(TupleType::TupleElements_t &&elems);
-
-  sona::ref_ptr<ArrayType const>
-  CreateArrayType(QualType base, size_t size);
-
-  sona::ref_ptr<PointerType const>
-  CreatePointerType(QualType pointee);
-
-  sona::ref_ptr<LValueRefType const>
-  CreateLValueRefType(QualType referenced);
-
-  sona::ref_ptr<RValueRefType const>
-  CreateRValueRefType(QualType referenced);
-
-  sona::ref_ptr<FunctionType const>
-  BuildFunctionType(std::vector<QualType> const& paramTypes,
-                    QualType retType);
-
-  sona::ref_ptr<Type const>
-  GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
+  QualType AddUserDefinedType(sona::owner<AST::Type> &&type);
+  QualType CreateTupleType(TupleType::TupleElements_t &&elems);
+  QualType CreateArrayType(QualType base, size_t size);
+  QualType CreatePointerType(QualType pointee);
+  QualType CreateLValueRefType(QualType referenced);
+  QualType CreateRValueRefType(QualType referenced);
+  QualType BuildFunctionType(std::vector<QualType> const& paramTypes,
+                             QualType retType);
+  QualType GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
 
 private:
   template <typename Type_t>

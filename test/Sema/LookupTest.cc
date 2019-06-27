@@ -49,27 +49,31 @@ void test0() {
   VkAssertFalse(diag.HasPendingDiags());
   diag.EmitDiags();
 
-  sona::ref_ptr<AST::Type const> ACType =
+  AST::QualType ACType =
       sema0.LookupType(sema0.GetGlobalScope(),
                        Syntax::Identifier(std::vector<sona::strhdl_t>{"A"},
                                           "C", std::vector<SourceRange>{},
                                           SourceRange(0, 0, 0)), false);
 
-  sona::ref_ptr<AST::Type const> BCType =
+  AST::QualType BCType =
       sema0.LookupType(sema0.GetGlobalScope(),
                        Syntax::Identifier(std::vector<sona::strhdl_t>{"B"},
                                           "C", std::vector<SourceRange>{},
                                           SourceRange(0, 0, 0)), false);
 
-  VkAssertNotEquals(nullptr, ACType);
-  VkAssertNotEquals(nullptr, BCType);
-  VkAssertEquals(AST::Type::TypeId::TI_UserDefined, ACType->GetTypeId());
-  VkAssertEquals(AST::Type::TypeId::TI_UserDefined, BCType->GetTypeId());
+  VkAssertNotEquals(nullptr, ACType.GetUnqualTy());
+  VkAssertNotEquals(nullptr, BCType.GetUnqualTy());
+  VkAssertEquals(AST::Type::TypeId::TI_UserDefined,
+                 ACType.GetUnqualTy()->GetTypeId());
+  VkAssertEquals(AST::Type::TypeId::TI_UserDefined,
+                 BCType.GetUnqualTy()->GetTypeId());
 
   sona::ref_ptr<AST::TypeDecl const>
-      ACDecl = ACType.cast_unsafe<AST::UserDefinedType const>()->GetTypeDecl();
+      ACDecl = ACType.GetUnqualTy()
+                     .cast_unsafe<AST::UserDefinedType const>()->GetTypeDecl();
   sona::ref_ptr<AST::TypeDecl const>
-      BCDecl = BCType.cast_unsafe<AST::UserDefinedType const>()->GetTypeDecl();
+      BCDecl = BCType.GetUnqualTy()
+                     .cast_unsafe<AST::UserDefinedType const>()->GetTypeDecl();
 
   VkAssertEquals("C", ACDecl->GetName());
   VkAssertEquals("C", BCDecl->GetName());

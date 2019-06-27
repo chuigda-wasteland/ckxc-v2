@@ -36,8 +36,7 @@ void SemaPhase1::PostTranslateIncompletes(
   }
 }
 
-sona::ref_ptr<const AST::Type>
-SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
+AST::QualType SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
                         sona::ref_ptr<const Syntax::Type> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
@@ -52,9 +51,9 @@ SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
 
 void SemaPhase1::PostTranslateIncompleteVar(
     sona::ref_ptr<IncompleteVarDecl> iVar) {
-  sona::ref_ptr<AST::Type const> varType =
+  AST::QualType varType =
       ResolveType(iVar->GetEnclosingScope(), iVar->GetConcrete()->GetType());
-  sona_assert(varType != nullptr);
+  sona_assert(varType.GetUnqualTy() != nullptr);
   iVar->GetIncomplete()->SetType(varType);
 }
 
@@ -68,7 +67,7 @@ void SemaPhase1::PostTranslateIncompleteADTConstructor(
     sona::ref_ptr<IncompleteValueCtorDecl> iAdtC) {
   sona::ref_ptr<AST::ValueCtorDecl> halfway =
       iAdtC->GetHalfway().cast_unsafe<AST::ValueCtorDecl>();
-  sona::ref_ptr<AST::Type const> adtConstructorType =
+  AST::QualType adtConstructorType =
       ResolveType(iAdtC->GetEnclosingScope(),
                   iAdtC->GetConcrete()->GetUnderlyingType());
   halfway->SetType(adtConstructorType);
@@ -76,56 +75,82 @@ void SemaPhase1::PostTranslateIncompleteADTConstructor(
 
 void SemaPhase1::PostTranslateIncompleteUsing(
     sona::ref_ptr<IncompleteUsingDecl> iusing) {
-  sona::ref_ptr<AST::Type const> aliasee =
-      ResolveType(iusing->GetEnclosingScope(),
-                  iusing->GetConcrete()->GetAliasee());
+  AST::QualType aliasee = ResolveType(iusing->GetEnclosingScope(),
+                                      iusing->GetConcrete()->GetAliasee());
   iusing->GetHalfway()->FillAliasee(aliasee);
 }
 
-sona::ref_ptr<AST::Type const>
+AST::QualType
 SemaPhase1::ResolveBuiltinType(std::shared_ptr<Scope>,
                              sona::ref_ptr<Syntax::BuiltinType const> bty) {
   return SemaCommon::ResolveBuiltinTypeImpl(bty);
 }
 
-sona::ref_ptr<AST::Type const>
+AST::QualType
 SemaPhase1::
 ResolveUserDefinedType(std::shared_ptr<Scope> scope,
                        sona::ref_ptr<Syntax::UserDefinedType const> uty) {
-  sona::ref_ptr<AST::Type const> lookupResult =
-      LookupType(scope, uty->GetName(), false);
-  sona_assert(lookupResult != nullptr);
+  AST::QualType lookupResult = LookupType(scope, uty->GetName(), false);
+  sona_assert(lookupResult.GetUnqualTy() != nullptr);
   return lookupResult;
 }
 
-sona::ref_ptr<AST::Type const>
-SemaPhase1::
-ResolveTemplatedType(std::shared_ptr<Scope>,
-                     sona::ref_ptr<Syntax::TemplatedType const>) {
+AST::QualType
+SemaPhase1:: ResolveTemplatedType(std::shared_ptr<Scope>,
+                                  sona::ref_ptr<Syntax::TemplatedType const>) {
   sona_unreachable1("not implemented");
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
-sona::ref_ptr<AST::Type const>
-SemaPhase1::
-ResolveComposedType(std::shared_ptr<Scope> scope,
-                    sona::ref_ptr<Syntax::ComposedType const> cty) {
-  sona::ref_ptr<AST::Type const> ret
-      = ResolveType(scope, cty->GetRootType());
+AST::QualType
+SemaPhase1::ResolveComposedType(std::shared_ptr<Scope> scope,
+                                sona::ref_ptr<Syntax::ComposedType const> cty) {
+  AST::QualType ret = ResolveType(scope, cty->GetRootType());
 
-  for (Syntax::ComposedType::TypeSpecifier ts : cty->GetTypeSpecifiers()) {
-    switch (ts) {
+  /// @todo duplicate codes, remove them at some time.
+  auto r = sona::linq::from_container(cty->GetTypeSpecifiers())
+            .zip_with(
+             sona::linq::from_container(cty->GetTypeSpecRanges()));
+  for (const auto& p : r) {
+    switch (p.first) {
     case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
-      ret = m_ASTContext.CreatePointerType(ret)
-                        .cast_unsafe<AST::Type const>();
+      ret = m_ASTContext.CreatePointerType(ret);
       break;
     case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
-      ret = m_ASTContext.CreateLValueRefType(ret)
-                        .cast_unsafe<AST::Type const>();
+      ret = m_ASTContext.CreateLValueRefType(ret);
       break;
     case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
-      ret = m_ASTContext.CreateRValueRefType(ret)
-                        .cast_unsafe<AST::Type const>();
+      ret = m_ASTContext.CreateRValueRefType(ret);
+      break;
+    case Syntax::ComposedType::TypeSpecifier::CTS_Const:
+      if (ret.IsConst()) {
+        m_Diag.Diag(Diag::DIR_Error,
+                    Diag::Format(Diag::DMT_ErrDuplicateQual, {"const"}),
+                    p.second);
+      }
+      else {
+        ret.AddConst();
+      }
+      break;
+    case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
+      if (ret.IsVolatile()) {
+        m_Diag.Diag(Diag::DIR_Error,
+                    Diag::Format(Diag::DMT_ErrDuplicateQual, {"volatile"}),
+                    p.second);
+      }
+      else {
+        ret.AddVolatile();
+      }
+      break;
+    case Syntax::ComposedType::TypeSpecifier::CTS_Restrict:
+      if (ret.IsRestrict()) {
+        m_Diag.Diag(Diag::DIR_Error,
+                    Diag::Format(Diag::DMT_ErrDuplicateQual, {"restrict"}),
+                    p.second);
+      }
+      else {
+        ret.AddRestrict();
+      }
       break;
     default:
       sona_unreachable1("not implemented");
@@ -138,8 +163,51 @@ sona::ref_ptr<AST::Expr const>
 SemaPhase1::ActOnIntLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::IntLiteralExpr const> literalExpr) {
-  (void)literalExpr;
-  return nullptr;
+  AST::BuiltinType::BuiltinTypeId btid =
+      ClassifyBuiltinTypeId(literalExpr->GetValue());
+  return new AST::IntLiteralExpr(literalExpr->GetValue(),
+                                 m_ASTContext.GetBuiltinType(btid));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnUIntLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::UIntLiteralExpr const> literalExpr) {
+  AST::BuiltinType::BuiltinTypeId btid =
+      ClassifyBuiltinTypeId(literalExpr->GetValue());
+  return new AST::UIntLiteralExpr(literalExpr->GetValue(),
+                                  m_ASTContext.GetBuiltinType(btid));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnFloatLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::FloatLiteralExpr const> literalExpr) {
+  AST::BuiltinType::BuiltinTypeId btid =
+      ClassifyBuiltinTypeId(literalExpr->GetValue());
+  return new AST::FloatLiteralExpr(literalExpr->GetValue(),
+                                   m_ASTContext.GetBuiltinType(btid));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnCharLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::CharLiteralExpr const> literalExpr) {
+  return new AST::CharLiteralExpr(
+             literalExpr->GetValue(),
+             m_ASTContext.GetBuiltinType(
+               AST::BuiltinType::BuiltinTypeId::BTI_Char));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnStringLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::StringLiteralExpr const> literalExpr) {
+  return new AST::StringLiteralExpr(
+               literalExpr->GetValue(),
+               m_ASTContext.CreatePointerType(
+                 m_ASTContext.GetBuiltinType(
+                   AST::BuiltinType::BuiltinTypeId::BTI_Char)));
 }
 
 } // namespace Sema

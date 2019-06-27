@@ -12,6 +12,7 @@ class BinaryExpr;
 class CondExpr;
 class IdExpr;
 class IntLiteralExpr;
+class UIntLiteralExpr;
 class FloatLiteralExpr;
 class CharLiteralExpr;
 class StringLiteralExpr;

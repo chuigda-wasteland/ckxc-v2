@@ -3,57 +3,51 @@
 namespace ckx {
 namespace AST {
 
-sona::ref_ptr<Type const>
+QualType
 ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, rep, size, isint, \
                        issigned, signedver, unsignedver) \
     case BuiltinType::BuiltinTypeId::BTI_##name: { \
       static BuiltinType name##Type{ BuiltinType::BuiltinTypeId::BTI_##name }; \
-      return name##Type; \
+      return QualType(&(name##Type)); \
     }
   #include "Syntax/BuiltinTypes.def"
   }
 }
 
-sona::ref_ptr<Type>
-ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
+QualType ASTContext::AddUserDefinedType(sona::owner<Type>&& type) {
   /// @note It's safe to use a vector, since all user defined types shall be
   /// added exactly once.
   sona::ref_ptr<Type> borrowed_value = type.borrow();
   m_UserDefinedTypes.push_back(std::move(type));
 
-  return borrowed_value;
+  return QualType(borrowed_value);
 }
 
-sona::ref_ptr<TupleType const>
-ASTContext::CreateTupleType(TupleType::TupleElements_t &&elems) {
+QualType ASTContext::CreateTupleType(TupleType::TupleElements_t &&elems) {
   auto iter = m_TupleTypes.emplace(std::move(elems)).first;
-  return sona::ref_ptr<TupleType const>(*iter);
+  return QualType(sona::ref_ptr<Type const>(*iter));
 }
 
-sona::ref_ptr<ArrayType const>
-ASTContext::CreateArrayType(QualType base, size_t size) {
+QualType ASTContext::CreateArrayType(QualType base, size_t size) {
   auto iter = m_ArrayTypes.emplace(base, size).first;
-  return sona::ref_ptr<ArrayType const>(*iter);
+  return QualType(sona::ref_ptr<Type const>(*iter));
 }
 
-sona::ref_ptr<PointerType const>
-ASTContext::CreatePointerType(QualType pointee) {
+QualType ASTContext::CreatePointerType(QualType pointee) {
   auto iter = m_PointerTypes.emplace(pointee).first;
-  return sona::ref_ptr<PointerType const>(*iter);
+  return QualType(sona::ref_ptr<Type const>(*iter));
 }
 
-sona::ref_ptr<LValueRefType const>
-ASTContext::CreateLValueRefType(QualType referenced) {
+QualType ASTContext::CreateLValueRefType(QualType referenced) {
   auto iter = m_LValueRefTypes.emplace(referenced).first;
-  return *iter;
+  return QualType(*iter);
 }
 
-sona::ref_ptr<RValueRefType const>
-ASTContext::CreateRValueRefType(QualType referenced) {
+QualType ASTContext::CreateRValueRefType(QualType referenced) {
   auto iter = m_RValueRefTypes.emplace(referenced).first;
-  return *iter;
+  return QualType(*iter);
 }
 
 } // namespace AST

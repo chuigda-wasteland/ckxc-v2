@@ -22,6 +22,8 @@ BUILTIN_TYPE(Void,    0,  false, false, NoType, NoType,  TK_KW_void)
 BUILTIN_TYPE(Bool,    1,  false, false, NoType, NoType,  TK_KW_bool)
 BUILTIN_TYPE(NilType, 0,  false, false, NoType, NoType,  TK_KW_niltype)
 
+BUILTIN_TYPE(Char,    1,  false, false, NoType, NoType,  TK_KW_char)
+
 BUILTIN_TYPE(NoType,  0,  false, false, NoType, NoType, TK_EOI)
 
 #undef BUILTIN_TYPE

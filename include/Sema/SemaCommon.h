@@ -26,6 +26,14 @@ public:
       m_CurrentScope(nullptr), m_GlobalScope(nullptr), m_Diag(diag) {}
 
 protected:
+  static AST::BuiltinType::BuiltinTypeId
+  ClassifyBuiltinTypeId(std::int64_t i) noexcept;
+  static AST::BuiltinType::BuiltinTypeId
+  ClassifyBuiltinTypeId(std::uint64_t u) noexcept;
+  static AST::BuiltinType::BuiltinTypeId
+  ClassifyBuiltinTypeId(double f) noexcept;
+
+protected:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
   void PopDeclContext();
   sona::ref_ptr<AST::DeclContext> GetCurrentDeclContext();
@@ -34,7 +42,7 @@ protected:
   void PushScope(Scope::ScopeFlags flags = Scope::SF_None);
   void PopScope();
 
-  sona::ref_ptr<const AST::Type>
+  AST::QualType
   ResolveBuiltinTypeImpl(sona::ref_ptr<Syntax::BuiltinType const> basicType);
 
   sona::ref_ptr<const AST::DeclContext>
@@ -42,8 +50,7 @@ protected:
                     const std::vector<sona::strhdl_t>& nns, bool shouldDiag,
                     const std::vector<SingleSourceRange>& nnsRanges);
 
-  sona::ref_ptr<AST::Type const>
-  LookupType(std::shared_ptr<Scope> scope, Syntax::Identifier const& identifier,
+  AST::QualType LookupType(std::shared_ptr<Scope> scope, Syntax::Identifier const& identifier,
              bool shouldDiag);
 
   AST::ASTContext &m_ASTContext;
