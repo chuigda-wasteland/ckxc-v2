@@ -203,11 +203,12 @@ sona::ref_ptr<AST::Expr const>
 SemaPhase1::ActOnStringLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::StringLiteralExpr const> literalExpr) {
+  AST::QualType charType =
+      m_ASTContext.GetBuiltinType(AST::BuiltinType::BuiltinTypeId::BTI_Char);
+  charType.AddConst();
   return new AST::StringLiteralExpr(
                literalExpr->GetValue(),
-               m_ASTContext.CreatePointerType(
-                 m_ASTContext.GetBuiltinType(
-                   AST::BuiltinType::BuiltinTypeId::BTI_Char)));
+               m_ASTContext.CreatePointerType(charType));
 }
 
 } // namespace Sema
