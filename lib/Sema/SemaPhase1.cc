@@ -96,8 +96,8 @@ ResolveUserDefinedType(std::shared_ptr<Scope> scope,
 }
 
 AST::QualType
-SemaPhase1:: ResolveTemplatedType(std::shared_ptr<Scope>,
-                                  sona::ref_ptr<Syntax::TemplatedType const>) {
+SemaPhase1::ResolveTemplatedType(std::shared_ptr<Scope>,
+                                 sona::ref_ptr<Syntax::TemplatedType const>) {
   sona_unreachable1("not implemented");
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
@@ -209,6 +209,25 @@ SemaPhase1::ActOnStringLiteralExpr(
   return new AST::StringLiteralExpr(
                literalExpr->GetValue(),
                m_ASTContext.CreatePointerType(charType));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnBoolLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::BoolLiteralExpr const> literalExpr) {
+  return new AST::BoolLiteralExpr(
+           literalExpr->GetValue(),
+           m_ASTContext.GetBuiltinType(
+             AST::BuiltinType::BuiltinTypeId::BTI_Bool));
+}
+
+sona::ref_ptr<AST::Expr const>
+SemaPhase1::ActOnNullLiteralExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::NullLiteralExpr const>) {
+  return new AST::NullptrLiteralExpr(
+             m_ASTContext.GetBuiltinType(
+               AST::BuiltinType::BuiltinTypeId::BTI_NilType));
 }
 
 } // namespace Sema
