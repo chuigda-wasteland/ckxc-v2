@@ -51,6 +51,14 @@ SemaCommon::ClassifyBuiltinTypeId(double f) noexcept {
   }
 }
 
+AST::QualType
+SemaCommon::CommmonType(AST::QualType ty1, AST::QualType ty2) noexcept {
+  (void)ty1;
+  (void)ty2;
+  sona_unreachable1("not implemented");
+  return AST::QualType(nullptr);
+}
+
 void SemaCommon::PushDeclContext(sona::ref_ptr<AST::DeclContext> context) {
   m_DeclContexts.push_back(context);
 }
