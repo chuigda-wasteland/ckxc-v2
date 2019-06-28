@@ -35,18 +35,24 @@ public:
     EI_ImplicitCast,
   };
 
+  enum class ValueCat { VC_LValue, VC_RValue, VC_XValue };
+
   virtual ~Expr() = default;
 
   ExprId GetExprId() const noexcept { return m_ExprId; }
 
   QualType GetExprType() const noexcept { return m_ExprType; }
 
+  ValueCat GetValueCat() const noexcept { return m_ValueCat; }
+
 protected:
-  Expr(ExprId id, QualType exprType) : m_ExprId(id), m_ExprType(exprType) {}
+  Expr(ExprId id, QualType exprType, ValueCat valueCat)
+    : m_ExprId(id), m_ExprType(exprType), m_ValueCat(valueCat) {}
 
 private:
   ExprId m_ExprId;
   QualType m_ExprType;
+  ValueCat m_ValueCat;
 };
 
 } // namespace AST

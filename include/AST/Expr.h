@@ -102,8 +102,8 @@ enum class CastStepKind {
 
 class CastStep {
 public:
-  CastStep(CastStepKind CSK, QualType destTy) :
-    m_CSK(CSK), m_DestTy(destTy) {}
+  CastStep(CastStepKind CSK, QualType destTy, Expr::ValueCat destValueCat) :
+    m_CSK(CSK), m_DestTy(destTy), m_DestValueCat(destValueCat) {}
 
   CastStepKind GetCSK() const noexcept {
     return m_CSK;
@@ -113,16 +113,22 @@ public:
     return m_DestTy;
   }
 
+  Expr::ValueCat GetDestValueCat() const noexcept {
+    return m_DestValueCat;
+  }
+
 private:
   CastStepKind m_CSK;
   QualType m_DestTy;
+  Expr::ValueCat m_DestValueCat;
 };
 
 class ImplicitCast : public Expr {
 public:
   ImplicitCast(sona::owner<Expr> &&castedExpr,
                std::vector<CastStep> &&castSteps)
-    : Expr(ExprId::EI_ImplicitCast, castSteps.back().GetDestTy()),
+    : Expr(ExprId::EI_ImplicitCast,
+           castSteps.back().GetDestTy(), castSteps.back().GetDestValueCat()),
       m_CastedExpr(std::move(castedExpr)),
       m_CastSteps(std::move(castSteps)) {}
 
@@ -142,8 +148,9 @@ private:
 class ExplicitCastExpr : public Expr {
 public:
   ExplicitCastExpr(ExplicitCastOperator castOp,
-                   sona::owner<Expr> &&castedExpr, QualType destTy)
-    : Expr(ExprId::EI_ExplicitCast, destTy),
+                   sona::owner<Expr> &&castedExpr, QualType destTy,
+                   ValueCat destValueCat)
+    : Expr(ExprId::EI_ExplicitCast, destTy, destValueCat),
       m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
       m_MaybeCastSteps(sona::empty_optional()) {
     sona_assert1(castOp != ExplicitCastOperator::ECOP_Static,
@@ -153,7 +160,9 @@ public:
   ExplicitCastExpr(ExplicitCastOperator castOp,
                    sona::owner<Expr> &&castedExpr,
                    std::vector<CastStep> &&castSteps)
-    : Expr(ExprId::EI_ExplicitCast, castSteps.back().GetDestTy()),
+    : Expr(ExprId::EI_ExplicitCast,
+           castSteps.back().GetDestTy(),
+           castSteps.back().GetDestValueCat()),
       m_CastOp(castOp), m_CastedExpr(std::move(castedExpr)),
       m_MaybeCastSteps(std::move(castSteps)) {
     sona_assert1(castOp == ExplicitCastOperator::ECOP_Static,
@@ -180,9 +189,8 @@ private:
 class AssignExpr : public Expr {
 public:
   AssignExpr(AssignmentOperator op, sona::owner<Expr> &&assigned,
-             sona::owner<Expr> &&assignee)
-      : Expr(ExprId::EI_Assign, assigned.borrow()->GetExprType()),
-        m_Operator(op),
+             sona::owner<Expr> &&assignee, QualType type, ValueCat valueCat)
+      : Expr(ExprId::EI_Assign, type, valueCat), m_Operator(op),
         m_Assigned(std::move(assigned)), m_Assignee(std::move(assignee)) {}
 
   AssignmentOperator GetOperator() const noexcept { return m_Operator; }
@@ -202,8 +210,9 @@ private:
 
 class UnaryExpr : public Expr {
 public:
-  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand, QualType exprType)
-    : Expr(ExprId::EI_Unary, exprType), m_Operator(op),
+  UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand,
+            QualType exprType, ValueCat valueCat)
+    : Expr(ExprId::EI_Unary, exprType, valueCat), m_Operator(op),
       m_Operand(std::move(operand)) {}
 
   UnaryOperator GetOperator() const noexcept { return m_Operator; }
@@ -220,8 +229,9 @@ private:
 class BinaryExpr : public Expr {
 public:
   BinaryExpr(BinaryOperator op, sona::owner<Expr> &&leftOperand,
-             sona::owner<Expr> &&rightOperand, QualType exprType)
-    : Expr(ExprId::EI_Binary, exprType), m_Operator(op),
+             sona::owner<Expr> &&rightOperand, QualType exprType,
+             ValueCat valueCat)
+    : Expr(ExprId::EI_Binary, exprType, valueCat), m_Operator(op),
       m_LeftOperand(std::move(leftOperand)),
       m_RightOperand(std::move(rightOperand)){}
 
@@ -243,8 +253,8 @@ private:
 class CondExpr : public Expr {
 public:
   CondExpr(sona::owner<Expr> &&condExpr, sona::owner<Expr> &&thenExpr,
-           sona::owner<Expr> &&elseExpr)
-    : Expr(ExprId::EI_Cond, thenExpr.borrow()->GetExprType()),
+           sona::owner<Expr> &&elseExpr, QualType type, ValueCat valueCat)
+    : Expr(ExprId::EI_Cond, type, valueCat),
       m_CondExpr(std::move(condExpr)),
       m_ThenExpr(std::move(thenExpr)),
       m_ElseExpr(std::move(elseExpr)) {
@@ -258,8 +268,8 @@ private:
 
 class IdExpr : public Expr {
 public:
-  IdExpr(sona::strhdl_t const& idString, QualType exprType)
-    : Expr(ExprId::EI_ID, exprType), m_IdString(idString) {}
+  IdExpr(sona::strhdl_t const& idString, QualType type, ValueCat valueCat)
+    : Expr(ExprId::EI_ID, type, valueCat), m_IdString(idString) {}
 
   sona::strhdl_t const &GetIdString() const noexcept { return m_IdString; }
 
@@ -270,7 +280,7 @@ private:
 class IntLiteralExpr : public Expr {
 public:
   IntLiteralExpr(std::int64_t value, QualType type)
-    : Expr(ExprId::EI_IntLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_IntLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   std::int64_t GetValue() const noexcept { return m_Value; }
 
@@ -281,7 +291,8 @@ private:
 class UIntLiteralExpr : public Expr {
 public:
   UIntLiteralExpr(std::uint64_t value, QualType type)
-    : Expr(ExprId::EI_UIntLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_UIntLiteral, type, ValueCat::VC_RValue),
+      m_Value(value) {}
 
   std::uint64_t GetValue() const noexcept { return m_Value; }
 
@@ -292,7 +303,8 @@ private:
 class FloatLiteralExpr : public Expr {
 public:
   FloatLiteralExpr(double value, QualType type)
-    : Expr(ExprId::EI_FloatLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_FloatLiteral, type, ValueCat::VC_RValue),
+      m_Value(value) {}
 
   double GetValue() const noexcept { return m_Value; }
 
@@ -303,7 +315,7 @@ private:
 class CharLiteralExpr : public Expr {
 public:
   CharLiteralExpr(char value, QualType type)
-    : Expr(ExprId::EI_CharLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_CharLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   char GetValue() const noexcept { return m_Value; }
 
@@ -315,7 +327,7 @@ private:
 class StringLiteralExpr : public Expr {
 public:
   StringLiteralExpr(sona::strhdl_t value, QualType type)
-    : Expr(ExprId::EI_CharLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_CharLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   sona::strhdl_t GetValue() const noexcept { return m_Value; }
 
@@ -326,7 +338,7 @@ private:
 class BoolLiteralExpr : public Expr {
 public:
   BoolLiteralExpr(bool value, QualType type)
-    : Expr(ExprId::EI_BoolLiteral, type), m_Value(value) {}
+    : Expr(ExprId::EI_BoolLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   bool GetValue() const noexcept { return m_Value; }
 
@@ -336,13 +348,15 @@ private:
 
 class NullptrLiteralExpr : public Expr {
 public:
-  NullptrLiteralExpr(QualType type) : Expr(ExprId::EI_NullptrLiteral, type) {}
+  NullptrLiteralExpr(QualType type)
+    : Expr(ExprId::EI_NullptrLiteral, type, ValueCat::VC_RValue) {}
 };
 
 class ParenExpr : public Expr {
 public:
   ParenExpr(sona::owner<Expr> &&expr)
-    : Expr(ExprId::EI_Paren, expr.borrow()->GetExprType()),
+    : Expr(ExprId::EI_Paren, expr.borrow()->GetExprType(),
+           expr.borrow()->GetValueCat()),
       m_Expr(std::move(expr)) {}
 
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
