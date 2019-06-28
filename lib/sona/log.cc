@@ -7,7 +7,7 @@ namespace log_impl {
 using namespace std;
 
 void log(const std::string &str) {
-  fprintf(stderr, "%s\n", str.c_str());
+  fprintf(stderr, "sona-log> %s\n", str.c_str());
   fflush(stdout);
 }
 

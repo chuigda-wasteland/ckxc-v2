@@ -52,7 +52,8 @@ void LexerImpl::LexAllTokens() {
       break;
 
     case '{': case '}': case '(': case ')': case ',': case ';': case ':':
-    case '[': case ']': case '=': case '.': case '*': case '&':
+    case '[': case ']': case '=': case '.': case '+': case '-': case '*':
+    case '&':
       LexSymbol();
       break;
 
@@ -213,15 +214,15 @@ void LexerImpl::LexChar() {
   char ch = '\0';
   if (CurChar() == '\\') {
     switch (PeekOneChar()) {
-    case 'a': ch = '\a'; NextChar(); NextChar(); break;
-    case 'b': ch = '\b'; NextChar(); NextChar(); break;
-    case 'n': ch = '\n'; NextChar(); NextChar(); break;
-    case 'r': ch = '\r'; NextChar(); NextChar(); break;
-    case 'v': ch = '\v'; NextChar(); NextChar(); break;
-    case 't': ch = '\t'; NextChar(); NextChar(); break;
-    case 'f': ch = '\f'; NextChar(); NextChar(); break;
-    case '"': ch = '"';  NextChar(); NextChar(); break;
-    case '0': ch = '\0'; NextChar(); NextChar(); break;
+    case 'a':  ch = '\a'; NextChar(); NextChar(); break;
+    case 'b':  ch = '\b'; NextChar(); NextChar(); break;
+    case 'n':  ch = '\n'; NextChar(); NextChar(); break;
+    case 'r':  ch = '\r'; NextChar(); NextChar(); break;
+    case 'v':  ch = '\v'; NextChar(); NextChar(); break;
+    case 't':  ch = '\t'; NextChar(); NextChar(); break;
+    case 'f':  ch = '\f'; NextChar(); NextChar(); break;
+    case '\'': ch = '\'';  NextChar(); NextChar(); break;
+    case '0':  ch = '\0'; NextChar(); NextChar(); break;
     case '\\': ch = '\\'; NextChar(); NextChar(); break;
     default:
       m_Diag.Diag(Diag::DIR_Warning0,
@@ -325,22 +326,49 @@ void LexerImpl::LexSymbol() {
   case ';':
     m_TokenStream.emplace_back(Token::TK_SYM_SEMI, CurCharRange()); break;
 
-  case ':':
-    m_TokenStream.emplace_back(Token::TK_SYM_COLON, CurCharRange()); break;
-
   case '=':
     m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange()); break;
 
   case '.':
     m_TokenStream.emplace_back(Token::TK_SYM_DOT, CurCharRange()); break;
 
+  case '+':
+    if (PeekOneChar() == '+') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DPLUS, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_PLUS, CurCharRange());
+    }
+    break;
+
+  case '-':
+    if (PeekOneChar() == '-') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DMINUS, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_MINUS, CurCharRange());
+    }
+    break;
+
   case '&':
     if (PeekOneChar() == '&') {
       NextChar();
-      m_TokenStream.emplace_back(Token::TK_SYM_DAMP, CurCharRange());;
+      m_TokenStream.emplace_back(Token::TK_SYM_DAMP, CurCharRange());
     }
     else {
       m_TokenStream.emplace_back(Token::TK_SYM_AMP, CurCharRange());
+    }
+    break;
+
+  case ':':
+    if (PeekOneChar() == ':') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DCOLON, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_COLON, CurCharRange());
     }
     break;
 

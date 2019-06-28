@@ -9,12 +9,6 @@ namespace log_impl {
 
 void log(std::string const &str);
 
-/*
-std::string to_string(char const* str) {
-    return std::string(str);
-}
-*/
-
 template <typename T, typename... Args>
 void log(std::string &&str, T &&t, Args &&... args) {
   using namespace std;
@@ -23,7 +17,8 @@ void log(std::string &&str, T &&t, Args &&... args) {
 
 } // namespace log_impl
 
-template <typename T, typename... Args> void log(T &&value, Args &&... args) {
+template <typename T, typename... Args>
+void sona_log(T &&value, Args &&... args) {
 #ifndef SONA_NO_DEBUG
   log_impl::log(std::string(""), std::forward<T>(value),
                 std::forward<Args>(args)...);
