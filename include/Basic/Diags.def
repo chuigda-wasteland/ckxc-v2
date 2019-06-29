@@ -39,6 +39,7 @@ DIAG_TEMPLATE(ErrCircularDepend, "circular dependency while resolving {}")
 DIAG_TEMPLATE(ErrDuplicateQual, "duplicate qualifier {}")
 
 /// Type checking
-DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} typeo")
+DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} type")
+DIAG_TEMPLATE(ErrAddressOfRValue, "taking address of non-left value")
 
 #undef DIAG_TEMPLATE

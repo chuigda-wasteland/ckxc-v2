@@ -315,6 +315,71 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
                   expr->GetOpRange());
     }
     break;
+  case Syntax::UnaryOperator::UOP_SelfIncr:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if (builtinTy->IsIntegral()) {
+        return new AST::UnaryExpr(AST::UnaryOperator::UOP_Incr,
+                                  std::move(baseExpr), baseExprTy,
+                                  AST::Expr::ValueCat::VC_RValue);
+      }
+    }
+    else if (baseExprTy.GetUnqualTy()->IsPointer()) {
+      return new AST::UnaryExpr(AST::UnaryOperator::UOP_Incr,
+                                std::move(baseExpr), baseExprTy,
+                                AST::Expr::ValueCat::VC_RValue);
+    }
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             {"++", "integral or pointer"}),
+                expr->GetOpRange());
+    break;
+  case Syntax::UnaryOperator::UOP_SelfDecr:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if (builtinTy->IsIntegral()) {
+        return new AST::UnaryExpr(AST::UnaryOperator::UOP_Decr,
+                                  std::move(baseExpr), baseExprTy,
+                                  AST::Expr::ValueCat::VC_RValue);
+      }
+    }
+    else if (baseExprTy.GetUnqualTy()->IsPointer()) {
+      return new AST::UnaryExpr(AST::UnaryOperator::UOP_Decr,
+                                std::move(baseExpr), baseExprTy,
+                                AST::Expr::ValueCat::VC_RValue);
+    }
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             {"--", "integral or pointer"}),
+                expr->GetOpRange());
+    break;
+  case Syntax::UnaryOperator::UOP_PointerTo:
+    if (baseExpr.borrow()->GetValueCat() == AST::Expr::ValueCat::VC_LValue) {
+      return new AST::UnaryExpr(AST::UnaryOperator::UOP_AddrOf,
+                                std::move(baseExpr), baseExprTy,
+                                AST::Expr::ValueCat::VC_RValue);
+    }
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrAddressOfRValue, {}),
+                expr->GetOpRange());
+    break;
+  case Syntax::UnaryOperator::UOP_BitReverse:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if (builtinTy->IsIntegral() && builtinTy->IsUnsigned()) {
+        return new AST::UnaryExpr(AST::UnaryOperator::UOP_BitwiseNot,
+                                  std::move(baseExpr),
+                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+      }
+    }
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             {"~", "unsigned int"}),
+                expr->GetOpRange());
+    break;
   default:
     sona_unreachable1("not implemented");
   }
