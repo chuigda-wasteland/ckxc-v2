@@ -134,6 +134,11 @@ public:
     return m_CastSteps;
   }
 
+  sona::owner<ImplicitCast> AddCastStep(CastStep const& step) && noexcept {
+    m_CastSteps.push_back(step);
+    return new ImplicitCast(std::move(m_CastedExpr), std::move(m_CastSteps));
+  }
+
 private:
   sona::owner<Expr> m_CastedExpr;
   std::vector<CastStep> m_CastSteps;

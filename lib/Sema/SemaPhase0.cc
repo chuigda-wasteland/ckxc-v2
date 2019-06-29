@@ -358,7 +358,7 @@ SemaPhase0::ActOnClassDecl(sona::ref_ptr<Syntax::ClassDecl const> decl) {
                             GetCurrentScope()));
   }
 
-  return std::make_pair(classDecl.cast_unsafe<AST::Decl>(),
+  return std::make_pair(std::move(classDecl).cast_unsafe<AST::Decl>(),
                         !collectedDependencies.empty());
 }
 
@@ -408,7 +408,7 @@ SemaPhase0::ActOnADTDecl(sona::ref_ptr<Syntax::ADTDecl const> decl) {
             GetCurrentScope()));
   }
 
-  return std::make_pair(adtDecl.cast_unsafe<AST::Decl>(),
+  return std::make_pair(std::move(adtDecl).cast_unsafe<AST::Decl>(),
                         !collectedDependencies.empty());
 }
 
@@ -599,7 +599,7 @@ SemaPhase0::ActOnEnumDecl(sona::ref_ptr<Syntax::EnumDecl const> decl) {
         m_ASTContext.AddUserDefinedType(
           new AST::EnumType(enumDecl.borrow())));
 
-  return std::make_pair(enumDecl.cast_unsafe<AST::Decl>(), true);
+  return std::make_pair(std::move(enumDecl).cast_unsafe<AST::Decl>(), true);
 }
 
 std::pair<sona::owner<AST::Decl>, bool>

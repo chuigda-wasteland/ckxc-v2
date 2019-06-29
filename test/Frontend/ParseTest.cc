@@ -94,7 +94,8 @@ void test1() {
 
   diag.EmitDiags();
 
-  owner<Syntax::FuncDecl> funcDecl = decl.cast_unsafe<Syntax::FuncDecl>();
+  owner<Syntax::FuncDecl> funcDecl =
+      std::move(decl).cast_unsafe<Syntax::FuncDecl>();
   VkAssertEquals("f!", funcDecl.borrow()->GetName());
   VkAssertEquals(2uL, funcDecl.borrow()->GetParamNames().size());
   VkAssertEquals("a", funcDecl.borrow()->GetParamNames()[0]);
@@ -121,7 +122,8 @@ void test2() {
   VkAssertFalse(diag.HasPendingDiags());
   VkAssertNotEquals(nullptr, decl.borrow());
 
-  owner<Syntax::ClassDecl> classDecl = decl.cast_unsafe<Syntax::ClassDecl>();
+  owner<Syntax::ClassDecl> classDecl =
+      std::move(decl).cast_unsafe<Syntax::ClassDecl>();
   VkAssertEquals("A", classDecl.borrow()->GetName());
   VkAssertEquals(2uL, classDecl.borrow()->GetSubDecls().size());
 
@@ -162,7 +164,8 @@ void test3() {
 
   diag.EmitDiags();
 
-  owner<Syntax::EnumDecl> enumDecl = decl.cast_unsafe<Syntax::EnumDecl>();
+  owner<Syntax::EnumDecl> enumDecl =
+      std::move(decl).cast_unsafe<Syntax::EnumDecl>();
 
   VkAssertEquals("A", enumDecl.borrow()->GetName());
   VkAssertEquals(3uL, enumDecl.borrow()->GetEnumerators().size());
@@ -200,7 +203,7 @@ void test4() {
   diag.EmitDiags();
 
   sona::owner<Syntax::IntLiteralExpr> literalExpr =
-      e.cast_unsafe<Syntax::IntLiteralExpr>();
+      std::move(e).cast_unsafe<Syntax::IntLiteralExpr>();
 
   VkAssertEquals(123123, literalExpr.borrow()->GetValue());
 }
@@ -223,7 +226,7 @@ void test5() {
   VkAssertNotEquals(nullptr, decl.borrow());
 
   sona::owner<Syntax::UsingDecl> usingDecl =
-      decl.cast_unsafe<Syntax::UsingDecl>();
+      std::move(decl).cast_unsafe<Syntax::UsingDecl>();
   VkAssertEquals("ty", usingDecl.borrow()->GetName());
   VkAssertEquals(Syntax::Type::NodeKind::CNK_BuiltinType,
                  usingDecl.borrow()->GetAliasee()->GetNodeKind());

@@ -27,6 +27,7 @@ protected:
   sona::owner<AST::Expr>
   TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
                                Syntax::UnaryOperator uop);
+  sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);

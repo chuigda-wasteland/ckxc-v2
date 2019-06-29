@@ -94,16 +94,15 @@ public:
   ref_ptr<T const> borrow() const noexcept { return ref_ptr<T>(*ptr); }
 
   template <typename U>
-  owner<U> cast_unsafe() noexcept {
+  owner<U> cast_unsafe() && noexcept {
     owner<U> ret (static_cast<U*>(ptr));
     this->ptr = nullptr;
     return ret;
   }
 
-  template <typename U>
-  owner<U const> cast_unsafe() const noexcept {
-    owner<U> ret (static_cast<U const*>(ptr));
-    this->ptr = nullptr;
+  T* get() && noexcept {
+    T* ret = ptr;
+    ptr = nullptr;
     return ret;
   }
 

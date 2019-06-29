@@ -66,6 +66,32 @@ SemaPhase1::TryFindUnaryOperatorOverload(
   return nullptr;
 }
 
+sona::owner<AST::Expr>
+SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
+  if (expr.borrow()->GetValueCat() == AST::Expr::ValueCat::VC_RValue) {
+    return std::move(expr);
+  }
+  else if (expr.borrow()->GetExprId() == AST::Expr::ExprId::EI_ImplicitCast) {
+    sona::owner<AST::ImplicitCast> castExpr =
+        std::move(expr).cast_unsafe<AST::ImplicitCast>();
+    AST::QualType castExprTy = castExpr.borrow()->GetExprType();
+    AST::ImplicitCast *raw = std::move(castExpr).get();
+    return std::move(*raw).AddCastStep(
+             AST::CastStep(AST::CastStepKind::ICSK_LValue2RValue,
+                           castExprTy, AST::Expr::ValueCat::VC_RValue))
+             .cast_unsafe<AST::Expr>();
+  }
+  else {
+    return
+        new AST::ImplicitCast(
+          std::move(expr),
+          std::vector<AST::CastStep>{
+             AST::CastStep(AST::CastStepKind::ICSK_LValue2RValue,
+                           expr.borrow()->GetExprType(),
+                           AST::Expr::ValueCat::VC_RValue)});
+  }
+}
+
 void SemaPhase1::PostTranslateIncompleteVar(
     sona::ref_ptr<IncompleteVarDecl> iVar) {
   AST::QualType varType =
