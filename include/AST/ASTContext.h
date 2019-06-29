@@ -21,7 +21,7 @@ public:
   QualType CreatePointerType(QualType pointee);
   QualType CreateLValueRefType(QualType referenced);
   QualType CreateRValueRefType(QualType referenced);
-  QualType BuildFunctionType(std::vector<QualType> const& paramTypes,
+  QualType BuildFunctionType(std::vector<QualType> &&paramTypes,
                              QualType retType);
   QualType GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept;
 

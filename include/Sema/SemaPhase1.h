@@ -21,6 +21,12 @@ public:
 protected:
   AST::QualType ResolveType(std::shared_ptr<Scope> scope,
                             sona::ref_ptr<Syntax::Type const> type);
+  sona::owner<AST::Expr> ActOnExpr(std::shared_ptr<Scope> scope,
+                                   sona::ref_ptr<Syntax::Expr const> expr);
+
+  sona::owner<AST::Expr>
+  TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
+                               Syntax::UnaryOperator uop);
 
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
@@ -35,7 +41,7 @@ protected:
                 sona::ref_ptr<Syntax::name const> type);
 
 #define CST_EXPR(name) \
-  sona::ref_ptr<AST::Expr const> \
+  sona::owner<AST::Expr> \
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> type);
 

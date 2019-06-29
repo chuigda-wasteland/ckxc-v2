@@ -38,4 +38,7 @@ DIAG_TEMPLATE(ErrAmbiguous, "multiple {} found")
 DIAG_TEMPLATE(ErrCircularDepend, "circular dependency while resolving {}")
 DIAG_TEMPLATE(ErrDuplicateQual, "duplicate qualifier {}")
 
+/// Type checking
+DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} typeo")
+
 #undef DIAG_TEMPLATE

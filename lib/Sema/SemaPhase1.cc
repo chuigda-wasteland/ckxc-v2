@@ -49,6 +49,23 @@ AST::QualType SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
+sona::owner<AST::Expr>
+SemaPhase1::ActOnExpr(std::shared_ptr<Scope> scope,
+                      sona::ref_ptr<const Syntax::Expr> expr) {
+  (void)scope;
+  (void)expr;
+  sona_unreachable1("not implemented");
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::TryFindUnaryOperatorOverload(
+    sona::ref_ptr<const AST::Expr> baseExpr, Syntax::UnaryOperator uop) {
+  (void)baseExpr;
+  (void)uop;
+  return nullptr;
+}
+
 void SemaPhase1::PostTranslateIncompleteVar(
     sona::ref_ptr<IncompleteVarDecl> iVar) {
   AST::QualType varType =
@@ -159,7 +176,7 @@ SemaPhase1::ResolveComposedType(std::shared_ptr<Scope> scope,
   return ret;
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnIntLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::IntLiteralExpr const> literalExpr) {
@@ -169,7 +186,7 @@ SemaPhase1::ActOnIntLiteralExpr(
                                  m_ASTContext.GetBuiltinType(btid));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnUIntLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::UIntLiteralExpr const> literalExpr) {
@@ -179,7 +196,7 @@ SemaPhase1::ActOnUIntLiteralExpr(
                                   m_ASTContext.GetBuiltinType(btid));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnFloatLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::FloatLiteralExpr const> literalExpr) {
@@ -189,7 +206,7 @@ SemaPhase1::ActOnFloatLiteralExpr(
                                    m_ASTContext.GetBuiltinType(btid));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnCharLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::CharLiteralExpr const> literalExpr) {
@@ -199,7 +216,7 @@ SemaPhase1::ActOnCharLiteralExpr(
                AST::BuiltinType::BuiltinTypeId::BTI_Char));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnStringLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::StringLiteralExpr const> literalExpr) {
@@ -211,7 +228,7 @@ SemaPhase1::ActOnStringLiteralExpr(
                m_ASTContext.CreatePointerType(charType));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnBoolLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::BoolLiteralExpr const> literalExpr) {
@@ -221,13 +238,87 @@ SemaPhase1::ActOnBoolLiteralExpr(
              AST::BuiltinType::BuiltinTypeId::BTI_Bool));
 }
 
-sona::ref_ptr<AST::Expr const>
+sona::owner<AST::Expr>
 SemaPhase1::ActOnNullLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::NullLiteralExpr const>) {
   return new AST::NullptrLiteralExpr(
              m_ASTContext.GetBuiltinType(
                AST::BuiltinType::BuiltinTypeId::BTI_NilType));
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnUnaryAlgebraicExpr(
+    std::shared_ptr<Scope> scope,
+    sona::ref_ptr<Syntax::UnaryAlgebraicExpr const> expr) {
+  sona::owner<AST::Expr> baseExpr = ActOnExpr(scope, expr->GetBaseExpr());
+
+  sona::owner<AST::Expr> maybeOverload =
+      TryFindUnaryOperatorOverload(baseExpr.borrow(), expr->GetOperator());
+  AST::QualType baseExprTy = baseExpr.borrow()->GetExprType();
+  if (maybeOverload.borrow() != nullptr) {
+    return maybeOverload;
+  }
+
+  switch (expr->GetOperator()) {
+  case Syntax::UnaryOperator::UOP_Deref:
+    if (!baseExprTy.GetUnqualTy()->IsPointer()) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrOpRequiresType, {"*", "pointer"}),
+                  expr->GetOpRange());
+    }
+    break;
+  case Syntax::UnaryOperator::UOP_LogicNot:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if (builtinTy->GetBuiltinTypeId()
+          == AST::BuiltinType::BuiltinTypeId::BTI_Bool) {
+        return new AST::UnaryExpr(
+              AST::UnaryOperator::UOP_LogicalNot, std::move(baseExpr),
+              m_ASTContext.GetBuiltinType(
+                AST::BuiltinType::BuiltinTypeId::BTI_Bool),
+              AST::Expr::ValueCat::VC_RValue);
+      }
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrOpRequiresType, {"!", "boolean"}),
+                  expr->GetOpRange());
+    }
+    break;
+  case Syntax::UnaryOperator::UOP_Negative:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if ((builtinTy->IsIntegral() && builtinTy->IsSigned())
+          || builtinTy->IsFloating()) {
+        return new AST::UnaryExpr(AST::UnaryOperator::UOP_Negative,
+                                  std::move(baseExpr),
+                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+      }
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrOpRequiresType,
+                               {"-", "signed numeric"}),
+                  expr->GetOpRange());
+    }
+    break;
+  case Syntax::UnaryOperator::UOP_Positive:
+    if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> builtinTy =
+          baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      if (builtinTy->IsIntegral() || builtinTy->IsFloating()) {
+        return new AST::UnaryExpr(AST::UnaryOperator::UOP_Positive,
+                                  std::move(baseExpr),
+                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+      }
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrOpRequiresType, {"+", "numeric"}),
+                  expr->GetOpRange());
+    }
+    break;
+  default:
+    sona_unreachable1("not implemented");
+  }
+  return nullptr;
 }
 
 } // namespace Sema

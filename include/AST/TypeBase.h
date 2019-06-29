@@ -43,6 +43,10 @@ public:
 
   virtual ~Type() = default;
 
+  bool IsBuiltin() const noexcept;
+  bool IsPointer() const noexcept;
+  bool IsReference() const noexcept;
+
 protected:
   Type(TypeId id) : m_Id(id) {}
 

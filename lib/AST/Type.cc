@@ -15,6 +15,18 @@ namespace AST {
 using std::size_t;
 template <typename T> using DefaultHash = std::hash<T>;
 
+bool Type::IsBuiltin() const noexcept {
+  return GetTypeId() == TypeId::TI_Builtin;
+}
+
+bool Type::IsPointer() const noexcept {
+  return GetTypeId() == TypeId::TI_Pointer;
+}
+
+bool Type::IsReference() const noexcept {
+  return GetTypeId() == TypeId::TI_Ref;
+}
+
 size_t Type::GetHash() const noexcept {
   using NumericTypeId = std::underlying_type_t<TypeId>;
   return DefaultHash<NumericTypeId>()(static_cast<NumericTypeId>(GetTypeId()));
@@ -113,6 +125,10 @@ bool BuiltinType::IsIntegral() const noexcept {
   return IsIntegral(GetBuiltinTypeId());
 }
 
+bool BuiltinType::IsFloating() const noexcept {
+  return IsFloating(GetBuiltinTypeId());
+}
+
 bool BuiltinType::IsSigned() const noexcept {
   return IsSigned(GetBuiltinTypeId());
 }
@@ -204,16 +220,13 @@ size_t FunctionType::GetHash() const noexcept {
 bool FunctionType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Function) {
     FunctionType const &t = static_cast<FunctionType const &>(that);
-    if (GetReturnType().GetUnqualTy()->EqualTo(t.GetReturnType().GetUnqualTy().get())
-        && GetReturnType().GetCVR() == t.GetReturnType().GetCVR()
-        && GetParamTypes().size() == t.GetParamTypes().size()) {
+    if (GetReturnType() == t.GetReturnType()) {
       auto rng1 = sona::linq::from_container(GetParamTypes());
       auto rng2 = sona::linq::from_container(t.GetParamTypes());
       auto rng = rng1.zip_with(rng2).transform(
           [](std::pair<QualType, QualType> p)
           { return
-                 p.first.GetUnqualTy().get().EqualTo(p.second.GetUnqualTy().get())
-                 && p.first.GetCVR() == p.second.GetCVR();
+                 p.first == p.second;
           });
       for (bool b : rng)
         if (!b) return false;

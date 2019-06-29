@@ -15,12 +15,6 @@
 namespace ckx {
 namespace AST {
 
-/// @note Some kinds of expressions could have determined their types on
-/// themselves. However, our current infrastructure requires all types must
-/// be singleton and thus must come from Sema's ASTContext directly or
-/// indirectly. As a result, an extra QualType argument must be provided
-/// to construct an Expr object.
-
 enum class UnaryOperator {
   UOP_Incr,
   UOP_Decr,

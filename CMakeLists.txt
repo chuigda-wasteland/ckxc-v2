@@ -64,3 +64,6 @@ target_link_libraries (TestPostSubstDep Sema Frontend Syntax AST Basic sona)
 
 add_executable(TestLookup test/Sema/LookupTest.cc)
 target_link_libraries (TestLookup Sema Frontend Syntax AST Basic sona)
+
+add_executable(TestASTContext test/Sema/ASTContextTest.cc)
+target_link_libraries (TestASTContext Sema AST Basic sona)

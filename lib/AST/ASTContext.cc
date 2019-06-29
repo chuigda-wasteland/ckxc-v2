@@ -50,5 +50,11 @@ QualType ASTContext::CreateRValueRefType(QualType referenced) {
   return QualType(*iter);
 }
 
+QualType ASTContext::BuildFunctionType(
+    std::vector<QualType> &&paramTypes, QualType retType) {
+  auto iter = m_FuncTypes.emplace(std::move(paramTypes), retType).first;
+  return QualType(sona::ref_ptr<Type const>(*iter));
+}
+
 } // namespace AST
 } // namespace ckx
