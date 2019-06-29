@@ -29,14 +29,23 @@ public:
 
   BuiltinTypeId GetBuiltinTypeId() const noexcept { return m_BuiltinTypeId; }
 
+  static char const *GetTypeName(BuiltinTypeId btid) noexcept;
+  static bool IsNumeric(BuiltinTypeId btid) noexcept;
+  static bool IsIntegral(BuiltinTypeId btid) noexcept;
+  static bool IsFloating(BuiltinTypeId btid) noexcept;
+  static bool IsSigned(BuiltinTypeId btid) noexcept;
+  static bool IsUnsigned(BuiltinTypeId btid) noexcept;
+
+  static std::int8_t SignedIntRank(BuiltinTypeId btid) noexcept;
+  static std::int8_t UnsignedIntRank(BuiltinTypeId btid) noexcept;
+  static std::int8_t FloatRank(BuiltinTypeId btid) noexcept;
+
   char const *GetTypeName() const noexcept;
   bool IsNumeric() const noexcept;
   bool IsIntegral() const noexcept;
   bool IsFloating() const noexcept;
   bool IsSigned() const noexcept;
   bool IsUnsigned() const noexcept;
-  static BuiltinType MakeSigned(BuiltinType const &that) noexcept;
-  static BuiltinType MakeUnsigned(BuiltinType const &that) noexcept;
 
   std::size_t GetHash() const noexcept override;
   bool EqualTo(Type const &that) const noexcept override;

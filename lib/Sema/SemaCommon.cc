@@ -51,12 +51,46 @@ SemaCommon::ClassifyBuiltinTypeId(double f) noexcept {
   }
 }
 
-AST::QualType
-SemaCommon::CommmonType(AST::QualType ty1, AST::QualType ty2) noexcept {
-  (void)ty1;
-  (void)ty2;
-  sona_unreachable1("not implemented");
-  return AST::QualType(nullptr);
+AST::BuiltinType::BuiltinTypeId
+SemaCommon::CommmonBuiltinTypeId(
+    AST::BuiltinType::BuiltinTypeId ty1id,
+    AST::BuiltinType::BuiltinTypeId ty2id) noexcept {
+  if (ty1id == ty2id) {
+    return ty1id;
+  }
+
+  if (AST::BuiltinType::IsIntegral(ty1id)
+      && AST::BuiltinType::IsIntegral(ty2id)) {
+    if (AST::BuiltinType::IsSigned(ty1id)
+        && AST::BuiltinType::IsSigned(ty2id)) {
+      return std::max(
+            ty1id, ty2id, [](auto a, auto b) {
+              return AST::BuiltinType::SignedIntRank(a)
+                     < AST::BuiltinType::SignedIntRank(b);
+            });
+    }
+    else if (AST::BuiltinType::IsUnsigned(ty1id)
+             && AST::BuiltinType::IsUnsigned(ty2id)) {
+      return std::max(
+            ty1id, ty2id, [](auto a, auto b) {
+              return AST::BuiltinType::UnsignedIntRank(a)
+                     < AST::BuiltinType::UnsignedIntRank(b);
+            });
+    }
+    else {
+      return AST::BuiltinType::BuiltinTypeId::BTI_NoType;
+    }
+  }
+  else if (AST::BuiltinType::IsFloating(ty1id)
+           && AST::BuiltinType::IsFloating(ty2id)) {
+    return std::max(
+          ty1id, ty2id, [](auto a, auto b) {
+            return AST::BuiltinType::FloatRank(a)
+                   < AST::BuiltinType::FloatRank(b);
+          });
+  }
+
+  return AST::BuiltinType::BuiltinTypeId::BTI_NoType;
 }
 
 void SemaCommon::PushDeclContext(sona::ref_ptr<AST::DeclContext> context) {

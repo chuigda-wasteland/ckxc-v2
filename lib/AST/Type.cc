@@ -20,24 +20,24 @@ size_t Type::GetHash() const noexcept {
   return DefaultHash<NumericTypeId>()(static_cast<NumericTypeId>(GetTypeId()));
 }
 
-char const *BuiltinType::GetTypeName() const noexcept {
-  switch (GetBuiltinTypeId()) {
+const char*
+BuiltinType::GetTypeName(BuiltinType::BuiltinTypeId btid) noexcept {
+  switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                      issigned, signedver, unsignedver, token) \
   case BuiltinType::BuiltinTypeId::BTI_##name: \
     return #name;
   #include "Syntax/BuiltinTypes.def"
   }
-  return "";
 }
 
-bool BuiltinType::IsNumeric() const noexcept {
-  return (GetBuiltinTypeId() >= BuiltinTypeId::BTI_Int8) &&
-         (GetBuiltinTypeId() <= BuiltinTypeId::BTI_Quad);
+bool BuiltinType::IsNumeric(BuiltinType::BuiltinTypeId btid) noexcept {
+  return (btid >= BuiltinTypeId::BTI_Int8) &&
+         (btid <= BuiltinTypeId::BTI_Quad);
 }
 
-bool BuiltinType::IsIntegral() const noexcept {
-  switch (GetBuiltinTypeId()) {
+bool BuiltinType::IsIntegral(BuiltinType::BuiltinTypeId btid) noexcept {
+  switch (btid) {
   #define BUILTIN_TYPE(name, rep, size, isint, \
                        issigned, signedver, unsignedver) \
   case BuiltinType::BuiltinTypeId::BTI_##name: return isint;
@@ -45,8 +45,14 @@ bool BuiltinType::IsIntegral() const noexcept {
   }
 }
 
-bool BuiltinType::IsSigned() const noexcept {
-  switch (GetBuiltinTypeId()) {
+bool BuiltinType::IsFloating(BuiltinType::BuiltinTypeId btid) noexcept {
+  return btid == BuiltinTypeId::BTI_Float
+         || btid == BuiltinTypeId::BTI_Double
+         || btid == BuiltinTypeId::BTI_Quad;
+}
+
+bool BuiltinType::IsSigned(BuiltinType::BuiltinTypeId btid) noexcept {
+  switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                        issigned, signedver, unsignedver, token) \
   case BuiltinType::BuiltinTypeId::BTI_##name: return issigned;
@@ -54,39 +60,68 @@ bool BuiltinType::IsSigned() const noexcept {
   }
 }
 
+bool BuiltinType::IsUnsigned(BuiltinType::BuiltinTypeId btid) noexcept {
+  switch (btid) {
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
+  case BuiltinType::BuiltinTypeId::BTI_##name: \
+    return (!issigned \
+            && BuiltinTypeId::BTI_##signedver != BuiltinTypeId::BTI_NoType);
+  #include "Syntax/BuiltinTypes.def"
+  }
+}
+
+int8_t BuiltinType::SignedIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
+  sona_assert (IsIntegral(btid) && IsSigned(btid));
+  switch (btid) {
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
+  case BuiltinTypeId::BTI_##name: return size;
+  #include "Syntax/BuiltinTypes.def"
+  }
+}
+
+int8_t BuiltinType::UnsignedIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
+  sona_assert (IsIntegral(btid) && IsUnsigned(btid));
+  switch (btid) {
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
+  case BuiltinTypeId::BTI_##name: return size;
+  #include "Syntax/BuiltinTypes.def"
+  }
+}
+
+int8_t BuiltinType::FloatRank(BuiltinType::BuiltinTypeId btid) noexcept  {
+  sona_assert (IsIntegral(btid) && IsFloating(btid));
+  switch (btid) {
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
+  case BuiltinTypeId::BTI_##name: return size;
+  #include "Syntax/BuiltinTypes.def"
+  }
+}
+
+char const *BuiltinType::GetTypeName() const noexcept {
+  return GetTypeName(GetBuiltinTypeId());
+}
+
+bool BuiltinType::IsNumeric() const noexcept {
+  return IsNumeric(GetBuiltinTypeId());
+}
+
+bool BuiltinType::IsIntegral() const noexcept {
+  return IsIntegral(GetBuiltinTypeId());
+}
+
+bool BuiltinType::IsSigned() const noexcept {
+  return IsSigned(GetBuiltinTypeId());
+}
+
 bool BuiltinType::IsUnsigned() const noexcept {
-  switch (GetBuiltinTypeId()) {
-  #define BUILTIN_TYPE(name, size, isint, \
-                       issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: return !issigned;
-  #include "Syntax/BuiltinTypes.def"
-  }
-}
-
-BuiltinType BuiltinType::MakeSigned(BuiltinType const &that) noexcept {
-  sona_assert(that.IsUnsigned());
-  switch (that.GetBuiltinTypeId()) {
-  #define BUILTIN_TYPE(name, size, isint, \
-                       issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: \
-    return BuiltinType(BuiltinType::BuiltinTypeId::BTI_##signedver);
-  #include "Syntax/BuiltinTypes.def"
-  }
-}
-
-BuiltinType BuiltinType::MakeUnsigned(BuiltinType const &that) noexcept {
-  sona_assert(that.IsSigned());
-  switch (that.GetBuiltinTypeId()) {
-  #define BUILTIN_TYPE(name, size, isint, \
-                       issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: \
-    return BuiltinType(BuiltinType::BuiltinTypeId::BTI_##unsignedver);
-  #include "Syntax/BuiltinTypes.def"
-  }
+  return IsUnsigned(GetBuiltinTypeId());
 }
 
 /// @todo replace hash functions in the future
-
 size_t BuiltinType::GetHash() const noexcept {
   using NumericBuiltinTypeId = std::underlying_type_t<BuiltinTypeId>;
   using NBTI = NumericBuiltinTypeId;

@@ -33,8 +33,10 @@ protected:
   static AST::BuiltinType::BuiltinTypeId
   ClassifyBuiltinTypeId(double f) noexcept;
 
-  static AST::QualType
-  CommmonType(AST::QualType ty1, AST::QualType ty2) noexcept;
+  static AST::BuiltinType::BuiltinTypeId
+  CommmonBuiltinTypeId(
+      AST::BuiltinType::BuiltinTypeId ty1id,
+      AST::BuiltinType::BuiltinTypeId ty2id) noexcept;
 
 protected:
   void PushDeclContext(sona::ref_ptr<AST::DeclContext> context);
