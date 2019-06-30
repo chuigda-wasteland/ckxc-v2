@@ -71,24 +71,88 @@ SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
   if (expr.borrow()->GetValueCat() == AST::Expr::ValueCat::VC_RValue) {
     return std::move(expr);
   }
-  else if (expr.borrow()->GetExprId() == AST::Expr::ExprId::EI_ImplicitCast) {
+
+  AST::QualType exprType = expr.borrow()->GetExprType();
+
+  return CreateOrAddImplicitCast(std::move(expr),
+                                 AST::CastStepKind::ICSK_LValue2RValue,
+                                 exprType, AST::Expr::ValueCat::VC_RValue);
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::SignedIntPromote(sona::owner<AST::Expr> &&expr,
+                             AST::BuiltinType::BuiltinTypeId destRank) {
+  sona_assert(expr.borrow()->GetExprType().GetUnqualTy()->IsBuiltin()
+              && expr.borrow()->GetExprType().GetUnqualTy()
+                     .cast_unsafe<AST::BuiltinType const>()->IsSigned());
+  sona_assert(AST::BuiltinType::IsSigned(destRank));
+
+  sona::ref_ptr<AST::BuiltinType const> exprBuiltinType =
+      expr.borrow()->GetExprType().GetUnqualTy()
+          .cast_unsafe<AST::BuiltinType const>();
+
+  sona_assert(AST::BuiltinType::SignedIntRank(
+                  exprBuiltinType->GetBuiltinTypeId())
+              <= AST::BuiltinType::SignedIntRank(destRank));
+
+  if (AST::BuiltinType::SignedIntRank(exprBuiltinType->GetBuiltinTypeId())
+      == AST::BuiltinType::SignedIntRank(destRank)) {
+    return std::move(expr);
+  }
+
+  return CreateOrAddImplicitCast(std::move(expr),
+                                 AST::CastStepKind::ICSK_IntPromote,
+                                 /// @todo we need something to "imitate"
+                                 /// the original type
+                                 m_ASTContext.GetBuiltinType(destRank),
+                                 AST::Expr::ValueCat::VC_RValue);
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
+                               AST::BuiltinType::BuiltinTypeId destRank) {
+  sona_assert(expr.borrow()->GetExprType().GetUnqualTy()->IsBuiltin()
+              && expr.borrow()->GetExprType().GetUnqualTy()
+                     .cast_unsafe<AST::BuiltinType const>()->IsUnsigned());
+  sona_assert(AST::BuiltinType::IsUnsigned(destRank));
+
+  sona::ref_ptr<AST::BuiltinType const> exprBuiltinType =
+      expr.borrow()->GetExprType().GetUnqualTy()
+          .cast_unsafe<AST::BuiltinType const>();
+
+  sona_assert(AST::BuiltinType::UnsignedIntRank(
+                  exprBuiltinType->GetBuiltinTypeId())
+              <= AST::BuiltinType::UnsignedIntRank(destRank));
+
+  if (AST::BuiltinType::UnsignedIntRank(exprBuiltinType->GetBuiltinTypeId())
+      == AST::BuiltinType::UnsignedIntRank(destRank)) {
+    return std::move(expr);
+  }
+
+  return CreateOrAddImplicitCast(std::move(expr),
+                                 AST::CastStepKind::ICSK_IntPromote,
+                                 m_ASTContext.GetBuiltinType(destRank),
+                                 AST::Expr::ValueCat::VC_RValue);
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
+                                    AST::CastStepKind castStepKind,
+                                    AST::QualType destType,
+                                    AST::Expr::ValueCat destValueCat) {
+  if (expr.borrow()->GetExprId() == AST::Expr::ExprId::EI_ImplicitCast) {
     sona::owner<AST::ImplicitCast> castExpr =
         std::move(expr).cast_unsafe<AST::ImplicitCast>();
-    AST::QualType castExprTy = castExpr.borrow()->GetExprType();
     AST::ImplicitCast *raw = std::move(castExpr).get();
-    return std::move(*raw).AddCastStep(
-             AST::CastStep(AST::CastStepKind::ICSK_LValue2RValue,
-                           castExprTy, AST::Expr::ValueCat::VC_RValue))
+    return std::move(*raw)
+             .AddCastStep(AST::CastStep(castStepKind, destType, destValueCat))
              .cast_unsafe<AST::Expr>();
   }
   else {
-    return
-        new AST::ImplicitCast(
-          std::move(expr),
-          std::vector<AST::CastStep>{
-             AST::CastStep(AST::CastStepKind::ICSK_LValue2RValue,
-                           expr.borrow()->GetExprType(),
-                           AST::Expr::ValueCat::VC_RValue)});
+    return new AST::ImplicitCast(
+                 std::move(expr),
+                 std::vector<AST::CastStep> {
+                   AST::CastStep(castStepKind, destType, destValueCat) } );
   }
 }
 
@@ -100,9 +164,7 @@ void SemaPhase1::PostTranslateIncompleteVar(
   iVar->GetIncomplete()->SetType(varType);
 }
 
-void SemaPhase1::PostTranslateIncompleteTag(
-    sona::ref_ptr<IncompleteTagDecl> iTag) {
-  (void)iTag;
+void SemaPhase1::PostTranslateIncompleteTag(sona::ref_ptr<IncompleteTagDecl>) {
   // do nothing since the tag will be completed as its fields get completed
 }
 
@@ -125,7 +187,7 @@ void SemaPhase1::PostTranslateIncompleteUsing(
 
 AST::QualType
 SemaPhase1::ResolveBuiltinType(std::shared_ptr<Scope>,
-                             sona::ref_ptr<Syntax::BuiltinType const> bty) {
+                               sona::ref_ptr<Syntax::BuiltinType const> bty) {
   return SemaCommon::ResolveBuiltinTypeImpl(bty);
 }
 
@@ -288,11 +350,19 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
 
   switch (expr->GetOperator()) {
   case Syntax::UnaryOperator::UOP_Deref:
-    if (!baseExprTy.GetUnqualTy()->IsPointer()) {
-      m_Diag.Diag(Diag::DIR_Error,
-                  Diag::Format(Diag::DMT_ErrOpRequiresType, {"*", "pointer"}),
-                  expr->GetOpRange());
+    if (baseExprTy.GetUnqualTy()->IsPointer()) {
+      AST::QualType pointeeType =
+          baseExprTy.GetUnqualTy()
+                    .cast_unsafe<AST::PointerType const>()
+                    ->GetPointee();
+      return new AST::UnaryExpr(
+            AST::UnaryOperator::UOP_Deref,
+            LValueToRValueDecay(std::move(baseExpr)),
+            pointeeType, AST::Expr::ValueCat::VC_LValue);
     }
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType, {"*", "pointer"}),
+                expr->GetOpRange());
     break;
   case Syntax::UnaryOperator::UOP_LogicNot:
     if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
@@ -301,7 +371,8 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if (builtinTy->GetBuiltinTypeId()
           == AST::BuiltinType::BuiltinTypeId::BTI_Bool) {
         return new AST::UnaryExpr(
-              AST::UnaryOperator::UOP_LogicalNot, std::move(baseExpr),
+              AST::UnaryOperator::UOP_LogicalNot,
+              LValueToRValueDecay(std::move(baseExpr)),
               m_ASTContext.GetBuiltinType(
                 AST::BuiltinType::BuiltinTypeId::BTI_Bool),
               AST::Expr::ValueCat::VC_RValue);
@@ -318,7 +389,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if ((builtinTy->IsIntegral() && builtinTy->IsSigned())
           || builtinTy->IsFloating()) {
         return new AST::UnaryExpr(AST::UnaryOperator::UOP_Negative,
-                                  std::move(baseExpr),
+                                  LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::ValueCat::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
@@ -333,7 +404,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral() || builtinTy->IsFloating()) {
         return new AST::UnaryExpr(AST::UnaryOperator::UOP_Positive,
-                                  std::move(baseExpr),
+                                  LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::ValueCat::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
@@ -347,14 +418,14 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral()) {
         return new AST::UnaryExpr(AST::UnaryOperator::UOP_Incr,
-                                  std::move(baseExpr), baseExprTy,
-                                  AST::Expr::ValueCat::VC_RValue);
+                                  LValueToRValueDecay(std::move(baseExpr)),
+                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
       return new AST::UnaryExpr(AST::UnaryOperator::UOP_Incr,
-                                std::move(baseExpr), baseExprTy,
-                                AST::Expr::ValueCat::VC_RValue);
+                                LValueToRValueDecay(std::move(baseExpr)),
+                                baseExprTy, AST::Expr::ValueCat::VC_RValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
@@ -367,14 +438,14 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral()) {
         return new AST::UnaryExpr(AST::UnaryOperator::UOP_Decr,
-                                  std::move(baseExpr), baseExprTy,
-                                  AST::Expr::ValueCat::VC_RValue);
+                                  LValueToRValueDecay(std::move(baseExpr)),
+                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
       return new AST::UnaryExpr(AST::UnaryOperator::UOP_Decr,
-                                std::move(baseExpr), baseExprTy,
-                                AST::Expr::ValueCat::VC_RValue);
+                                LValueToRValueDecay(std::move(baseExpr)),
+                                baseExprTy, AST::Expr::ValueCat::VC_RValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
@@ -397,7 +468,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral() && builtinTy->IsUnsigned()) {
         return new AST::UnaryExpr(AST::UnaryOperator::UOP_BitwiseNot,
-                                  std::move(baseExpr),
+                                  LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::ValueCat::VC_RValue);
       }
     }
@@ -406,9 +477,8 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
                              {"~", "unsigned int"}),
                 expr->GetOpRange());
     break;
-  default:
-    sona_unreachable1("not implemented");
   }
+  sona_unreachable();
   return nullptr;
 }
 

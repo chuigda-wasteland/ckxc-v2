@@ -28,6 +28,18 @@ protected:
   TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
                                Syntax::UnaryOperator uop);
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
+  sona::owner<AST::Expr>
+  SignedIntPromote(sona::owner<AST::Expr> &&expr,
+                   AST::BuiltinType::BuiltinTypeId destRank);
+  sona::owner<AST::Expr>
+  UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
+                     AST::BuiltinType::BuiltinTypeId destRank);
+
+  sona::owner<AST::Expr>
+  CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
+                          AST::CastStepKind castStepKind,
+                          AST::QualType destType,
+                          AST::Expr::ValueCat destValueCat);
 
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
