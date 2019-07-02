@@ -591,13 +591,20 @@ sona::owner<Syntax::Expr> ParserImpl::ParseCastExpr() {
   SourceRange castOpRange = CurrentToken().GetSourceRange();
   ConsumeToken();
 
+  if (!ExpectAndConsume(Token::TK_SYM_LT)) {
+    return nullptr;
+  }
+  sona::owner<Syntax::Type> destType = ParseType();
+  ExpectAndConsume(Token::TK_SYM_GT);
+
   if (!ExpectAndConsume(Token::TK_SYM_LPAREN)) {
     return nullptr;
   }
   sona::owner<Syntax::Expr> castedExpr = ParseExpr();
   ExpectAndConsume(Token::TK_SYM_RPAREN);
 
-  return new Syntax::CastExpr(cop, std::move(castedExpr), castOpRange);
+  return new Syntax::CastExpr(cop, std::move(castedExpr),
+                              std::move(destType), castOpRange);
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParsePostfixExpr() {

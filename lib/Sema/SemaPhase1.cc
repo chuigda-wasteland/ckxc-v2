@@ -185,6 +185,53 @@ void SemaPhase1::PostTranslateIncompleteUsing(
   iusing->GetHalfway()->FillAliasee(aliasee);
 }
 
+sona::owner<AST::Expr>
+SemaPhase1::ActOnStaticCast(std::shared_ptr<Scope> scope,
+                            sona::ref_ptr<Syntax::CastExpr const> concrete,
+                            sona::owner<AST::Expr> &&castedExpr,
+                            AST::QualType destType) {
+  AST::QualType fromType = castedExpr.borrow()->GetExprType();
+  sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
+  sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
+
+  if (fromType == destType) {
+    m_Diag.Diag(Diag::DIR_Warning0,
+                Diag::Format(Diag::DMT_WarnRedundantStatcCast, {}),
+                concrete->GetCastOpRange());
+    return std::move(castedExpr);
+  }
+
+  /// @todo check volatile and restrict once we decide to support that
+  if (fromType.IsConst() && !destType.IsConst()) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrStaticCastDiscardConst, {}),
+                concrete->GetCastOpRange());
+    return nullptr;
+  }
+
+  if (fromTypeUnqual->IsPointer()
+      && destTypeUnqual->IsBuiltin()
+      && (destTypeUnqual.cast_unsafe<AST::BuiltinType const>()
+                       ->GetBuiltinTypeId()
+          == AST::BuiltinType::BuiltinTypeId::BTI_NilType)) {
+  }
+  else if (fromTypeUnqual->IsBuiltin()
+           && destTypeUnqual->IsPointer()
+           && (fromTypeUnqual.cast_unsafe<AST::BuiltinType const>()
+                             ->GetBuiltinTypeId()
+                == AST::BuiltinType::BuiltinTypeId::BTI_NilType)) {
+  }
+  else if (fromTypeUnqual->IsBuiltin() && destTypeUnqual->IsBuiltin()) {
+    sona::ref_ptr<AST::BuiltinType const> fromTypeBtin =
+        fromTypeUnqual.cast_unsafe<AST::BuiltinType const>();
+    sona::ref_ptr<AST::BuiltinType const> destTypeBtin =
+        destTypeUnqual.cast_unsafe<AST::BuiltinType const>();
+    if (fromTypeBtin->IsNumeric() && destTypeBtin->IsNumeric()) {
+
+    }
+  }
+}
+
 AST::QualType
 SemaPhase1::ResolveBuiltinType(std::shared_ptr<Scope>,
                                sona::ref_ptr<Syntax::BuiltinType const> bty) {
@@ -480,6 +527,34 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
   }
   sona_unreachable();
   return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnCastExpr(std::shared_ptr<Scope> scope,
+                          sona::ref_ptr<Syntax::CastExpr const> expr) {
+  sona::owner<AST::Expr> castedExpr = ActOnExpr(scope, expr->GetCastedExpr());
+  AST::QualType destType = ResolveType(scope, expr->GetDestType());
+  switch (expr->GetOperator()) {
+  case Syntax::CastOperator::COP_ConstCast: {
+    if (castedExpr.borrow()->GetExprType().GetUnqualTy()
+        != destType.GetUnqualTy()) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrConstCastDifferentBase, {}),
+                  expr->GetCastOpRange());
+    }
+    return new AST::ExplicitCastExpr(AST::ExplicitCastOperator::ECOP_Const,
+                                     std::move(castedExpr), destType,
+                                     AST::Expr::ValueCat::VC_RValue);
+  }
+  case Syntax::CastOperator::COP_BitCast: {
+    /// @todo need a method for calculating size of types
+    sona_unreachable1("not implemented");
+    return nullptr;
+  }
+  case Syntax::CastOperator::COP_StaticCast: {
+    return ActOnStaticCast(scope, expr, std::move(castedExpr), destType);
+  }
+  }
 }
 
 } // namespace Sema

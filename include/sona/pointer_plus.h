@@ -48,6 +48,10 @@ public:
     return lhs == rhs.ptr;
   }
 
+  friend bool operator!= (ref_ptr<T> lhs, ref_ptr<T> rhs) {
+    return lhs.ptr != rhs.ptr;
+  }
+
   friend bool operator!= (ref_ptr<T> lhs, T* rhs) {
     return lhs.ptr != rhs;
   }

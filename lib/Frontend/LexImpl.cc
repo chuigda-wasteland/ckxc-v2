@@ -320,6 +320,12 @@ void LexerImpl::LexSymbol() {
   case ')':
     m_TokenStream.emplace_back(Token::TK_SYM_RPAREN, CurCharRange()); break;
 
+  case '<':
+    m_TokenStream.emplace_back(Token::TK_SYM_LT, CurCharRange()); break;
+
+  case '>':
+    m_TokenStream.emplace_back(Token::TK_SYM_GT, CurCharRange()); break;
+
   case ',':
     m_TokenStream.emplace_back(Token::TK_SYM_COMMA, CurCharRange()); break;
 

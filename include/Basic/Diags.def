@@ -41,5 +41,9 @@ DIAG_TEMPLATE(ErrDuplicateQual, "duplicate qualifier {}")
 /// Type checking
 DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} type")
 DIAG_TEMPLATE(ErrAddressOfRValue, "taking address of non-left value")
+DIAG_TEMPLATE(ErrConstCastDifferentBase, "const_cast requires same base type")
+DIAG_TEMPLATE(ErrStaticCastDiscardConst, \
+              "static_cast casts const qualifier away")
+DIAG_TEMPLATE(WarnRedundantStatcCast, "redundant static cast")
 
 #undef DIAG_TEMPLATE

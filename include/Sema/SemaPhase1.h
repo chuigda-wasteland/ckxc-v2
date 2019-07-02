@@ -58,6 +58,12 @@ protected:
   ActOn##name(std::shared_ptr<Scope> scope, \
               sona::ref_ptr<Syntax::name const> type);
 
+  sona::owner<AST::Expr>
+  ActOnStaticCast(std::shared_ptr<Scope> scope,
+                  sona::ref_ptr<const Syntax::CastExpr> concrete,
+                  sona::owner<AST::Expr> &&castedExpr,
+                  AST::QualType destType);
+
 #include "Syntax/Nodes.def"
 };
 

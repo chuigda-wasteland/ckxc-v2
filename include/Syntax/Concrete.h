@@ -955,15 +955,20 @@ private:
 class CastExpr : public Expr {
 public:
   CastExpr(CastOperator castop, sona::owner<Syntax::Expr> &&castedExpr,
+           sona::owner<Syntax::Type> &&destType,
            SourceRange const& castOpRange)
     : Expr(Node::NodeKind::CNK_CastExpr),
       m_CastOp(castop), m_CastedExpr(std::move(castedExpr)),
-      m_CastOpRange(castOpRange) {}
+      m_DestType(std::move(destType)), m_CastOpRange(castOpRange) {}
 
   CastOperator GetOperator() const noexcept { return m_CastOp; }
 
   sona::ref_ptr<Syntax::Expr const> GetCastedExpr() const noexcept {
     return m_CastedExpr.borrow();
+  }
+
+  sona::ref_ptr<Syntax::Type const> GetDestType() const noexcept {
+    return m_DestType.borrow();
   }
 
   SourceRange const& GetCastOpRange() const noexcept {
@@ -973,6 +978,7 @@ public:
 private:
   CastOperator m_CastOp;
   sona::owner<Syntax::Expr> m_CastedExpr;
+  sona::owner<Syntax::Type> m_DestType;
   SourceRange m_CastOpRange;
 };
 
