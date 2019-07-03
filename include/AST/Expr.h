@@ -15,90 +15,26 @@
 namespace ckx {
 namespace AST {
 
-enum class UnaryOperator {
-  UOP_Incr,
-  UOP_Decr,
-  UOP_Deref,
-  UOP_AddrOf,
-  UOP_Positive,
-  UOP_Negative,
-  UOP_LogicalNot,
-  UOP_BitwiseNot
-};
-
-enum class BinaryOperator {
-  BOP_Add,
-  BOP_Sub,
-  BOP_Mul,
-  BOP_Div,
-  BOP_Mod,
-
-  BOP_LogicalAnd,
-  BOP_LogicalOr,
-  BOP_LogicalNot,
-  BOP_LogicalXor,
-
-  BOP_BitwiseAnd,
-  BOP_BitwiseOr,
-  BOP_BitwiseNot,
-  BOP_BitwiseXor,
-
-  BOP_LShift,
-  BOP_RShift,
-
-  BOP_Lt,
-  BOP_Gt,
-  BOP_Eq,
-  BOP_Neq,
-  BOP_Leq,
-  BOP_Geq
-};
-
-enum class AssignmentOperator {
-  AOP_Assign,
-
-  AOP_AddAssign,
-  AOP_SubAssign,
-  AOP_MulAssign,
-  AOP_DivAssign,
-  AOP_ModAssign,
-
-  AOP_BitwiseAndAssign,
-  AOP_BitwiseOrAssign,
-  AOP_BitwiseNotAssign,
-  AOP_BitwiseXorAssign,
-
-  AOP_BitwiseLShiftAssign,
-  AOP_BitwiseRShiftAssign
-};
-
-enum class ExplicitCastOperator {
-  ECOP_Static,
-  ECOP_Const,
-  ECOP_Bit
-};
-
-enum class CastStepKind {
-  // Implicits
-  ICSK_IntPromote,
-  ICSK_UIntPromote,
-  ICSK_FloatPromote,
-  ICSK_LValue2RValue,
-  ICSK_AddConst,
-  ICSK_Nil2Ptr,
-  ICSK_Ptr2Nil,
-
-  // Explicits
-  ECSK_IntDowngrade,
-  ECSK_FloatDowngrade,
-  ECSK_Int2Float,
-  ECSK_UInt2Float,
-  ECSK_Float2Int,
-  ECSK_FLoat2UInt
-};
-
 class CastStep {
 public:
+  enum CastStepKind {
+    // Implicits
+    ICSK_IntPromote,
+    ICSK_UIntPromote,
+    ICSK_FloatPromote,
+    ICSK_LValue2RValue,
+    ICSK_AddConst,
+    ICSK_Nil2Ptr,
+
+    // Explicits
+    ECSK_IntDowngrade,
+    ECSK_FloatDowngrade,
+    ECSK_Int2Float,
+    ECSK_UInt2Float,
+    ECSK_Float2Int,
+    ECSK_FLoat2UInt
+  };
+
   CastStep(CastStepKind CSK, QualType destTy, Expr::ValueCat destValueCat) :
     m_CSK(CSK), m_DestTy(destTy), m_DestValueCat(destValueCat) {}
 
@@ -149,6 +85,12 @@ private:
 
 class ExplicitCastExpr : public Expr {
 public:
+  enum ExplicitCastOperator {
+    ECOP_Static,
+    ECOP_Const,
+    ECOP_Bit
+  };
+
   ExplicitCastExpr(ExplicitCastOperator castOp,
                    sona::owner<Expr> &&castedExpr, QualType destTy,
                    ValueCat destValueCat)
@@ -190,6 +132,24 @@ private:
 
 class AssignExpr : public Expr {
 public:
+  enum class AssignmentOperator {
+    AOP_Assign,
+
+    AOP_AddAssign,
+    AOP_SubAssign,
+    AOP_MulAssign,
+    AOP_DivAssign,
+    AOP_ModAssign,
+
+    AOP_BitwiseAndAssign,
+    AOP_BitwiseOrAssign,
+    AOP_BitwiseNotAssign,
+    AOP_BitwiseXorAssign,
+
+    AOP_BitwiseLShiftAssign,
+    AOP_BitwiseRShiftAssign
+  };
+
   AssignExpr(AssignmentOperator op, sona::owner<Expr> &&assigned,
              sona::owner<Expr> &&assignee, QualType type, ValueCat valueCat)
       : Expr(ExprId::EI_Assign, type, valueCat), m_Operator(op),
@@ -212,6 +172,17 @@ private:
 
 class UnaryExpr : public Expr {
 public:
+  enum UnaryOperator {
+    UOP_Incr,
+    UOP_Decr,
+    UOP_Deref,
+    UOP_AddrOf,
+    UOP_Positive,
+    UOP_Negative,
+    UOP_LogicalNot,
+    UOP_BitwiseNot
+  };
+
   UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand,
             QualType exprType, ValueCat valueCat)
     : Expr(ExprId::EI_Unary, exprType, valueCat), m_Operator(op),
@@ -230,6 +201,34 @@ private:
 
 class BinaryExpr : public Expr {
 public:
+  enum BinaryOperator {
+    BOP_Add,
+    BOP_Sub,
+    BOP_Mul,
+    BOP_Div,
+    BOP_Mod,
+
+    BOP_LogicalAnd,
+    BOP_LogicalOr,
+    BOP_LogicalNot,
+    BOP_LogicalXor,
+
+    BOP_BitwiseAnd,
+    BOP_BitwiseOr,
+    BOP_BitwiseNot,
+    BOP_BitwiseXor,
+
+    BOP_LShift,
+    BOP_RShift,
+
+    BOP_Lt,
+    BOP_Gt,
+    BOP_Eq,
+    BOP_Neq,
+    BOP_Leq,
+    BOP_Geq
+  };
+
   BinaryExpr(BinaryOperator op, sona::owner<Expr> &&leftOperand,
              sona::owner<Expr> &&rightOperand, QualType exprType,
              ValueCat valueCat)

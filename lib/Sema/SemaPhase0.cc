@@ -139,7 +139,7 @@ sona::either<AST::QualType, std::vector<Dependency>>
 SemaPhase0::ResolveType(sona::ref_ptr<Syntax::Type const> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \
-  case Syntax::Node::NodeKind::CNK_##name: \
+  case Syntax::Node::CNK_##name: \
     return Resolve##name(type.cast_unsafe<Syntax::name const>());
 #include "Syntax/Nodes.def"
   default:
@@ -152,7 +152,7 @@ std::pair<sona::owner<AST::Decl>, bool>
 SemaPhase0::ActOnDecl(sona::ref_ptr<const Syntax::Decl> decl) {
   switch (decl->GetNodeKind()) {
 #define CST_DECL(name) \
-  case Syntax::Node::NodeKind::CNK_##name: \
+  case Syntax::Node::CNK_##name: \
     return ActOn##name(decl.cast_unsafe<Syntax::name const>());
 #include "Syntax/Nodes.def"
   default:
@@ -202,9 +202,9 @@ static bool IsPtrOrRefType(sona::ref_ptr<Syntax::ComposedType const> cty) {
         cty->GetTypeSpecifiers().begin(),
         cty->GetTypeSpecifiers().end(),
         [](Syntax::ComposedType::TypeSpecifier ts) {
-          return ts == Syntax::ComposedType::TypeSpecifier::CTS_Pointer
-                 || ts == Syntax::ComposedType::TypeSpecifier::CTS_Ref
-                 || ts == Syntax::ComposedType::TypeSpecifier::CTS_RvRef;
+          return ts == Syntax::ComposedType::CTS_Pointer
+                 || ts == Syntax::ComposedType::CTS_Ref
+                 || ts == Syntax::ComposedType::CTS_RvRef;
   });
 }
 
@@ -219,16 +219,16 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
                sona::linq::from_container(cty->GetTypeSpecRanges()));
     for (const auto &p : r) {
       switch (p.first) {
-      case Syntax::ComposedType::TypeSpecifier::CTS_Pointer:
+      case Syntax::ComposedType::CTS_Pointer:
         ret = m_ASTContext.CreatePointerType(ret);
         break;
-      case Syntax::ComposedType::TypeSpecifier::CTS_Ref:
+      case Syntax::ComposedType::CTS_Ref:
         ret = m_ASTContext.CreateLValueRefType(ret);
         break;
-      case Syntax::ComposedType::TypeSpecifier::CTS_RvRef:
+      case Syntax::ComposedType::CTS_RvRef:
         ret = m_ASTContext.CreateRValueRefType(ret);
         break;
-      case Syntax::ComposedType::TypeSpecifier::CTS_Const:
+      case Syntax::ComposedType::CTS_Const:
         if (ret.IsConst()) {
           m_Diag.Diag(Diag::DIR_Error,
                       Diag::Format(Diag::DMT_ErrDuplicateQual, {"const"}),
@@ -238,7 +238,7 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
           ret.AddConst();
         }
         break;
-      case Syntax::ComposedType::TypeSpecifier::CTS_Volatile:
+      case Syntax::ComposedType::CTS_Volatile:
         if (ret.IsVolatile()) {
           m_Diag.Diag(Diag::DIR_Error,
                       Diag::Format(Diag::DMT_ErrDuplicateQual, {"volatile"}),
@@ -248,7 +248,7 @@ ResolveComposedType(sona::ref_ptr<Syntax::ComposedType const> cty) {
           ret.AddVolatile();
         }
         break;
-      case Syntax::ComposedType::TypeSpecifier::CTS_Restrict:
+      case Syntax::ComposedType::CTS_Restrict:
         if (ret.IsRestrict()) {
           m_Diag.Diag(Diag::DIR_Error,
                       Diag::Format(Diag::DMT_ErrDuplicateQual, {"restrict"}),
@@ -292,7 +292,7 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
   if (typeResult.contains_t1()) {
     sona::owner<AST::Decl> varDecl =
         new AST::VarDecl(GetCurrentDeclContext(), typeResult.as_t1(),
-                         AST::DeclSpec::DS_None /** @todo  */,
+                         AST::Decl::DS_None /** @todo  */,
                          decl->GetName());
     GetCurrentScope()->AddVarDecl(varDecl.borrow()
                                   .cast_unsafe<AST::VarDecl>());
@@ -302,7 +302,7 @@ SemaPhase0::ActOnVarDecl(sona::ref_ptr<Syntax::VarDecl const> decl) {
 
   sona::owner<AST::Decl> incomplete =
       new AST::VarDecl(GetCurrentDeclContext(), AST::QualType(nullptr),
-                       AST::DeclSpec::DS_None /*TODO*/, decl->GetName());
+                       AST::Decl::DS_None /*TODO*/, decl->GetName());
   GetCurrentScope()->AddVarDecl(incomplete.borrow()
                                           .cast_unsafe<AST::VarDecl>());
   m_IncompleteVars.emplace(

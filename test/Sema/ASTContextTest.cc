@@ -19,12 +19,12 @@ void test0() {
 #define BUILTIN_TYPE(name, size, ii, is, sd, usd, tk) \
   { \
     AST::QualType ty = \
-      context.GetBuiltinType(AST::BuiltinType::BuiltinTypeId::BTI_##name); \
+      context.GetBuiltinType(AST::BuiltinType::BTI_##name); \
     VkAssertEquals(AST::Type::TypeId::TI_Builtin, \
                    ty.GetUnqualTy()->GetTypeId()); \
     sona::ref_ptr<AST::BuiltinType const> bty = \
             ty.GetUnqualTy().cast_unsafe<AST::BuiltinType const>(); \
-    VkAssertEquals(AST::BuiltinType::BuiltinTypeId::BTI_##name, \
+    VkAssertEquals(AST::BuiltinType::BTI_##name, \
                    bty->GetBuiltinTypeId()); \
     turn1.push_back(ty); \
   }
@@ -33,7 +33,7 @@ void test0() {
 #define BUILTIN_TYPE(name, size, ii, is, sd, usd, tk) \
   { \
     AST::QualType ty = \
-      context.GetBuiltinType(AST::BuiltinType::BuiltinTypeId::BTI_##name); \
+      context.GetBuiltinType(AST::BuiltinType::BTI_##name); \
     turn2.push_back(ty); \
   }
 #include "Syntax/BuiltinTypes.def"
@@ -51,7 +51,7 @@ void test1() {
 #define BUILTIN_TYPE(name, size, ii, is, sd, usd, tk) \
   { \
     AST::QualType ty = \
-      context.GetBuiltinType(AST::BuiltinType::BuiltinTypeId::BTI_##name); \
+      context.GetBuiltinType(AST::BuiltinType::BTI_##name); \
     AST::QualType pty  = context.CreatePointerType(ty); \
     AST::QualType lrty = context.CreateLValueRefType(ty); \
     AST::QualType rrty = context.CreateRValueRefType(ty); \
@@ -66,7 +66,7 @@ void test1() {
 #define BUILTIN_TYPE(name, size, ii, is, sd, usd, tk) \
   { \
     AST::QualType ty = \
-      context.GetBuiltinType(AST::BuiltinType::BuiltinTypeId::BTI_##name); \
+      context.GetBuiltinType(AST::BuiltinType::BTI_##name); \
     AST::QualType pty  = context.CreatePointerType(ty); \
     AST::QualType lrty = context.CreateLValueRefType(ty); \
     AST::QualType rrty = context.CreateRValueRefType(ty); \
@@ -90,17 +90,17 @@ void test2() {
   paramTypes.push_back(
         context.CreatePointerType(
           context.GetBuiltinType(
-            AST::BuiltinType::BuiltinTypeId::BTI_Int8)));
+            AST::BuiltinType::BTI_Int8)));
   paramTypes.push_back(
         context.CreateLValueRefType(
           context.GetBuiltinType(
-            AST::BuiltinType::BuiltinTypeId::BTI_Char)));
+            AST::BuiltinType::BTI_Char)));
   paramTypes.push_back(
           context.GetBuiltinType(
-            AST::BuiltinType::BuiltinTypeId::BTI_NilType));
+            AST::BuiltinType::BTI_NilType));
   AST::QualType retType =
         context.GetBuiltinType(
-          AST::BuiltinType::BuiltinTypeId::BTI_Char);
+          AST::BuiltinType::BTI_Char);
 
   std::vector<AST::QualType> paramTypes2 = paramTypes;
 

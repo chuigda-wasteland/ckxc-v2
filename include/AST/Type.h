@@ -17,7 +17,7 @@ namespace AST {
 
 class BuiltinType final : public Type {
 public:
-  enum class BuiltinTypeId : std::int8_t {
+  enum BuiltinTypeId {
     #define BUILTIN_TYPE(name, rep, size, isint, \
                          issigned, signedver, unsignedver) \
       BTI_##name,

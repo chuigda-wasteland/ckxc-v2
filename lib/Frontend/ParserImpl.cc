@@ -21,7 +21,7 @@ ParserImpl::ParseTransUnit(
     if (d.borrow() == nullptr) {
       continue;
     }
-    if (d.borrow()->GetNodeKind() == Syntax::Node::NodeKind::CNK_VarDecl) {
+    if (d.borrow()->GetNodeKind() == Syntax::Node::CNK_VarDecl) {
       ExpectAndConsume(Token::TK_SYM_SEMI);
     }
     ret.borrow()->Declare(std::move(d));
@@ -426,22 +426,22 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
          || CurrentToken().GetTokenKind() == Token::TK_KW_restrict) {
     switch (CurrentToken().GetTokenKind()) {
     case Token::TK_SYM_AMP:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Ref);
+      tySpecs.push_back(Syntax::ComposedType::CTS_Ref);
       break;
     case Token::TK_SYM_DAMP:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_RvRef);
+      tySpecs.push_back(Syntax::ComposedType::CTS_RvRef);
       break;
     case Token::TK_SYM_ASTER:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Pointer);
+      tySpecs.push_back(Syntax::ComposedType::CTS_Pointer);
       break;
     case Token::TK_KW_const:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Const);
+      tySpecs.push_back(Syntax::ComposedType::CTS_Const);
       break;
     case Token::TK_KW_volatile:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Volatile);
+      tySpecs.push_back(Syntax::ComposedType::CTS_Volatile);
       break;
     case Token::TK_KW_restrict:
-      tySpecs.push_back(Syntax::ComposedType::TypeSpecifier::CTS_Restrict);
+      tySpecs.push_back(Syntax::ComposedType::CTS_Restrict);
       break;
 
     default:
@@ -689,12 +689,12 @@ ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
 }
 
 sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
-  Syntax::BuiltinType::TypeKind kind;
+  Syntax::BuiltinType::BuiltinTypeId btid;
   switch (CurrentToken().GetTokenKind()) {
   #define BUILTIN_TYPE(name, size, isint, \
                        issigned, signedver, unsignedver, token) \
     case Frontend::Token::token: \
-      kind = Syntax::BuiltinType::TypeKind::TK_##name; break;
+      btid = Syntax::BuiltinType::TK_##name; break;
   #include "Syntax/BuiltinTypes.def"
 
   default:
@@ -705,7 +705,7 @@ sona::owner<Syntax::Type> ParserImpl::ParseBuiltinType() {
   SourceRange range = CurrentToken().GetSourceRange();
   ConsumeToken();
 
-  return new Syntax::BuiltinType(kind, range);
+  return new Syntax::BuiltinType(btid, range);
 }
 
 sona::owner<Syntax::Type> ParserImpl::ParseUserDefinedType() {

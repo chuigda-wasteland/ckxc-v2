@@ -29,8 +29,7 @@ private:
 
 class ExprStmt : public Stmt {
 public:
-  ExprStmt(sona::owner<Expr> &&expr)
-      : Stmt(StmtId::SI_Expr), m_Expr(std::move(expr)) {}
+  ExprStmt(sona::owner<Expr> &&expr) : Stmt(StmtId::SI_Expr), m_Expr(std::move(expr)) {}
 
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
 

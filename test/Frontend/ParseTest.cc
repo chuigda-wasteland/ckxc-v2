@@ -44,9 +44,9 @@ void test0() {
   VkAssertFalse(diag.HasPendingDiags());
   VkAssertNotEquals(nullptr, decl.borrow());
   VkAssertNotEquals(nullptr, decl2.borrow());
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl,
+  VkAssertEquals(Syntax::Node::CNK_VarDecl,
                    decl.borrow()->GetNodeKind());
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl,
+  VkAssertEquals(Syntax::Node::CNK_VarDecl,
                    decl2.borrow()->GetNodeKind());
 
   ref_ptr<Syntax::VarDecl> varDecl =
@@ -55,22 +55,22 @@ void test0() {
       decl2.borrow().cast_unsafe<Syntax::VarDecl>();
   VkAssertEquals("a", varDecl->GetName());
   VkAssertEquals("b", varDecl2->GetName());
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_ComposedType,
+  VkAssertEquals(Syntax::Node::CNK_ComposedType,
                  varDecl2->GetType()->GetNodeKind());
   ref_ptr<Syntax::ComposedType const> ty2 =
       varDecl2->GetType().cast_unsafe<Syntax::ComposedType const>();
   VkAssertEquals(3uL, ty2->GetTypeSpecifiers().size());
-  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Const,
+  VkAssertEquals(Syntax::ComposedType::CTS_Const,
                  ty2->GetTypeSpecifiers()[0]);
-  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Pointer,
+  VkAssertEquals(Syntax::ComposedType::CTS_Pointer,
                  ty2->GetTypeSpecifiers()[1]);
-  VkAssertEquals(Syntax::ComposedType::TypeSpecifier::CTS_Const,
+  VkAssertEquals(Syntax::ComposedType::CTS_Const,
                  ty2->GetTypeSpecifiers()[2]);
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_BuiltinType,
+  VkAssertEquals(Syntax::Node::CNK_BuiltinType,
                  ty2->GetRootType()->GetNodeKind());
   ref_ptr<Syntax::BuiltinType const> ty3 =
       ty2->GetRootType().cast_unsafe<Syntax::BuiltinType const>();
-  VkAssertEquals(Syntax::BuiltinType::TypeKind::TK_Int16, ty3->GetTypeKind());
+  VkAssertEquals(Syntax::BuiltinType::TK_Int16, ty3->GetBuiltinTypeId());
 
   diag.EmitDiags();
 }
@@ -116,7 +116,7 @@ void test2() {
 
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseClassDecl();
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_ClassDecl,
+  VkAssertEquals(Syntax::Node::CNK_ClassDecl,
                    decl.borrow()->GetNodeKind());
 
   VkAssertFalse(diag.HasPendingDiags());
@@ -132,8 +132,8 @@ void test2() {
   ref_ptr<Syntax::Decl const> d2 =
       *(classDecl.borrow()->GetSubDecls().begin() + 1);
 
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl, d1->GetNodeKind());
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_VarDecl, d2->GetNodeKind());
+  VkAssertEquals(Syntax::Node::CNK_VarDecl, d1->GetNodeKind());
+  VkAssertEquals(Syntax::Node::CNK_VarDecl, d2->GetNodeKind());
 
   ref_ptr<Syntax::VarDecl const> varD1 =
       d1.cast_unsafe<Syntax::VarDecl const>();
@@ -156,7 +156,7 @@ void test3() {
   std::vector<Frontend::Token> tokens = lexer.GetAndReset();
   testContext.SetParsingTokenStream(tokens);
   owner<Syntax::Decl> decl = testContext.ParseEnumDecl();
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_EnumDecl,
+  VkAssertEquals(Syntax::Node::CNK_EnumDecl,
                    decl.borrow()->GetNodeKind());
 
   VkAssertFalse(diag.HasPendingDiags());
@@ -196,7 +196,7 @@ void test4() {
   testContext.SetParsingTokenStream(tokens);
   sona::owner<Syntax::Expr> e = testContext.ParseLiteralExpr();
 
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_IntLiteralExpr,
+  VkAssertEquals(Syntax::Node::CNK_IntLiteralExpr,
                    e.borrow()->GetNodeKind());
   VkAssertFalse(diag.HasPendingDiags());
 
@@ -219,7 +219,7 @@ void test5() {
   std::vector<Frontend::Token> tokens = lexer.GetAndReset();
   testContext.SetParsingTokenStream(tokens);
   sona::owner<Syntax::Decl> decl = testContext.ParseUsingDecl();
-  VkAssertEquals(Syntax::Node::NodeKind::CNK_UsingDecl,
+  VkAssertEquals(Syntax::Node::CNK_UsingDecl,
                    decl.borrow()->GetNodeKind());
 
   VkAssertFalse(diag.HasPendingDiags());

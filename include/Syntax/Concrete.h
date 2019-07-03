@@ -74,7 +74,7 @@ private:
 
 class Node {
 public:
-  enum class NodeKind {
+  enum NodeKind {
     #define CST_TRANSUNIT(name) CNK_##name,
     #define CST_MISC(name) CNK_##name,
     #define CST_TYPE(name) CNK_##name,
@@ -145,7 +145,7 @@ public:
   };
 
   AttributeList(std::vector<AttributeList> &attributes)
-    : Node(Node::NodeKind::CNK_AttributeList),
+    : Node(Node::CNK_AttributeList),
       m_Attributes(std::move(attributes)) {}
 
   std::vector<AttributeList> const& GetAttributes() const noexcept {
@@ -176,23 +176,23 @@ public: Expr(NodeKind nodeKind) : Node(nodeKind) {}
 
 class BuiltinType : public Type {
 public:
-  enum class TypeKind {
+  enum BuiltinTypeId {
     #define BUILTIN_TYPE(name, rep, size, isint, \
                          issigned, signedver, unsignedver) \
       TK_##name,
     #include "Syntax/BuiltinTypes.def"
   };
 
-  BuiltinType(TypeKind typeKind, SingleSourceRange const& range)
+  BuiltinType(BuiltinTypeId btid, SingleSourceRange const& range)
     : Type(NodeKind::CNK_BuiltinType),
-      m_TypeKind(typeKind), m_Range(range) {}
+      m_BuiltinTypeId(btid), m_Range(range) {}
 
-  TypeKind GetTypeKind() const noexcept { return m_TypeKind; }
+  BuiltinTypeId GetBuiltinTypeId() const noexcept { return m_BuiltinTypeId; }
 
   SingleSourceRange const& GetSourceRange() const noexcept { return m_Range; }
 
 private:
-  TypeKind m_TypeKind;
+  BuiltinTypeId m_BuiltinTypeId;
   SingleSourceRange m_Range;
 };
 
@@ -237,7 +237,7 @@ private:
 
 class ComposedType : public Type {
 public:
-  enum class TypeSpecifier {
+  enum TypeSpecifier {
     CTS_Const, CTS_Volatile, CTS_Restrict, CTS_Pointer, CTS_Ref, CTS_RvRef
   };
 
@@ -577,7 +577,7 @@ public:
             SingleSourceRange usingRange,
             SingleSourceRange nameRange,
             SourceLocation eqLoc)
-    : Decl(Node::NodeKind::CNK_UsingDecl),
+    : Decl(Node::CNK_UsingDecl),
       m_Name(name),
       m_Aliasee(std::move(aliasee)),
       m_UsingRange(usingRange),
@@ -886,7 +886,7 @@ class MemberAccessExpr : public Expr {
 public:
   MemberAccessExpr(sona::owner<Syntax::Expr> &&baseExpr,
                    Syntax::Identifier &&member)
-    : Expr(Node::NodeKind::CNK_MemberAccessExpr),
+    : Expr(Node::CNK_MemberAccessExpr),
       m_BaseExpr(std::move(baseExpr)), m_Member(std::move(member)) {}
 
   sona::ref_ptr<Syntax::Expr const> GetBaseExpr() const noexcept {
@@ -906,7 +906,7 @@ class UnaryAlgebraicExpr : public Expr {
 public:
   UnaryAlgebraicExpr(UnaryOperator op, sona::owner<Syntax::Expr> &&baseExpr,
                      SourceRange opRange)
-    : Expr(Node::NodeKind::CNK_UnaryAlgebraicExpr),
+    : Expr(Node::CNK_UnaryAlgebraicExpr),
       m_Operator(op), m_BaseExpr(std::move(baseExpr)),
       m_OpRange(opRange) {}
 
@@ -928,7 +928,7 @@ class BinaryExpr : public Expr {
 public:
   BinaryExpr(BinaryOperator op, sona::owner<Syntax::Expr> &&lhs,
              sona::owner<Syntax::Expr> &&rhs, SourceRange const& opRange)
-    : Expr(Node::NodeKind::CNK_BinaryExpr),
+    : Expr(Node::CNK_BinaryExpr),
       m_Operator(op), m_LeftHandSide(std::move(lhs)),
       m_RightHandSide(std::move(rhs)), m_OpRange(opRange) {}
 
@@ -957,7 +957,7 @@ public:
   CastExpr(CastOperator castop, sona::owner<Syntax::Expr> &&castedExpr,
            sona::owner<Syntax::Type> &&destType,
            SourceRange const& castOpRange)
-    : Expr(Node::NodeKind::CNK_CastExpr),
+    : Expr(Node::CNK_CastExpr),
       m_CastOp(castop), m_CastedExpr(std::move(castedExpr)),
       m_DestType(std::move(destType)), m_CastOpRange(castOpRange) {}
 

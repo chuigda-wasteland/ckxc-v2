@@ -64,7 +64,7 @@ void test0() {
                  qty2.GetUnqualTy()->GetTypeId());
   sona::ref_ptr<AST::BuiltinType const> bty =
       qty2.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-  VkAssertEquals(AST::BuiltinType::BuiltinTypeId::BTI_Int16,
+  VkAssertEquals(AST::BuiltinType::BTI_Int16,
                  bty->GetBuiltinTypeId());
 }
 

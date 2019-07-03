@@ -37,7 +37,7 @@ BuiltinType::GetTypeName(BuiltinType::BuiltinTypeId btid) noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                      issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: \
+  case BuiltinType::BTI_##name: \
     return #name;
   #include "Syntax/BuiltinTypes.def"
   }
@@ -52,7 +52,7 @@ bool BuiltinType::IsIntegral(BuiltinType::BuiltinTypeId btid) noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, rep, size, isint, \
                        issigned, signedver, unsignedver) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: return isint;
+  case BuiltinType::BTI_##name: return isint;
   #include "Syntax/BuiltinTypes.def"
   }
 }
@@ -67,7 +67,7 @@ bool BuiltinType::IsSigned(BuiltinType::BuiltinTypeId btid) noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                        issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: return issigned;
+  case BuiltinType::BTI_##name: return issigned;
   #include "Syntax/BuiltinTypes.def"
   }
 }
@@ -76,7 +76,7 @@ bool BuiltinType::IsUnsigned(BuiltinType::BuiltinTypeId btid) noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                        issigned, signedver, unsignedver, token) \
-  case BuiltinType::BuiltinTypeId::BTI_##name: \
+  case BuiltinType::BTI_##name: \
     return (!issigned \
             && BuiltinTypeId::BTI_##signedver != BuiltinTypeId::BTI_NoType);
   #include "Syntax/BuiltinTypes.def"

@@ -77,7 +77,7 @@ void test0() {
   VkAssertEquals(0uL, sema0.GetIncompleteValueCtors().size());
 
   for (const auto &incompleteTagPair : sema0.GetIncompleteTags()) {
-    VkAssertEquals(AST::Decl::DeclKind::DK_Class,
+    VkAssertEquals(AST::Decl::DK_Class,
                    incompleteTagPair.first->GetDeclKind());
     VkAssertEquals(1uL, incompleteTagPair.second.GetDependencies().size());
     if (incompleteTagPair.first.cast_unsafe<AST::ClassDecl const>()->GetName()

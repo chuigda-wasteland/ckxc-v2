@@ -9,34 +9,34 @@ AST::BuiltinType::BuiltinTypeId
 SemaCommon::ClassifyBuiltinTypeId(int64_t i) noexcept {
   if (i <= std::numeric_limits<std::int8_t>::max()
       && i >= std::numeric_limits<std::int8_t>::min()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Int8;
+    return AST::BuiltinType::BTI_Int8;
   }
   else if (i <= std::numeric_limits<std::int16_t>::max()
            && i >= std::numeric_limits<std::int16_t>::min()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Int16;
+    return AST::BuiltinType::BTI_Int16;
   }
   else if (i <= std::numeric_limits<std::int32_t>::max()
            && i >= std::numeric_limits<std::int32_t>::min()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Int32;
+    return AST::BuiltinType::BTI_Int32;
   }
   else {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Int64;
+    return AST::BuiltinType::BTI_Int64;
   }
 }
 
 AST::BuiltinType::BuiltinTypeId
 SemaCommon::ClassifyBuiltinTypeId(uint64_t u) noexcept {
   if (u <= std::numeric_limits<std::uint8_t>::max()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_UInt8;
+    return AST::BuiltinType::BTI_UInt8;
   }
   else if (u <= std::numeric_limits<std::uint16_t>::max()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_UInt16;
+    return AST::BuiltinType::BTI_UInt16;
   }
   else if (u <= std::numeric_limits<std::uint32_t>::max()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_UInt32;
+    return AST::BuiltinType::BTI_UInt32;
   }
   else {
-    return AST::BuiltinType::BuiltinTypeId::BTI_UInt64;
+    return AST::BuiltinType::BTI_UInt64;
   }
 }
 
@@ -44,10 +44,10 @@ AST::BuiltinType::BuiltinTypeId
 SemaCommon::ClassifyBuiltinTypeId(double f) noexcept {
   if (f <= std::numeric_limits<float>::max()
       && f >= std::numeric_limits<float>::min()) {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Float;
+    return AST::BuiltinType::BTI_Float;
   }
   else {
-    return AST::BuiltinType::BuiltinTypeId::BTI_Double;
+    return AST::BuiltinType::BTI_Double;
   }
 }
 
@@ -78,7 +78,7 @@ SemaCommon::CommmonBuiltinTypeId(
             });
     }
     else {
-      return AST::BuiltinType::BuiltinTypeId::BTI_NoType;
+      return AST::BuiltinType::BTI_NoType;
     }
   }
   else if (AST::BuiltinType::IsFloating(ty1id)
@@ -90,7 +90,7 @@ SemaCommon::CommmonBuiltinTypeId(
           });
   }
 
-  return AST::BuiltinType::BuiltinTypeId::BTI_NoType;
+  return AST::BuiltinType::BTI_NoType;
 }
 
 void SemaCommon::PushDeclContext(sona::ref_ptr<AST::DeclContext> context) {
@@ -130,11 +130,11 @@ AST::QualType SemaCommon::ResolveBuiltinTypeImpl(
   AST::BuiltinType::BuiltinTypeId bid;
   /// @todo consider use tablegen to generate this, or unify the two
   /// "type kinds" enumeration
-  switch (basicType->GetTypeKind()) {
+  switch (basicType->GetBuiltinTypeId()) {
   #define BUILTIN_TYPE(name, rep, size, isint, \
                        issigned, signedver, unsignedver) \
-    case Syntax::BuiltinType::TypeKind::TK_##name: \
-      bid = AST::BuiltinType::BuiltinTypeId::BTI_##name; break;
+    case Syntax::BuiltinType::TK_##name: \
+      bid = AST::BuiltinType::BTI_##name; break;
   #include "Syntax/BuiltinTypes.def"
   }
 

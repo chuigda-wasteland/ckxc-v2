@@ -26,8 +26,6 @@ class ImplicitCast;
 class ExplicitCastExpr;
 class CastStep;
 
-enum class CastStepKind;
-
 } // namespace AST
 } // namespace ckx
 

@@ -4,6 +4,8 @@
 #include "Sema/SemaCommon.h"
 #include "sona/either.h"
 
+#include "AST/Expr.h"
+
 namespace ckx {
 namespace Sema {
 
@@ -68,7 +70,7 @@ protected:
 
   sona::owner<AST::Expr>
   CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
-                          AST::CastStepKind castStepKind,
+                          AST::CastStep::CastStepKind castStepKind,
                           AST::QualType destType,
                           AST::Expr::ValueCat destValueCat);
 

@@ -8,8 +8,8 @@ ASTContext::GetBuiltinType(BuiltinType::BuiltinTypeId btid) const noexcept {
   switch (btid) {
   #define BUILTIN_TYPE(name, rep, size, isint, \
                        issigned, signedver, unsignedver) \
-    case BuiltinType::BuiltinTypeId::BTI_##name: { \
-      static BuiltinType name##Type{ BuiltinType::BuiltinTypeId::BTI_##name }; \
+    case BuiltinType::BTI_##name: { \
+      static BuiltinType name##Type{ BuiltinType::BTI_##name }; \
       return QualType(&(name##Type)); \
     }
   #include "Syntax/BuiltinTypes.def"

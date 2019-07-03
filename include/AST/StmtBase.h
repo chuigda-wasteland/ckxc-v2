@@ -10,7 +10,7 @@ namespace AST {
 
 class Stmt {
 public:
-  enum class StmtId {
+  enum StmtId {
     SI_Empty,
     SI_Decl,
     SI_Expr,
