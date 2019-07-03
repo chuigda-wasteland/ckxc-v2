@@ -91,12 +91,12 @@ SemaPhase1::SignedIntPromote(sona::owner<AST::Expr> &&expr,
       expr.borrow()->GetExprType().GetUnqualTy()
           .cast_unsafe<AST::BuiltinType const>();
 
-  sona_assert(AST::BuiltinType::SignedIntRank(
+  sona_assert(AST::BuiltinType::SIntRank(
                   exprBuiltinType->GetBuiltinTypeId())
-              <= AST::BuiltinType::SignedIntRank(destRank));
+              <= AST::BuiltinType::SIntRank(destRank));
 
-  if (AST::BuiltinType::SignedIntRank(exprBuiltinType->GetBuiltinTypeId())
-      == AST::BuiltinType::SignedIntRank(destRank)) {
+  if (AST::BuiltinType::SIntRank(exprBuiltinType->GetBuiltinTypeId())
+      == AST::BuiltinType::SIntRank(destRank)) {
     return std::move(expr);
   }
 
@@ -120,12 +120,12 @@ SemaPhase1::UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
       expr.borrow()->GetExprType().GetUnqualTy()
           .cast_unsafe<AST::BuiltinType const>();
 
-  sona_assert(AST::BuiltinType::UnsignedIntRank(
+  sona_assert(AST::BuiltinType::UIntRank(
                   exprBuiltinType->GetBuiltinTypeId())
-              <= AST::BuiltinType::UnsignedIntRank(destRank));
+              <= AST::BuiltinType::UIntRank(destRank));
 
-  if (AST::BuiltinType::UnsignedIntRank(exprBuiltinType->GetBuiltinTypeId())
-      == AST::BuiltinType::UnsignedIntRank(destRank)) {
+  if (AST::BuiltinType::UIntRank(exprBuiltinType->GetBuiltinTypeId())
+      == AST::BuiltinType::UIntRank(destRank)) {
     return std::move(expr);
   }
 
@@ -241,10 +241,11 @@ SemaPhase1::ActOnStaticCast(std::shared_ptr<Scope> scope,
 }
 
 sona::owner<AST::Expr>
-SemaPhase1::TryImplicitCast(std::shared_ptr<Scope> scope,
-                            sona::ref_ptr<const Syntax::Expr> concrete,
+SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
                             sona::owner<AST::Expr> &&castedExpr,
                             AST::QualType destType, bool shouldDiag) {
+  (void)concrete;
+
   AST::QualType fromType = castedExpr.borrow()->GetExprType();
   if (fromType == destType) {
     return std::move(castedExpr);
@@ -288,8 +289,8 @@ SemaPhase1::TryImplicitCast(std::shared_ptr<Scope> scope,
       sona::ref_ptr<AST::BuiltinType const> destBtin =
           destTypeUnqual.cast_unsafe<AST::BuiltinType const>();
       if (curBtin->IsNumeric() && destBtin->IsNumeric()
-          && TryImplicitNumericCast(scope, concrete, currentType, destType,
-                                    curBtin, destBtin, castSteps, shouldDiag)) {
+          && TryImplicitNumericCast(currentType, destType,
+                                    curBtin, destBtin, castSteps)) {
         return new AST::ImplicitCast(std::move(castedExpr),
                                      std::move(castSteps));
       }
@@ -300,22 +301,34 @@ SemaPhase1::TryImplicitCast(std::shared_ptr<Scope> scope,
 }
 
 bool SemaPhase1::TryImplicitNumericCast(
-    std::shared_ptr<Scope> scope,
-    sona::ref_ptr<const Syntax::Expr> concrete,
     AST::QualType fromType, AST::QualType destType,
     sona::ref_ptr<const AST::BuiltinType> fromBtin,
     sona::ref_ptr<const AST::BuiltinType> destBtin,
-    std::vector<AST::CastStep> &outputVec, bool shouldDiag) {
-  (void)scope;
-  (void)concrete;
+    std::vector<AST::CastStep> &outputVec) {
   (void)fromType;
-  (void)destType;
-  (void)fromBtin;
-  (void)destBtin;
-  (void)outputVec;
-  (void)shouldDiag;
 
-  sona_unreachable1("not implemented");
+  if (fromBtin->IsSigned() && destBtin->IsSigned()
+      && (AST::BuiltinType::SIntRank(fromBtin->GetBuiltinTypeId())
+          < AST::BuiltinType::SIntRank(destBtin->GetBuiltinTypeId()))) {
+    outputVec.emplace_back(AST::CastStepKind::ICSK_IntPromote, destType,
+                           AST::Expr::ValueCat::VC_RValue);
+    return true;
+  }
+  else if (fromBtin->IsUnsigned() && destBtin->IsUnsigned()
+           && (AST::BuiltinType::UIntRank(fromBtin->GetBuiltinTypeId())
+               < AST::BuiltinType::UIntRank(destBtin->GetBuiltinTypeId()))) {
+    outputVec.emplace_back(AST::CastStepKind::ICSK_UIntPromote, destType,
+                           AST::Expr::ValueCat::VC_RValue);
+    return true;
+  }
+  else if (fromBtin->IsFloating() && destBtin->IsFloating()
+           && (AST::BuiltinType::FloatRank(fromBtin->GetBuiltinTypeId())
+               < AST::BuiltinType::FloatRank(destBtin->GetBuiltinTypeId()))) {
+    outputVec.emplace_back(AST::CastStepKind::ICSK_FloatPromote, destType,
+                           AST::Expr::ValueCat::VC_RValue);
+    return true;
+  }
+
   return false;
 }
 

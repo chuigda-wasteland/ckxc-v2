@@ -65,16 +65,16 @@ SemaCommon::CommmonBuiltinTypeId(
         && AST::BuiltinType::IsSigned(ty2id)) {
       return std::max(
             ty1id, ty2id, [](auto a, auto b) {
-              return AST::BuiltinType::SignedIntRank(a)
-                     < AST::BuiltinType::SignedIntRank(b);
+              return AST::BuiltinType::SIntRank(a)
+                     < AST::BuiltinType::SIntRank(b);
             });
     }
     else if (AST::BuiltinType::IsUnsigned(ty1id)
              && AST::BuiltinType::IsUnsigned(ty2id)) {
       return std::max(
             ty1id, ty2id, [](auto a, auto b) {
-              return AST::BuiltinType::UnsignedIntRank(a)
-                     < AST::BuiltinType::UnsignedIntRank(b);
+              return AST::BuiltinType::UIntRank(a)
+                     < AST::BuiltinType::UIntRank(b);
             });
     }
     else {

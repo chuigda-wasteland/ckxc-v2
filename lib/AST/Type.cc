@@ -83,7 +83,7 @@ bool BuiltinType::IsUnsigned(BuiltinType::BuiltinTypeId btid) noexcept {
   }
 }
 
-int8_t BuiltinType::SignedIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
+int8_t BuiltinType::SIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
   sona_assert (IsIntegral(btid) && IsSigned(btid));
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
@@ -93,7 +93,7 @@ int8_t BuiltinType::SignedIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
   }
 }
 
-int8_t BuiltinType::UnsignedIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
+int8_t BuiltinType::UIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
   sona_assert (IsIntegral(btid) && IsUnsigned(btid));
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \

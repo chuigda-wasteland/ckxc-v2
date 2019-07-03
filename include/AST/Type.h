@@ -36,8 +36,8 @@ public:
   static bool IsSigned(BuiltinTypeId btid) noexcept;
   static bool IsUnsigned(BuiltinTypeId btid) noexcept;
 
-  static std::int8_t SignedIntRank(BuiltinTypeId btid) noexcept;
-  static std::int8_t UnsignedIntRank(BuiltinTypeId btid) noexcept;
+  static std::int8_t SIntRank(BuiltinTypeId btid) noexcept;
+  static std::int8_t UIntRank(BuiltinTypeId btid) noexcept;
   static std::int8_t FloatRank(BuiltinTypeId btid) noexcept;
 
   char const *GetTypeName() const noexcept;

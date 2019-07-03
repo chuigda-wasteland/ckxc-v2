@@ -81,6 +81,7 @@ enum class ExplicitCastOperator {
 enum class CastStepKind {
   // Implicits
   ICSK_IntPromote,
+  ICSK_UIntPromote,
   ICSK_FloatPromote,
   ICSK_LValue2RValue,
   ICSK_AddConst,

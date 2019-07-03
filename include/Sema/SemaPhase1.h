@@ -42,19 +42,15 @@ protected:
                   AST::QualType destType);
 
   sona::owner<AST::Expr>
-  TryImplicitCast(std::shared_ptr<Scope> scope,
-                  sona::ref_ptr<Syntax::Expr const> concrete,
+  TryImplicitCast(sona::ref_ptr<Syntax::Expr const> concrete,
                   sona::owner<AST::Expr> &&castedExpr,
                   AST::QualType destType, bool shouldDiag = false);
 
   bool
-  TryImplicitNumericCast(std::shared_ptr<Scope> scope,
-                         sona::ref_ptr<Syntax::Expr const> concrete,
-                         AST::QualType fromType, AST::QualType destType,
+  TryImplicitNumericCast(AST::QualType fromType, AST::QualType destType,
                          sona::ref_ptr<AST::BuiltinType const> fromBtin,
                          sona::ref_ptr<AST::BuiltinType const> destBtin,
-                         std::vector<AST::CastStep> &outputVec,
-                         bool shouldDiag = false);
+                         std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 
