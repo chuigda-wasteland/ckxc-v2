@@ -69,6 +69,10 @@ public:
     return m_PtrIntPair.operator->();
   }
 
+  QualType DeQual() const noexcept {
+    return QualType(GetUnqualTy());
+  }
+
   bool IsConst() const noexcept {
     return m_PtrIntPair.get_value() & QUAL_Const;
   }

@@ -43,13 +43,18 @@ protected:
                   sona::owner<AST::Expr> &&castedExpr,
                   AST::QualType destType);
 
+  /// @note this function does not always "move away" or "consume" the input
+  /// `castedExpr`, it only consumes its input when the cast is valid, and
+  /// its return value is not nullptr. This'll get refactored by sometime, but
+  /// let us keep it until we can make changes.
   sona::owner<AST::Expr>
   TryImplicitCast(sona::ref_ptr<Syntax::Expr const> concrete,
                   sona::owner<AST::Expr> &&castedExpr,
                   AST::QualType destType, bool shouldDiag = false);
 
   bool
-  TryImplicitNumericCast(AST::QualType fromType, AST::QualType destType,
+  TryImplicitNumericCast(AST::Expr::ValueCat castedExprValueCat,
+                         AST::QualType fromType, AST::QualType destType,
                          sona::ref_ptr<AST::BuiltinType const> fromBtin,
                          sona::ref_ptr<AST::BuiltinType const> destBtin,
                          std::vector<AST::CastStep> &outputVec);

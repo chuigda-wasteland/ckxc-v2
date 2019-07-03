@@ -190,22 +190,27 @@ SemaPhase1::ActOnStaticCast(std::shared_ptr<Scope> scope,
                             sona::ref_ptr<Syntax::CastExpr const> concrete,
                             sona::owner<AST::Expr> &&castedExpr,
                             AST::QualType destType) {
-  /// @todo try an implicit cast first. if the implicit cast works, emit an
-  /// warning about the misuse of static cast
-
   (void)scope;
-  sona_unreachable1("not implemented");
+
+  if (castedExpr.borrow()->GetExprType() == destType) {
+    m_Diag.Diag(Diag::DIR_Warning0,
+                Diag::Format(Diag::DMT_WarnRedundantStatcCast, {}),
+                concrete->GetCastOpRange());
+  }
+
+  sona::owner<AST::Expr> implicitCastResult =
+      TryImplicitCast(concrete.cast_unsafe<Syntax::Expr const>(),
+                      std::move(castedExpr), destType);
+  if (implicitCastResult.borrow() != nullptr) {
+    m_Diag.Diag(Diag::DIR_Warning0,
+                Diag::Format(Diag::DMT_WarnRedundantStatcCast, {}),
+                concrete->GetCastOpRange());
+    return implicitCastResult;
+  }
 
   AST::QualType fromType = castedExpr.borrow()->GetExprType();
   sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
-
-  if (fromType == destType) {
-    m_Diag.Diag(Diag::DIR_Warning0,
-                Diag::Format(Diag::DMT_WarnRedundantStatcCast, {}),
-                concrete->GetCastOpRange());
-    return std::move(castedExpr);
-  }
 
   /// @todo check volatile and restrict once we decide to support that
   if (fromType.IsConst() && !destType.IsConst()) {
@@ -251,90 +256,99 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
     return std::move(castedExpr);
   }
 
-  if (fromType.IsConst() && !destType.IsConst()) {
-    if (shouldDiag) {
-      m_Diag.Diag(Diag::DIR_Error,
-                  Diag::Format(Diag::DMT_ErrImplicitCastDiscardConst, {}),
-                  /** @todo we need the concept of "representative" range */
-                  SourceRange(0, 0, 0));
-    }
-    return nullptr;
-  }
-
   std::vector<AST::CastStep> castSteps;
-  AST::QualType currentType = fromType;
-  AST::Expr::ValueCat currentValueCat = castedExpr.borrow()->GetValueCat();
 
-  if (!fromType.IsConst() && destType.IsConst()) {
-    currentType.AddConst();
-    castSteps.emplace_back(AST::CastStep::ICSK_AddConst,
-                           currentType, currentValueCat);
-  }
-
-  sona::ref_ptr<AST::Type const> curTypeUnqual = currentType.GetUnqualTy();
+  sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
 
-  if (curTypeUnqual->IsBuiltin()) {
-    sona::ref_ptr<AST::BuiltinType const> curBtin =
-        curTypeUnqual.cast_unsafe<AST::BuiltinType const>();
-    if (curBtin->GetBuiltinTypeId()
-        == AST::BuiltinType::BTI_NilType
+  if (fromTypeUnqual->IsBuiltin()) {
+    sona::ref_ptr<AST::BuiltinType const> fromBtin =
+        fromTypeUnqual.cast_unsafe<AST::BuiltinType const>();
+    if (fromBtin->GetBuiltinTypeId() == AST::BuiltinType::BTI_NilType
         && destTypeUnqual->IsPointer()) {
+      sona_assert(castedExpr.borrow()->GetValueCat() == AST::Expr::VC_RValue);
+      sona_assert(!castedExpr.borrow()->GetExprType().GetCVR());
+
+      AST::QualType destTypeDequal(destTypeUnqual);
       castSteps.emplace_back(AST::CastStep::ICSK_Nil2Ptr,
-                             destType, AST::Expr::VC_RValue);
+                             destTypeDequal, AST::Expr::VC_RValue);
+      if (destTypeDequal.GetCVR() != destType.GetCVR()) {
+        castSteps.emplace_back(AST::CastStep::ICSK_AdjustQual,
+                               destType, AST::Expr::VC_RValue);
+      }
       return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
     }
 
     if (destTypeUnqual->IsBuiltin()) {
       sona::ref_ptr<AST::BuiltinType const> destBtin =
           destTypeUnqual.cast_unsafe<AST::BuiltinType const>();
-      if (curBtin->IsNumeric() && destBtin->IsNumeric()
-          && TryImplicitNumericCast(currentType, destType,
-                                    curBtin, destBtin, castSteps)) {
+      if (fromBtin->IsNumeric() && destBtin->IsNumeric()
+          && TryImplicitNumericCast(
+                 castedExpr.borrow()->GetValueCat(),
+                 fromType, destType, fromBtin, destBtin, castSteps)) {
         return new AST::ImplicitCast(std::move(castedExpr),
                                      std::move(castSteps));
       }
     }
   }
 
-  m_Diag.Diag(Diag::DIR_Error,
-              Diag::Format(Diag::DMT_ErrCannotImplicitCast,
-              { "<not-implemented>", "<not-implemented>" }),
-              /** @todo */ SourceRange(0, 0, 0));
+  if (shouldDiag) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrCannotImplicitCast,
+                { "<not-implemented>", "<not-implemented>" }),
+                /** @todo */ SourceRange(0, 0, 0));
+  }
 
   return nullptr;
 }
 
 bool SemaPhase1::TryImplicitNumericCast(
+    AST::Expr::ValueCat castedExprValueCat,
     AST::QualType fromType, AST::QualType destType,
     sona::ref_ptr<const AST::BuiltinType> fromBtin,
     sona::ref_ptr<const AST::BuiltinType> destBtin,
     std::vector<AST::CastStep> &outputVec) {
-  (void)fromType;
 
+  if (castedExprValueCat == AST::Expr::VC_LValue) {
+    AST::QualType fromTypeDequal = fromType.DeQual();
+    outputVec.emplace_back(AST::CastStep::ICSK_LValue2RValue,
+                           fromTypeDequal, AST::Expr::VC_RValue);
+  }
+  else if (castedExprValueCat == AST::Expr::VC_XValue) {
+    sona_unreachable1("not implemented");
+  }
+  else {
+    sona_assert(!fromType.GetCVR());
+  }
+
+  AST::QualType destTypeDequal = destType.DeQual();
   if (fromBtin->IsSigned() && destBtin->IsSigned()
       && (AST::BuiltinType::SIntRank(fromBtin->GetBuiltinTypeId())
           < AST::BuiltinType::SIntRank(destBtin->GetBuiltinTypeId()))) {
-    outputVec.emplace_back(AST::CastStep::ICSK_IntPromote, destType,
+    outputVec.emplace_back(AST::CastStep::ICSK_IntPromote, destTypeDequal,
                            AST::Expr::VC_RValue);
-    return true;
   }
   else if (fromBtin->IsUnsigned() && destBtin->IsUnsigned()
            && (AST::BuiltinType::UIntRank(fromBtin->GetBuiltinTypeId())
                < AST::BuiltinType::UIntRank(destBtin->GetBuiltinTypeId()))) {
-    outputVec.emplace_back(AST::CastStep::ICSK_UIntPromote, destType,
+    outputVec.emplace_back(AST::CastStep::ICSK_UIntPromote, destTypeDequal,
                            AST::Expr::VC_RValue);
-    return true;
   }
   else if (fromBtin->IsFloating() && destBtin->IsFloating()
            && (AST::BuiltinType::FloatRank(fromBtin->GetBuiltinTypeId())
                < AST::BuiltinType::FloatRank(destBtin->GetBuiltinTypeId()))) {
-    outputVec.emplace_back(AST::CastStep::ICSK_FloatPromote, destType,
+    outputVec.emplace_back(AST::CastStep::ICSK_FloatPromote, destTypeDequal,
                            AST::Expr::VC_RValue);
-    return true;
+  }
+  else {
+    return false;
   }
 
-  return false;
+  if (destTypeDequal.GetCVR() != destType.GetCVR()) {
+    outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual, destTypeDequal,
+                           AST::Expr::VC_RValue);
+  }
+  return true;
 }
 
 AST::QualType

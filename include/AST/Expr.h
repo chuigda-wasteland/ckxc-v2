@@ -23,7 +23,7 @@ public:
     ICSK_UIntPromote,
     ICSK_FloatPromote,
     ICSK_LValue2RValue,
-    ICSK_AddConst,
+    ICSK_AdjustQual,
     ICSK_Nil2Ptr,
 
     // Explicits
