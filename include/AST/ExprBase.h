@@ -40,7 +40,7 @@ public:
     EI_ImplicitCast,
   };
 
-  enum class ValueCat { VC_LValue, VC_RValue, VC_XValue };
+  enum ValueCat { VC_LValue, VC_RValue, VC_XValue };
 
   virtual ~Expr() = default;
 

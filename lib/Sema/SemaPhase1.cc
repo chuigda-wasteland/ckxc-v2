@@ -68,7 +68,7 @@ SemaPhase1::TryFindUnaryOperatorOverload(
 
 sona::owner<AST::Expr>
 SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
-  if (expr.borrow()->GetValueCat() == AST::Expr::ValueCat::VC_RValue) {
+  if (expr.borrow()->GetValueCat() == AST::Expr::VC_RValue) {
     return std::move(expr);
   }
 
@@ -76,7 +76,7 @@ SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
 
   return CreateOrAddImplicitCast(std::move(expr),
                                  AST::CastStep::ICSK_LValue2RValue,
-                                 exprType, AST::Expr::ValueCat::VC_RValue);
+                                 exprType, AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>
@@ -105,7 +105,7 @@ SemaPhase1::SignedIntPromote(sona::owner<AST::Expr> &&expr,
                                  /// @todo we need something to "imitate"
                                  /// the original type
                                  m_ASTContext.GetBuiltinType(destRank),
-                                 AST::Expr::ValueCat::VC_RValue);
+                                 AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>
@@ -132,7 +132,7 @@ SemaPhase1::UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
   return CreateOrAddImplicitCast(std::move(expr),
                                  AST::CastStep::ICSK_IntPromote,
                                  m_ASTContext.GetBuiltinType(destRank),
-                                 AST::Expr::ValueCat::VC_RValue);
+                                 AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>
@@ -281,7 +281,7 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
         == AST::BuiltinType::BTI_NilType
         && destTypeUnqual->IsPointer()) {
       castSteps.emplace_back(AST::CastStep::ICSK_Nil2Ptr,
-                             destType, AST::Expr::ValueCat::VC_RValue);
+                             destType, AST::Expr::VC_RValue);
       return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
     }
 
@@ -297,6 +297,11 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
     }
   }
 
+  m_Diag.Diag(Diag::DIR_Error,
+              Diag::Format(Diag::DMT_ErrCannotImplicitCast,
+              { "<not-implemented>", "<not-implemented>" }),
+              /** @todo */ SourceRange(0, 0, 0));
+
   return nullptr;
 }
 
@@ -311,21 +316,21 @@ bool SemaPhase1::TryImplicitNumericCast(
       && (AST::BuiltinType::SIntRank(fromBtin->GetBuiltinTypeId())
           < AST::BuiltinType::SIntRank(destBtin->GetBuiltinTypeId()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_IntPromote, destType,
-                           AST::Expr::ValueCat::VC_RValue);
+                           AST::Expr::VC_RValue);
     return true;
   }
   else if (fromBtin->IsUnsigned() && destBtin->IsUnsigned()
            && (AST::BuiltinType::UIntRank(fromBtin->GetBuiltinTypeId())
                < AST::BuiltinType::UIntRank(destBtin->GetBuiltinTypeId()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_UIntPromote, destType,
-                           AST::Expr::ValueCat::VC_RValue);
+                           AST::Expr::VC_RValue);
     return true;
   }
   else if (fromBtin->IsFloating() && destBtin->IsFloating()
            && (AST::BuiltinType::FloatRank(fromBtin->GetBuiltinTypeId())
                < AST::BuiltinType::FloatRank(destBtin->GetBuiltinTypeId()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_FloatPromote, destType,
-                           AST::Expr::ValueCat::VC_RValue);
+                           AST::Expr::VC_RValue);
     return true;
   }
 
@@ -502,7 +507,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       return new AST::UnaryExpr(
             AST::UnaryExpr::UOP_Deref,
             LValueToRValueDecay(std::move(baseExpr)),
-            pointeeType, AST::Expr::ValueCat::VC_LValue);
+            pointeeType, AST::Expr::VC_LValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType, {"*", "pointer"}),
@@ -519,7 +524,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
               LValueToRValueDecay(std::move(baseExpr)),
               m_ASTContext.GetBuiltinType(
                 AST::BuiltinType::BTI_Bool),
-              AST::Expr::ValueCat::VC_RValue);
+              AST::Expr::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrOpRequiresType, {"!", "boolean"}),
@@ -534,7 +539,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           || builtinTy->IsFloating()) {
         return new AST::UnaryExpr(AST::UnaryExpr::UOP_Negative,
                                   LValueToRValueDecay(std::move(baseExpr)),
-                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                  baseExprTy, AST::Expr::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrOpRequiresType,
@@ -549,7 +554,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if (builtinTy->IsIntegral() || builtinTy->IsFloating()) {
         return new AST::UnaryExpr(AST::UnaryExpr::UOP_Positive,
                                   LValueToRValueDecay(std::move(baseExpr)),
-                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                  baseExprTy, AST::Expr::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrOpRequiresType, {"+", "numeric"}),
@@ -563,13 +568,13 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if (builtinTy->IsIntegral()) {
         return new AST::UnaryExpr(AST::UnaryExpr::UOP_Incr,
                                   LValueToRValueDecay(std::move(baseExpr)),
-                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                  baseExprTy, AST::Expr::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
       return new AST::UnaryExpr(AST::UnaryExpr::UOP_Incr,
                                 LValueToRValueDecay(std::move(baseExpr)),
-                                baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                baseExprTy, AST::Expr::VC_RValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
@@ -583,13 +588,13 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if (builtinTy->IsIntegral()) {
         return new AST::UnaryExpr(AST::UnaryExpr::UOP_Decr,
                                   LValueToRValueDecay(std::move(baseExpr)),
-                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                  baseExprTy, AST::Expr::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
       return new AST::UnaryExpr(AST::UnaryExpr::UOP_Decr,
                                 LValueToRValueDecay(std::move(baseExpr)),
-                                baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                baseExprTy, AST::Expr::VC_RValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
@@ -597,10 +602,10 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
                 expr->GetOpRange());
     break;
   case Syntax::UnaryOperator::UOP_PointerTo:
-    if (baseExpr.borrow()->GetValueCat() == AST::Expr::ValueCat::VC_LValue) {
+    if (baseExpr.borrow()->GetValueCat() == AST::Expr::VC_LValue) {
       return new AST::UnaryExpr(AST::UnaryExpr::UOP_AddrOf,
                                 std::move(baseExpr), baseExprTy,
-                                AST::Expr::ValueCat::VC_RValue);
+                                AST::Expr::VC_RValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrAddressOfRValue, {}),
@@ -613,7 +618,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       if (builtinTy->IsIntegral() && builtinTy->IsUnsigned()) {
         return new AST::UnaryExpr(AST::UnaryExpr::UOP_BitwiseNot,
                                   LValueToRValueDecay(std::move(baseExpr)),
-                                  baseExprTy, AST::Expr::ValueCat::VC_RValue);
+                                  baseExprTy, AST::Expr::VC_RValue);
       }
     }
     m_Diag.Diag(Diag::DIR_Error,
@@ -641,7 +646,7 @@ SemaPhase1::ActOnCastExpr(std::shared_ptr<Scope> scope,
     }
     return new AST::ExplicitCastExpr(AST::ExplicitCastExpr::ECOP_Const,
                                      std::move(castedExpr), destType,
-                                     AST::Expr::ValueCat::VC_RValue);
+                                     AST::Expr::VC_RValue);
   }
   case Syntax::CastOperator::COP_BitCast: {
     /// @todo need a method for calculating size of types

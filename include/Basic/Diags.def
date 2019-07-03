@@ -42,6 +42,7 @@ DIAG_TEMPLATE(ErrDuplicateQual, "duplicate qualifier {}")
 DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} type")
 DIAG_TEMPLATE(ErrAddressOfRValue, "taking address of non-left value")
 DIAG_TEMPLATE(ErrConstCastDifferentBase, "const_cast requires same base type")
+DIAG_TEMPLATE(ErrCannotImplicitCast, "cannot implicit cast from {} to {}")
 DIAG_TEMPLATE(ErrImplicitCastDiscardConst, \
               "implicit cast casting const qualifiers away")
 DIAG_TEMPLATE(ErrStaticCastDiscardConst, \
