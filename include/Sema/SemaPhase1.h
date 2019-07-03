@@ -24,10 +24,45 @@ protected:
   sona::owner<AST::Expr> ActOnExpr(std::shared_ptr<Scope> scope,
                                    sona::ref_ptr<Syntax::Expr const> expr);
 
+#define CST_TYPE(name) \
+  AST::QualType \
+  Resolve##name(std::shared_ptr<Scope> scope, \
+                sona::ref_ptr<Syntax::name const> type);
+
+#define CST_EXPR(name) \
+  sona::owner<AST::Expr> \
+  ActOn##name(std::shared_ptr<Scope> scope, \
+              sona::ref_ptr<Syntax::name const> type);
+
+protected:
+  sona::owner<AST::Expr>
+  ActOnStaticCast(std::shared_ptr<Scope> scope,
+                  sona::ref_ptr<const Syntax::CastExpr> concrete,
+                  sona::owner<AST::Expr> &&castedExpr,
+                  AST::QualType destType);
+
+  sona::owner<AST::Expr>
+  TryImplicitCast(std::shared_ptr<Scope> scope,
+                  sona::ref_ptr<Syntax::Expr const> concrete,
+                  sona::owner<AST::Expr> &&castedExpr,
+                  AST::QualType destType, bool shouldDiag = false);
+
+  bool
+  TryImplicitNumericCast(std::shared_ptr<Scope> scope,
+                         sona::ref_ptr<Syntax::Expr const> concrete,
+                         AST::QualType fromType, AST::QualType destType,
+                         sona::ref_ptr<AST::BuiltinType const> fromBtin,
+                         sona::ref_ptr<AST::BuiltinType const> destBtin,
+                         std::vector<AST::CastStep> &outputVec,
+                         bool shouldDiag = false);
+
+  sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
+
+protected:
   sona::owner<AST::Expr>
   TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
                                Syntax::UnaryOperator uop);
-  sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
+
   sona::owner<AST::Expr>
   SignedIntPromote(sona::owner<AST::Expr> &&expr,
                    AST::BuiltinType::BuiltinTypeId destRank);
@@ -47,22 +82,6 @@ protected:
       sona::ref_ptr<Sema::IncompleteValueCtorDecl> iAdtC);
   void PostTranslateIncompleteUsing(
       sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
-
-#define CST_TYPE(name) \
-  AST::QualType \
-  Resolve##name(std::shared_ptr<Scope> scope, \
-                sona::ref_ptr<Syntax::name const> type);
-
-#define CST_EXPR(name) \
-  sona::owner<AST::Expr> \
-  ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const> type);
-
-  sona::owner<AST::Expr>
-  ActOnStaticCast(std::shared_ptr<Scope> scope,
-                  sona::ref_ptr<const Syntax::CastExpr> concrete,
-                  sona::owner<AST::Expr> &&castedExpr,
-                  AST::QualType destType);
 
 #include "Syntax/Nodes.def"
 };

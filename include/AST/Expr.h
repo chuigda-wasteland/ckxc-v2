@@ -84,6 +84,8 @@ enum class CastStepKind {
   ICSK_FloatPromote,
   ICSK_LValue2RValue,
   ICSK_AddConst,
+  ICSK_Nil2Ptr,
+  ICSK_Ptr2Nil,
 
   // Explicits
   ECSK_IntDowngrade,

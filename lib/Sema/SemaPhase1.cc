@@ -190,6 +190,12 @@ SemaPhase1::ActOnStaticCast(std::shared_ptr<Scope> scope,
                             sona::ref_ptr<Syntax::CastExpr const> concrete,
                             sona::owner<AST::Expr> &&castedExpr,
                             AST::QualType destType) {
+  /// @todo try an implicit cast first. if the implicit cast works, emit an
+  /// warning about the misuse of static cast
+
+  (void)scope;
+  sona_unreachable1("not implemented");
+
   AST::QualType fromType = castedExpr.borrow()->GetExprType();
   sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
@@ -230,6 +236,87 @@ SemaPhase1::ActOnStaticCast(std::shared_ptr<Scope> scope,
 
     }
   }
+
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::TryImplicitCast(std::shared_ptr<Scope> scope,
+                            sona::ref_ptr<const Syntax::Expr> concrete,
+                            sona::owner<AST::Expr> &&castedExpr,
+                            AST::QualType destType, bool shouldDiag) {
+  AST::QualType fromType = castedExpr.borrow()->GetExprType();
+  if (fromType == destType) {
+    return std::move(castedExpr);
+  }
+
+  if (fromType.IsConst() && !destType.IsConst()) {
+    if (shouldDiag) {
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrImplicitCastDiscardConst, {}),
+                  /** @todo we need the concept of "representative" range */
+                  SourceRange(0, 0, 0));
+    }
+    return nullptr;
+  }
+
+  std::vector<AST::CastStep> castSteps;
+  AST::QualType currentType = fromType;
+  AST::Expr::ValueCat currentValueCat = castedExpr.borrow()->GetValueCat();
+
+  if (!fromType.IsConst() && destType.IsConst()) {
+    currentType.AddConst();
+    castSteps.emplace_back(AST::CastStepKind::ICSK_AddConst,
+                           currentType, currentValueCat);
+  }
+
+  sona::ref_ptr<AST::Type const> curTypeUnqual = currentType.GetUnqualTy();
+  sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
+
+  if (curTypeUnqual->IsBuiltin()) {
+    sona::ref_ptr<AST::BuiltinType const> curBtin =
+        curTypeUnqual.cast_unsafe<AST::BuiltinType const>();
+    if (curBtin->GetBuiltinTypeId()
+        == AST::BuiltinType::BuiltinTypeId::BTI_NilType
+        && destTypeUnqual->IsPointer()) {
+      castSteps.emplace_back(AST::CastStepKind::ICSK_Nil2Ptr,
+                             destType, AST::Expr::ValueCat::VC_RValue);
+      return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
+    }
+
+    if (destTypeUnqual->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> destBtin =
+          destTypeUnqual.cast_unsafe<AST::BuiltinType const>();
+      if (curBtin->IsNumeric() && destBtin->IsNumeric()
+          && TryImplicitNumericCast(scope, concrete, currentType, destType,
+                                    curBtin, destBtin, castSteps, shouldDiag)) {
+        return new AST::ImplicitCast(std::move(castedExpr),
+                                     std::move(castSteps));
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+bool SemaPhase1::TryImplicitNumericCast(
+    std::shared_ptr<Scope> scope,
+    sona::ref_ptr<const Syntax::Expr> concrete,
+    AST::QualType fromType, AST::QualType destType,
+    sona::ref_ptr<const AST::BuiltinType> fromBtin,
+    sona::ref_ptr<const AST::BuiltinType> destBtin,
+    std::vector<AST::CastStep> &outputVec, bool shouldDiag) {
+  (void)scope;
+  (void)concrete;
+  (void)fromType;
+  (void)destType;
+  (void)fromBtin;
+  (void)destBtin;
+  (void)outputVec;
+  (void)shouldDiag;
+
+  sona_unreachable1("not implemented");
+  return false;
 }
 
 AST::QualType
