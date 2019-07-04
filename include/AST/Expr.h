@@ -28,7 +28,10 @@ public:
 
     // Explicits
     ECSK_IntDowngrade,
+    ECSK_UIntDowngrade,
     ECSK_FloatDowngrade,
+    ECSK_Signed2Unsigned,
+    ECSK_Unsigned2Signed,
     ECSK_Int2Float,
     ECSK_UInt2Float,
     ECSK_Float2Int,

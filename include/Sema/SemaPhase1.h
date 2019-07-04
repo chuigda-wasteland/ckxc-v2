@@ -38,8 +38,7 @@ protected:
 
 protected:
   sona::owner<AST::Expr>
-  ActOnStaticCast(std::shared_ptr<Scope> scope,
-                  sona::ref_ptr<const Syntax::CastExpr> concrete,
+  ActOnStaticCast(sona::ref_ptr<const Syntax::CastExpr> concrete,
                   sona::owner<AST::Expr> &&castedExpr,
                   AST::QualType destType);
 
@@ -53,11 +52,16 @@ protected:
                   AST::QualType destType, bool shouldDiag = false);
 
   bool
-  TryImplicitNumericCast(AST::Expr::ValueCat castedExprValueCat,
-                         AST::QualType fromType, AST::QualType destType,
-                         sona::ref_ptr<AST::BuiltinType const> fromBtin,
-                         sona::ref_ptr<AST::BuiltinType const> destBtin,
-                         std::vector<AST::CastStep> &outputVec);
+  TryNumericPromotion(AST::Expr::ValueCat castedExprValueCat,
+                      AST::QualType fromType, AST::QualType destType,
+                      sona::ref_ptr<AST::BuiltinType const> fromBtin,
+                      sona::ref_ptr<AST::BuiltinType const> destBtin,
+                      std::vector<AST::CastStep> &outputVec);
+
+  void DoNumericCast(AST::QualType fromType, AST::QualType destType,
+                     sona::ref_ptr<AST::BuiltinType const> fromBtin,
+                     sona::ref_ptr<AST::BuiltinType const> destBtin,
+                     std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 
