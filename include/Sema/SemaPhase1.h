@@ -63,6 +63,12 @@ protected:
                      sona::ref_ptr<AST::BuiltinType const> destBtin,
                      std::vector<AST::CastStep> &outputVec);
 
+  bool
+  TryPointerCast(AST::QualType formType, AST::QualType destType,
+                 sona::ref_ptr<AST::BuiltinType const> fromBtin,
+                 sona::ref_ptr<AST::BuiltinType const> destBtin,
+                 std::vector<AST::CastStep> &outputVec);
+
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 
 protected:
@@ -71,22 +77,19 @@ protected:
                                Syntax::UnaryOperator uop);
 
   sona::owner<AST::Expr>
-  SignedIntPromote(sona::owner<AST::Expr> &&expr,
-                   AST::BuiltinType::BuiltinTypeId destRank);
-  sona::owner<AST::Expr>
-  UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
-                     AST::BuiltinType::BuiltinTypeId destRank);
-
-  sona::owner<AST::Expr>
   CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
                           AST::CastStep::CastStepKind castStepKind,
                           AST::QualType destType,
                           AST::Expr::ValueCat destValueCat);
 
+  std::int8_t SIntRank(AST::BuiltinType::BuiltinTypeId btid);
+  std::int8_t UIntRank(AST::BuiltinType::BuiltinTypeId btid);
+  std::int8_t FloatRank(AST::BuiltinType::BuiltinTypeId btid);
+
   void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
   void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
-  void PostTranslateIncompleteADTConstructor(
-      sona::ref_ptr<Sema::IncompleteValueCtorDecl> iAdtC);
+  void PostTranslateIncompleteValueCtor(
+      sona::ref_ptr<Sema::IncompleteValueCtorDecl> iValueCtor);
   void PostTranslateIncompleteUsing(
       sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
 

@@ -92,12 +92,10 @@ void test0() {
   VkAssertEquals(AST::Decl::DK_Var, BCVarADecl->GetDeclKind());
   VkAssertEquals(AST::BuiltinType::BTI_Int8,
                  ACVarADecl->GetType().GetUnqualTy()
-                           .cast_unsafe<AST::BuiltinType const>()
-                           ->GetBuiltinTypeId());
+                           .cast_unsafe<AST::BuiltinType const>()->GetBtid());
   VkAssertEquals(AST::BuiltinType::BTI_Int16,
                  BCVarADecl->GetType().GetUnqualTy()
-                           .cast_unsafe<AST::BuiltinType const>()
-                           ->GetBuiltinTypeId());
+                           .cast_unsafe<AST::BuiltinType const>()->GetBtid());
 }
 
 int main() {

@@ -24,8 +24,7 @@ void test0() {
                    ty.GetUnqualTy()->GetTypeId()); \
     sona::ref_ptr<AST::BuiltinType const> bty = \
             ty.GetUnqualTy().cast_unsafe<AST::BuiltinType const>(); \
-    VkAssertEquals(AST::BuiltinType::BTI_##name, \
-                   bty->GetBuiltinTypeId()); \
+    VkAssertEquals(AST::BuiltinType::BTI_##name, bty->GetBtid()); \
     turn1.push_back(ty); \
   }
 #include "Syntax/BuiltinTypes.def"

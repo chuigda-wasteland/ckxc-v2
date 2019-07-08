@@ -110,6 +110,23 @@ public:
     return m_PtrIntPair == that.m_PtrIntPair;
   }
 
+  enum CompareResult { CR_MoreQual, CR_LessQual, CR_Equal, CR_NoSense };
+  CompareResult CompareTo(QualType that) {
+    if (GetCVR() == that.GetCVR()) {
+      return CR_Equal;
+    }
+
+    if (IsConst() && IsVolatile() && (!that.IsVolatile() || !that.IsConst())) {
+      return CR_MoreQual;
+    }
+
+    if (that.IsConst() && that.IsVolatile() && (!IsConst() || !IsVolatile())) {
+      return CR_LessQual;
+    }
+
+    return CR_NoSense;
+  }
+
 private:
   sona::ptr_int_pair<AST::Type const, 3> m_PtrIntPair;
 };

@@ -27,7 +27,7 @@ public:
   explicit BuiltinType(BuiltinTypeId id)
       : Type(TypeId::TI_Builtin), m_BuiltinTypeId(id) {}
 
-  BuiltinTypeId GetBuiltinTypeId() const noexcept { return m_BuiltinTypeId; }
+  BuiltinTypeId GetBtid() const noexcept { return m_BuiltinTypeId; }
 
   static char const *GetTypeName(BuiltinTypeId btid) noexcept;
   static bool IsNumeric(BuiltinTypeId btid) noexcept;

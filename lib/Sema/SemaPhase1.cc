@@ -22,7 +22,7 @@ void SemaPhase1::PostTranslateIncompletes(
       PostTranslateIncompleteTag(incomplete.cast_unsafe<IncompleteTagDecl>());
       break;
     case IncompleteDecl::IDT_ValueCtor:
-      PostTranslateIncompleteADTConstructor(
+      PostTranslateIncompleteValueCtor(
             incomplete.cast_unsafe<IncompleteValueCtorDecl>());
       break;
     case IncompleteDecl::IDT_Using:
@@ -80,62 +80,6 @@ SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
 }
 
 sona::owner<AST::Expr>
-SemaPhase1::SignedIntPromote(sona::owner<AST::Expr> &&expr,
-                             AST::BuiltinType::BuiltinTypeId destRank) {
-  sona_assert(expr.borrow()->GetExprType().GetUnqualTy()->IsBuiltin()
-              && expr.borrow()->GetExprType().GetUnqualTy()
-                     .cast_unsafe<AST::BuiltinType const>()->IsSigned());
-  sona_assert(AST::BuiltinType::IsSigned(destRank));
-
-  sona::ref_ptr<AST::BuiltinType const> exprBuiltinType =
-      expr.borrow()->GetExprType().GetUnqualTy()
-          .cast_unsafe<AST::BuiltinType const>();
-
-  sona_assert(AST::BuiltinType::SIntRank(
-                  exprBuiltinType->GetBuiltinTypeId())
-              <= AST::BuiltinType::SIntRank(destRank));
-
-  if (AST::BuiltinType::SIntRank(exprBuiltinType->GetBuiltinTypeId())
-      == AST::BuiltinType::SIntRank(destRank)) {
-    return std::move(expr);
-  }
-
-  return CreateOrAddImplicitCast(std::move(expr),
-                                 AST::CastStep::ICSK_IntPromote,
-                                 /// @todo we need something to "imitate"
-                                 /// the original type
-                                 m_ASTContext.GetBuiltinType(destRank),
-                                 AST::Expr::VC_RValue);
-}
-
-sona::owner<AST::Expr>
-SemaPhase1::UnsignedIntPromote(sona::owner<AST::Expr> &&expr,
-                               AST::BuiltinType::BuiltinTypeId destRank) {
-  sona_assert(expr.borrow()->GetExprType().GetUnqualTy()->IsBuiltin()
-              && expr.borrow()->GetExprType().GetUnqualTy()
-                     .cast_unsafe<AST::BuiltinType const>()->IsUnsigned());
-  sona_assert(AST::BuiltinType::IsUnsigned(destRank));
-
-  sona::ref_ptr<AST::BuiltinType const> exprBuiltinType =
-      expr.borrow()->GetExprType().GetUnqualTy()
-          .cast_unsafe<AST::BuiltinType const>();
-
-  sona_assert(AST::BuiltinType::UIntRank(
-                  exprBuiltinType->GetBuiltinTypeId())
-              <= AST::BuiltinType::UIntRank(destRank));
-
-  if (AST::BuiltinType::UIntRank(exprBuiltinType->GetBuiltinTypeId())
-      == AST::BuiltinType::UIntRank(destRank)) {
-    return std::move(expr);
-  }
-
-  return CreateOrAddImplicitCast(std::move(expr),
-                                 AST::CastStep::ICSK_IntPromote,
-                                 m_ASTContext.GetBuiltinType(destRank),
-                                 AST::Expr::VC_RValue);
-}
-
-sona::owner<AST::Expr>
 SemaPhase1::CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
                                     AST::CastStep::CastStepKind castStepKind,
                                     AST::QualType destType,
@@ -156,6 +100,18 @@ SemaPhase1::CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
   }
 }
 
+std::int8_t SemaPhase1::SIntRank(AST::BuiltinType::BuiltinTypeId btid) {
+  return AST::BuiltinType::SIntRank(btid);
+}
+
+std::int8_t SemaPhase1::UIntRank(AST::BuiltinType::BuiltinTypeId btid) {
+  return AST::BuiltinType::UIntRank(btid);
+}
+
+std::int8_t SemaPhase1::FloatRank(AST::BuiltinType::BuiltinTypeId btid) {
+  return AST::BuiltinType::FloatRank(btid);
+}
+
 void SemaPhase1::PostTranslateIncompleteVar(
     sona::ref_ptr<IncompleteVarDecl> iVar) {
   AST::QualType varType =
@@ -168,13 +124,13 @@ void SemaPhase1::PostTranslateIncompleteTag(sona::ref_ptr<IncompleteTagDecl>) {
   // do nothing since the tag will be completed as its fields get completed
 }
 
-void SemaPhase1::PostTranslateIncompleteADTConstructor(
-    sona::ref_ptr<IncompleteValueCtorDecl> iAdtC) {
+void SemaPhase1::PostTranslateIncompleteValueCtor(
+    sona::ref_ptr<IncompleteValueCtorDecl> iValueCtor) {
   sona::ref_ptr<AST::ValueCtorDecl> halfway =
-      iAdtC->GetHalfway().cast_unsafe<AST::ValueCtorDecl>();
+      iValueCtor->GetHalfway().cast_unsafe<AST::ValueCtorDecl>();
   AST::QualType adtConstructorType =
-      ResolveType(iAdtC->GetEnclosingScope(),
-                  iAdtC->GetConcrete()->GetUnderlyingType());
+      ResolveType(iValueCtor->GetEnclosingScope(),
+                  iValueCtor->GetConcrete()->GetUnderlyingType());
   halfway->SetType(adtConstructorType);
 }
 
@@ -259,7 +215,7 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
   if (fromTypeUnqual->IsBuiltin()) {
     sona::ref_ptr<AST::BuiltinType const> fromBtin =
         fromTypeUnqual.cast_unsafe<AST::BuiltinType const>();
-    if (fromBtin->GetBuiltinTypeId() == AST::BuiltinType::BTI_NilType
+    if (fromBtin->GetBtid() == AST::BuiltinType::BTI_NilType
         && destTypeUnqual->IsPointer()) {
       sona_assert(castedExpr.borrow()->GetValueCat() == AST::Expr::VC_RValue);
       sona_assert(!castedExpr.borrow()->GetExprType().GetCVR());
@@ -321,20 +277,19 @@ bool SemaPhase1::TryNumericPromotion(
 
   AST::QualType destTypeDequal = destType.DeQual();
   if (fromBtin->IsSigned() && destBtin->IsSigned()
-      && (AST::BuiltinType::SIntRank(fromBtin->GetBuiltinTypeId())
-          <= AST::BuiltinType::SIntRank(destBtin->GetBuiltinTypeId()))) {
+      && (SIntRank(fromBtin->GetBtid()) <= SIntRank(destBtin->GetBtid()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_IntPromote,
                            destTypeDequal, AST::Expr::VC_RValue);
   }
   else if (fromBtin->IsUnsigned() && destBtin->IsUnsigned()
-           && (AST::BuiltinType::UIntRank(fromBtin->GetBuiltinTypeId())
-               <= AST::BuiltinType::UIntRank(destBtin->GetBuiltinTypeId()))) {
+           && (UIntRank(fromBtin->GetBtid())
+               <= UIntRank(destBtin->GetBtid()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_UIntPromote,
                            destTypeDequal, AST::Expr::VC_RValue);
   }
   else if (fromBtin->IsFloating() && destBtin->IsFloating()
-           && (AST::BuiltinType::FloatRank(fromBtin->GetBuiltinTypeId())
-               <= AST::BuiltinType::FloatRank(destBtin->GetBuiltinTypeId()))) {
+           && (FloatRank(fromBtin->GetBtid())
+               <= FloatRank(destBtin->GetBtid()))) {
     outputVec.emplace_back(AST::CastStep::ICSK_FloatPromote,
                            destTypeDequal, AST::Expr::VC_RValue);
   }
@@ -360,18 +315,16 @@ void SemaPhase1::DoNumericCast(AST::QualType fromType, AST::QualType destType,
   AST::CastStep::CastStepKind castStepKind;
   if (fromBtin->IsSigned() && destBtin->IsSigned()) {
     /// Since integral promotions should have been handled by implicit cast
-    sona_assert(AST::BuiltinType::SIntRank(fromBtin->GetBuiltinTypeId())
-                > AST::BuiltinType::SIntRank(destBtin->GetBuiltinTypeId()));
+    sona_assert(SIntRank(fromBtin->GetBtid()) > SIntRank(destBtin->GetBtid()));
     castStepKind = AST::CastStep::ECSK_IntDowngrade;
   }
   else if (fromBtin->IsUnsigned() && destBtin->IsUnsigned()) {
-    sona_assert(AST::BuiltinType::UIntRank(fromBtin->GetBuiltinTypeId())
-                > AST::BuiltinType::UIntRank(destBtin->GetBuiltinTypeId()));
+    sona_assert(UIntRank(fromBtin->GetBtid()) > UIntRank(destBtin->GetBtid()));
     castStepKind = AST::CastStep::ECSK_UIntDowngrade;
   }
   else if (fromBtin->IsFloating() && destBtin->IsFloating()) {
-    sona_assert(AST::BuiltinType::FloatRank(fromBtin->GetBuiltinTypeId())
-                > AST::BuiltinType::FloatRank(destBtin->GetBuiltinTypeId()));
+    sona_assert(FloatRank(fromBtin->GetBtid())
+                > FloatRank(destBtin->GetBtid()));
     castStepKind = AST::CastStep::ECSK_FloatDowngrade;
   }
   else if (fromBtin->IsSigned() && destBtin->IsUnsigned()) {
@@ -581,7 +534,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
     if (baseExprTy.GetUnqualTy()->IsBuiltin()) {
       sona::ref_ptr<AST::BuiltinType const> builtinTy =
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-      if (builtinTy->GetBuiltinTypeId()
+      if (builtinTy->GetBtid()
           == AST::BuiltinType::BTI_Bool) {
         return new AST::UnaryExpr(
               AST::UnaryExpr::UOP_LogicalNot,

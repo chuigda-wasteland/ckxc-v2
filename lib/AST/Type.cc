@@ -114,40 +114,40 @@ int8_t BuiltinType::FloatRank(BuiltinType::BuiltinTypeId btid) noexcept  {
 }
 
 char const *BuiltinType::GetTypeName() const noexcept {
-  return GetTypeName(GetBuiltinTypeId());
+  return GetTypeName(GetBtid());
 }
 
 bool BuiltinType::IsNumeric() const noexcept {
-  return IsNumeric(GetBuiltinTypeId());
+  return IsNumeric(GetBtid());
 }
 
 bool BuiltinType::IsIntegral() const noexcept {
-  return IsIntegral(GetBuiltinTypeId());
+  return IsIntegral(GetBtid());
 }
 
 bool BuiltinType::IsFloating() const noexcept {
-  return IsFloating(GetBuiltinTypeId());
+  return IsFloating(GetBtid());
 }
 
 bool BuiltinType::IsSigned() const noexcept {
-  return IsSigned(GetBuiltinTypeId());
+  return IsSigned(GetBtid());
 }
 
 bool BuiltinType::IsUnsigned() const noexcept {
-  return IsUnsigned(GetBuiltinTypeId());
+  return IsUnsigned(GetBtid());
 }
 
 /// @todo replace hash functions in the future
 size_t BuiltinType::GetHash() const noexcept {
   using NumericBuiltinTypeId = std::underlying_type_t<BuiltinTypeId>;
   using NBTI = NumericBuiltinTypeId;
-  return DefaultHash<NBTI>()(static_cast<NBTI>(GetBuiltinTypeId()));
+  return DefaultHash<NBTI>()(static_cast<NBTI>(GetBtid()));
 }
 
 bool BuiltinType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Builtin) {
     BuiltinType const &t = static_cast<BuiltinType const &>(that);
-    return (GetBuiltinTypeId() == t.GetBuiltinTypeId());
+    return (GetBtid() == t.GetBtid());
   }
   return false;
 }
