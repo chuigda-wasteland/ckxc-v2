@@ -72,11 +72,30 @@ SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
     return std::move(expr);
   }
 
-  AST::QualType exprType = expr.borrow()->GetExprType();
+  AST::QualType exprType = expr.borrow()->GetExprType().DeQual();
 
   return CreateOrAddImplicitCast(std::move(expr),
                                  AST::CastStep::ICSK_LValue2RValue,
                                  exprType, AST::Expr::VC_RValue);
+}
+
+void SemaPhase1::LValueToRValueDecay(
+    AST::Expr::ValueCat fromValueCat, AST::QualType fromType,
+    std::vector<AST::CastStep> &outputVec) {
+  switch (fromValueCat) {
+  case AST::Expr::VC_LValue: {
+    AST::QualType fromTypeDequal = fromType.DeQual();
+    outputVec.emplace_back(AST::CastStep::ICSK_LValue2RValue,
+                           fromTypeDequal, AST::Expr::VC_RValue);
+    break;
+  }
+  case AST::Expr::VC_RValue:
+    sona_assert(!fromType.GetCVR());
+    break;
+  case AST::Expr::VC_XValue:
+    sona_unreachable1("not implemented");
+    break;
+  }
 }
 
 sona::owner<AST::Expr>
@@ -219,7 +238,6 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
         && destTypeUnqual->IsPointer()) {
       sona_assert(castedExpr.borrow()->GetValueCat() == AST::Expr::VC_RValue);
       sona_assert(!castedExpr.borrow()->GetExprType().GetCVR());
-
       AST::QualType destTypeDequal(destTypeUnqual);
       castSteps.emplace_back(AST::CastStep::ICSK_Nil2Ptr,
                              destTypeDequal, AST::Expr::VC_RValue);
@@ -242,6 +260,11 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
       }
     }
   }
+  else if (fromTypeUnqual->IsPointer() && destTypeUnqual->IsPointer()
+           && TryPointerQualAdjust(castedExpr.borrow()->GetValueCat(),
+                                   fromType, destType, castSteps)) {
+    return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
+  }
 
   if (shouldDiag) {
     m_Diag.Diag(Diag::DIR_Error,
@@ -254,13 +277,13 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
 }
 
 bool SemaPhase1::TryNumericPromotion(
-    AST::Expr::ValueCat castedExprValueCat,
+    AST::Expr::ValueCat fromValueCat,
     AST::QualType fromType, AST::QualType destType,
     sona::ref_ptr<const AST::BuiltinType> fromBtin,
     sona::ref_ptr<const AST::BuiltinType> destBtin,
     std::vector<AST::CastStep> &outputVec) {
   /// @todo extract function
-  switch (castedExprValueCat) {
+  switch (fromValueCat) {
   case AST::Expr::VC_LValue: {
     AST::QualType fromTypeDequal = fromType.DeQual();
     outputVec.emplace_back(AST::CastStep::ICSK_LValue2RValue,
@@ -352,6 +375,27 @@ void SemaPhase1::DoNumericCast(AST::QualType fromType, AST::QualType destType,
     outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual,
                            destType, AST::Expr::VC_RValue);
   }
+}
+
+bool SemaPhase1::TryPointerQualAdjust(
+    AST::Expr::ValueCat fromValueCat,
+    AST::QualType fromType, AST::QualType destType,
+    std::vector<AST::CastStep> &outputVec) {
+  LValueToRValueDecay(fromValueCat, fromType, outputVec);
+  sona::ref_ptr<AST::PointerType const> fromPtrType =
+      fromType.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+  sona::ref_ptr<AST::PointerType const> destPtrType =
+      destType.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+
+  AST::QualType::QualCompareResult qcr =
+      fromPtrType->GetPointee().CompareQualsWith(destPtrType->GetPointee());
+  if (qcr == AST::QualType::CR_NoSense || qcr == AST::QualType::CR_MoreQual) {
+    return false;
+  }
+
+  outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual, destType.DeQual(),
+                         AST::Expr::ValueCat::VC_RValue);
+  return true;
 }
 
 AST::QualType

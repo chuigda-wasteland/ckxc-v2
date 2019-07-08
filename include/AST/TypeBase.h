@@ -110,8 +110,8 @@ public:
     return m_PtrIntPair == that.m_PtrIntPair;
   }
 
-  enum CompareResult { CR_MoreQual, CR_LessQual, CR_Equal, CR_NoSense };
-  CompareResult CompareTo(QualType that) {
+  enum QualCompareResult { CR_MoreQual, CR_LessQual, CR_Equal, CR_NoSense };
+  QualCompareResult CompareQualsWith(QualType that) {
     if (GetCVR() == that.GetCVR()) {
       return CR_Equal;
     }

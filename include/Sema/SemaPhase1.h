@@ -64,12 +64,14 @@ protected:
                      std::vector<AST::CastStep> &outputVec);
 
   bool
-  TryPointerCast(AST::QualType formType, AST::QualType destType,
-                 sona::ref_ptr<AST::BuiltinType const> fromBtin,
-                 sona::ref_ptr<AST::BuiltinType const> destBtin,
-                 std::vector<AST::CastStep> &outputVec);
+  TryPointerQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType formType, AST::QualType destType,
+                       std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
+
+  void LValueToRValueDecay(AST::Expr::ValueCat fromValueCat,
+                           AST::QualType fromType,
+                           std::vector<AST::CastStep> &outputVec);
 
 protected:
   sona::owner<AST::Expr>
