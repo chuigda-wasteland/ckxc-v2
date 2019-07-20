@@ -7,7 +7,7 @@ Code style:
        wheels, add them to library sona.
     3. Identifiers for ckxc:
         classes/functions: Parser, Sema, ActOnReturnStmt
-        crashly functions: GetExprUnsafe
+        unsafe functions: GetExprUnsafe
         variables/paramaters: value, currentContext, varName, i/j/k
         data members: m_Parser, m_Sema, m_CurrentContext
         constants/enumerators: MaxDeclsAllowed
