@@ -270,22 +270,11 @@ SemaPhase1::ActOnStaticCast(sona::ref_ptr<Syntax::CastExpr const> concrete,
   }
 
   AST::QualType fromType = castedExpr.borrow()->GetExprType();
-  AST::QualType fromTypeDequal = fromType.DeQual();
   sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
 
   std::vector<AST::CastStep> castSteps;
-  switch (castedExpr.borrow()->GetValueCat()) {
-  case AST::Expr::VC_LValue:
-    castSteps.emplace_back(AST::CastStep::ICSK_LValue2RValue,
-                           fromTypeDequal, AST::Expr::VC_RValue);
-    break;
-  case AST::Expr::VC_RValue:
-    sona_assert(!fromType.GetCVR());
-    break;
-  case AST::Expr::VC_XValue:
-    sona_unreachable1("not implemented");
-  }
+  LValueToRValueDecay(castedExpr.borrow()->GetValueCat(), fromType, castSteps);
 
   if (fromTypeUnqual->IsBuiltin() && destTypeUnqual->IsBuiltin()) {
     sona::ref_ptr<AST::BuiltinType const> fromTypeBtin =
