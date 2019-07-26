@@ -21,6 +21,13 @@ public:
   void TranslateFunctions(std::vector<IncompleteFuncDecl> &funcs);
 
 protected:
+  void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
+  void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
+  void PostTranslateIncompleteValueCtor(
+      sona::ref_ptr<Sema::IncompleteValueCtorDecl> iValueCtor);
+  void PostTranslateIncompleteUsing(
+      sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
+
   AST::QualType ResolveType(std::shared_ptr<Scope> scope,
                             sona::ref_ptr<Syntax::Type const> type);
   sona::owner<AST::Expr> ActOnExpr(std::shared_ptr<Scope> scope,
@@ -73,6 +80,10 @@ protected:
                            AST::QualType fromType,
                            std::vector<AST::CastStep> &outputVec);
 
+  void AdjustTopLevelQual(AST::QualType fromType,
+                          AST::QualType destType,
+                          std::vector<AST::CastStep> &outputVec);
+
 protected:
   sona::owner<AST::Expr>
   TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
@@ -87,13 +98,6 @@ protected:
   std::int8_t SIntRank(AST::BuiltinType::BuiltinTypeId btid);
   std::int8_t UIntRank(AST::BuiltinType::BuiltinTypeId btid);
   std::int8_t FloatRank(AST::BuiltinType::BuiltinTypeId btid);
-
-  void PostTranslateIncompleteVar(sona::ref_ptr<Sema::IncompleteVarDecl> iVar);
-  void PostTranslateIncompleteTag(sona::ref_ptr<Sema::IncompleteTagDecl> iTag);
-  void PostTranslateIncompleteValueCtor(
-      sona::ref_ptr<Sema::IncompleteValueCtorDecl> iValueCtor);
-  void PostTranslateIncompleteUsing(
-      sona::ref_ptr<Sema::IncompleteUsingDecl> iusing);
 
 #include "Syntax/Nodes.def"
 };
