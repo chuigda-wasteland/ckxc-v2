@@ -35,7 +35,11 @@ public:
     ECSK_Int2Float,
     ECSK_UInt2Float,
     ECSK_Float2Int,
-    ECSK_FLoat2UInt
+    ECSK_FLoat2UInt,
+
+    // Either explicit or implicit
+    CSK_AdjustPtrQual,
+    CSK_AdjustRefQual
   };
 
   CastStep(CastStepKind CSK, QualType destTy, Expr::ValueCat destValueCat) :

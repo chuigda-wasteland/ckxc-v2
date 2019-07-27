@@ -289,6 +289,10 @@ SemaPhase1::ActOnStaticCast(sona::ref_ptr<Syntax::CastExpr const> concrete,
     }
   }
 
+  m_Diag.Diag(Diag::DIR_Error,
+              Diag::Format(Diag::DMT_ErrCannotStaticCast,
+                           {"<not-implemented>", "<not-implementd>"}),
+              SourceRange(0, 0, 0));
   return nullptr;
 }
 
@@ -307,6 +311,14 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
 
   sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
+
+  /// Convert from lvalue to rvalue, removing all qualifiers
+  if (fromTypeUnqual == destTypeUnqual) {
+    LValueToRValueDecay(castedExpr.borrow()->GetValueCat(),
+                        castedExpr.borrow()->GetExprType(),
+                        castSteps);
+    return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
+  }
 
   if (fromTypeUnqual->IsBuiltin()) {
     sona::ref_ptr<AST::BuiltinType const> fromBtin =
@@ -342,6 +354,7 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
                                    fromType, destType, castSteps)) {
     return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
   }
+  /** @todo handle reference types here! */
 
   if (shouldDiag) {
     m_Diag.Diag(Diag::DIR_Error,
@@ -349,6 +362,7 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
                 { "<not-implemented>", "<not-implemented>" }),
                 /** @todo */ SourceRange(0, 0, 0));
   }
+
 
   return nullptr;
 }
@@ -359,21 +373,7 @@ bool SemaPhase1::TryNumericPromotion(
     sona::ref_ptr<const AST::BuiltinType> fromBtin,
     sona::ref_ptr<const AST::BuiltinType> destBtin,
     std::vector<AST::CastStep> &outputVec) {
-  /// @todo extract function
-  switch (fromValueCat) {
-  case AST::Expr::VC_LValue: {
-    AST::QualType fromTypeDequal = fromType.DeQual();
-    outputVec.emplace_back(AST::CastStep::ICSK_LValue2RValue,
-                           fromTypeDequal, AST::Expr::VC_RValue);
-    break;
-  }
-  case AST::Expr::VC_RValue:
-    sona_assert(!fromType.GetCVR());
-    break;
-  case AST::Expr::VC_XValue:
-    sona_unreachable1("not implemented");
-    break;
-  }
+  LValueToRValueDecay(fromValueCat, fromType, outputVec);
 
   AST::QualType destTypeDequal = destType.DeQual();
   if (fromBtin->IsSigned() && destBtin->IsSigned()
@@ -395,11 +395,6 @@ bool SemaPhase1::TryNumericPromotion(
   }
   else {
     return false;
-  }
-
-  if (destTypeDequal.GetCVR() != destType.GetCVR()) {
-    outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual,
-                           destTypeDequal, AST::Expr::VC_RValue);
   }
   return true;
 }
@@ -447,11 +442,6 @@ void SemaPhase1::DoNumericCast(AST::QualType fromType, AST::QualType destType,
   }
 
   outputVec.emplace_back(castStepKind, destTypeDequal, AST::Expr::VC_RValue);
-
-  if (destTypeDequal.GetCVR() != destType.GetCVR()) {
-    outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual,
-                           destType, AST::Expr::VC_RValue);
-  }
 }
 
 bool SemaPhase1::TryPointerQualAdjust(
@@ -470,7 +460,7 @@ bool SemaPhase1::TryPointerQualAdjust(
     return false;
   }
 
-  outputVec.emplace_back(AST::CastStep::ICSK_AdjustQual, destType.DeQual(),
+  outputVec.emplace_back(AST::CastStep::CSK_AdjustPtrQual, destType.DeQual(),
                          AST::Expr::ValueCat::VC_RValue);
   return true;
 }
