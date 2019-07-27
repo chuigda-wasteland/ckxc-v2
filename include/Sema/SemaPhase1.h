@@ -46,8 +46,11 @@ protected:
 protected:
   sona::owner<AST::Expr>
   ActOnStaticCast(sona::ref_ptr<const Syntax::CastExpr> concrete,
-                  sona::owner<AST::Expr> &&castedExpr,
-                  AST::QualType destType);
+                  sona::owner<AST::Expr> &&castedExpr, AST::QualType destType);
+  
+  sona::owner<AST::Expr>
+  ActOnConstCast(sona::ref_ptr<const Syntax::CastExpr> concrete,
+                 sona::owner<AST::Expr> &&castedExpr, AST::QualType destType);
 
   /// @note this function does not always "move away" or "consume" the input
   /// `castedExpr`, it only consumes its input when the cast is valid, and
@@ -71,8 +74,14 @@ protected:
                      std::vector<AST::CastStep> &outputVec);
 
   bool
-  TryPointerQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType formType, AST::QualType destType,
+  TryPointerQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType formType,
+                       AST::QualType destType, bool isConstCast,
                        std::vector<AST::CastStep> &outputVec);
+                       
+  bool
+  TryRefQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType fromType,
+                   AST::QualType destType, bool isConstCast,
+                   std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 
