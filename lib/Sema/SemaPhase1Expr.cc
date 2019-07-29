@@ -355,10 +355,6 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
       AST::QualType destTypeDequal(destTypeUnqual);
       castSteps.emplace_back(AST::CastStep::ICSK_Nil2Ptr,
                              destTypeDequal, AST::Expr::VC_RValue);
-      if (destTypeDequal.GetCVR() != destType.GetCVR()) {
-        castSteps.emplace_back(AST::CastStep::ICSK_AdjustQual,
-                               destType, AST::Expr::VC_RValue);
-      }
       return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
     }
 
