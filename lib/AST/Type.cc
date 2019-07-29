@@ -50,8 +50,8 @@ bool BuiltinType::IsNumeric(BuiltinType::BuiltinTypeId btid) noexcept {
 
 bool BuiltinType::IsIntegral(BuiltinType::BuiltinTypeId btid) noexcept {
   switch (btid) {
-  #define BUILTIN_TYPE(name, rep, size, isint, \
-                       issigned, signedver, unsignedver) \
+  #define BUILTIN_TYPE(name, size, isint, \
+                       issigned, signedver, unsignedver, token) \
   case BuiltinType::BTI_##name: return isint;
   #include "Syntax/BuiltinTypes.def"
   }

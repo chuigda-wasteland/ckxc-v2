@@ -379,11 +379,6 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
                                    fromType, destType, false, castSteps)) {
     return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
   }
-  else if (fromTypeUnqual->IsReference() && destTypeUnqual->IsReference()
-           && TryRefQualAdjust(castedExpr.borrow()->GetValueCat(),
-                               fromType, destType, false, castSteps)) {
-    return new AST::ImplicitCast(std::move(castedExpr), std::move(castSteps));
-  }
   else if (destTypeUnqual->IsReference()) {
     /// @note not implemented yet since we don't know if this is useful.
     sona_unreachable1("not implemented since we don't know if this is useful.");
