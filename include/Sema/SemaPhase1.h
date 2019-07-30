@@ -45,6 +45,26 @@ protected:
 
 protected:
   sona::owner<AST::Expr>
+  ActOnAlgebraic(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+                 sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+                 Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
+  ActOnLogic(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+             sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+             Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
+  ActOnBitwise(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+               sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+               Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
+  ActOnCompare(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+               sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+               Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
   ActOnStaticCast(sona::ref_ptr<const Syntax::CastExpr> concrete,
                   sona::owner<AST::Expr> &&castedExpr, AST::QualType destType);
   
@@ -94,9 +114,24 @@ protected:
                           std::vector<AST::CastStep> &outputVec);
 
 protected:
+  /// @note this function does not always "move away" or "consume" the input
+  /// `baseExpr`, it only consumes its input when the cast is valid, and
+  /// its return value is not nullptr. This'll get refactored by sometime, but
+  /// let us keep it until we can make changes.
   sona::owner<AST::Expr>
-  TryFindUnaryOperatorOverload(sona::ref_ptr<AST::Expr const> baseExpr,
+  TryFindUnaryOperatorOverload(std::shared_ptr<Scope> scope,
+                               sona::owner<AST::Expr> &&baseExpr,
                                Syntax::UnaryOperator uop);
+
+  /// @note this function does not always "move away" or "consume" the input
+  /// `lhs` and `rhs`, it only consumes its input when the cast is valid, and
+  /// its return value is not nullptr. This'll get refactored by sometime, but
+  /// let us keep it until we can make changes.
+  sona::owner<AST::Expr>
+  TryFindBinaryOperatorOverload(std::shared_ptr<Scope> scope,
+                                sona::owner<AST::Expr> &&lhs,
+                                sona::owner<AST::Expr> &&rhs,
+                                Syntax::BinaryOperator bop);
 
   sona::owner<AST::Expr>
   CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,

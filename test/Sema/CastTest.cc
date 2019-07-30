@@ -209,7 +209,6 @@ void test5() {
 
 void test6() {
   VkTestSectionStart("explicit pointer qualifier adjust");
-  int number;
 }
 
 void test7() {

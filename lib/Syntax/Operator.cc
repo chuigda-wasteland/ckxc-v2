@@ -16,7 +16,6 @@ std::uint16_t PrecOf(BinaryOperator bop) noexcept {
 
   case BinaryOperator::BOP_BitAnd:
   case BinaryOperator::BOP_BitOr:
-  case BinaryOperator::BOP_BitNot:
   case BinaryOperator::BOP_BitXor:
     return 30000;
 
@@ -30,7 +29,6 @@ std::uint16_t PrecOf(BinaryOperator bop) noexcept {
 
   case BinaryOperator::BOP_LogicAnd:
   case BinaryOperator::BOP_LogicOr:
-  case BinaryOperator::BOP_LogicNot:
   case BinaryOperator::BOP_LogicXor:
     return 20000;
 

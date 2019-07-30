@@ -39,9 +39,9 @@ sona::owner<AST::Expr>
 SemaPhase1::ActOnCharLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::CharLiteralExpr const> literalExpr) {
-  return new AST::CharLiteralExpr(
-             literalExpr->GetValue(),
-             m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Char));
+  return new AST::CharLiteralExpr(literalExpr->GetValue(),
+                                  m_ASTContext.GetBuiltinType(
+                                    AST::BuiltinType::BTI_Char));
 }
 
 sona::owner<AST::Expr>
@@ -51,18 +51,17 @@ SemaPhase1::ActOnStringLiteralExpr(
   AST::QualType charType =
       m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Char);
   charType.AddConst();
-  return new AST::StringLiteralExpr(
-               literalExpr->GetValue(),
-               m_ASTContext.CreatePointerType(charType));
+  return new AST::StringLiteralExpr(literalExpr->GetValue(),
+                                    m_ASTContext.CreatePointerType(charType));
 }
 
 sona::owner<AST::Expr>
 SemaPhase1::ActOnBoolLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::BoolLiteralExpr const> literalExpr) {
-  return new AST::BoolLiteralExpr(
-           literalExpr->GetValue(),
-           m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool));
+  return new AST::BoolLiteralExpr(literalExpr->GetValue(),
+                                  m_ASTContext.GetBuiltinType(
+                                    AST::BuiltinType::BTI_Bool));
 }
 
 sona::owner<AST::Expr>
@@ -74,18 +73,124 @@ SemaPhase1::ActOnNullLiteralExpr(
 }
 
 sona::owner<AST::Expr>
-SemaPhase1::ActOnUnaryAlgebraicExpr(
-    std::shared_ptr<Scope> scope,
-    sona::ref_ptr<Syntax::UnaryAlgebraicExpr const> expr) {
-  sona::owner<AST::Expr> baseExpr = ActOnExpr(scope, expr->GetBaseExpr());
+SemaPhase1::ActOnBinaryExpr(std::shared_ptr<Scope> scope,
+                            sona::ref_ptr<Syntax::BinaryExpr const> expr) {
+  sona::owner<AST::Expr> lhs = ActOnExpr(scope, expr->GetLeftHandSide());
+  sona::owner<AST::Expr> rhs = ActOnExpr(scope, expr->GetRightHandSide());
+  if (lhs.borrow() == nullptr || rhs.borrow() == nullptr) {
+    return nullptr;
+  }
 
   sona::owner<AST::Expr> maybeOverload =
-      TryFindUnaryOperatorOverload(baseExpr.borrow(), expr->GetOperator());
-  AST::QualType baseExprTy = baseExpr.borrow()->GetExprType();
+      TryFindBinaryOperatorOverload(scope, std::move(lhs), std::move(rhs),
+                                    expr->GetOperator());
   if (maybeOverload.borrow() != nullptr) {
     return maybeOverload;
   }
 
+  switch (expr->GetOperator()) {
+  case Syntax::BinaryOperator::BOP_Add:
+  case Syntax::BinaryOperator::BOP_Sub:
+  case Syntax::BinaryOperator::BOP_Mul:
+  case Syntax::BinaryOperator::BOP_Div:
+  case Syntax::BinaryOperator::BOP_Mod:
+    return ActOnAlgebraic(expr, std::move(lhs), std::move(rhs),
+                          expr->GetOperator());
+
+  case Syntax::BinaryOperator::BOP_LogicAnd:
+  case Syntax::BinaryOperator::BOP_LogicOr:
+  case Syntax::BinaryOperator::BOP_LogicXor:
+    return ActOnLogic(expr, std::move(lhs), std::move(rhs),
+                      expr->GetOperator());
+
+  case Syntax::BinaryOperator::BOP_BitAnd:
+  case Syntax::BinaryOperator::BOP_BitOr:
+  case Syntax::BinaryOperator::BOP_BitXor:
+    return ActOnLogic(expr, std::move(lhs), std::move(rhs),
+                      expr->GetOperator());
+
+  case Syntax::BinaryOperator::BOP_Lt:
+  case Syntax::BinaryOperator::BOP_Gt:
+  case Syntax::BinaryOperator::BOP_Eq:
+  case Syntax::BinaryOperator::BOP_LEq:
+  case Syntax::BinaryOperator::BOP_GEq:
+  case Syntax::BinaryOperator::BOP_NEq:
+    return ActOnCompare(expr, std::move(lhs), std::move(rhs),
+                        expr->GetOperator());
+
+  case Syntax::BinaryOperator::BOP_Invalid:
+    break;
+  }
+
+  sona_unreachable();
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
+                           sona::owner<AST::Expr> &&lhs,
+                           sona::owner<AST::Expr> &&rhs,
+                           Syntax::BinaryOperator bop) {
+  (void)concrete;
+  (void)lhs;
+  (void)rhs;
+  (void)bop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
+                       sona::owner<AST::Expr> &&lhs,
+                       sona::owner<AST::Expr> &&rhs,
+                       Syntax::BinaryOperator bop) {
+  (void)concrete;
+  (void)lhs;
+  (void)rhs;
+  (void)bop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
+                         sona::owner<AST::Expr> &&lhs,
+                         sona::owner<AST::Expr> &&rhs,
+                         Syntax::BinaryOperator bop) {
+  (void)concrete;
+  (void)lhs;
+  (void)rhs;
+  (void)bop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
+                         sona::owner<AST::Expr> &&lhs,
+                         sona::owner<AST::Expr> &&rhs,
+                         Syntax::BinaryOperator bop) {
+  (void)concrete;
+  (void)lhs;
+  (void)rhs;
+  (void)bop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnUnaryAlgebraicExpr(
+    std::shared_ptr<Scope> scope,
+    sona::ref_ptr<Syntax::UnaryAlgebraicExpr const> expr) {
+  sona::owner<AST::Expr> baseExpr = ActOnExpr(scope, expr->GetBaseExpr());
+  if (baseExpr.borrow() == nullptr) {
+    return nullptr;
+  }
+
+  sona::owner<AST::Expr> maybeOverload =
+      TryFindUnaryOperatorOverload(scope, std::move(baseExpr),
+                                   expr->GetOperator());
+  if (maybeOverload.borrow() != nullptr) {
+    return maybeOverload;
+  }
+
+  AST::QualType baseExprTy = baseExpr.borrow()->GetExprType();
   switch (expr->GetOperator()) {
   case Syntax::UnaryOperator::UOP_Deref:
     if (baseExprTy.GetUnqualTy()->IsPointer()) {
@@ -93,10 +198,9 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy()
                     .cast_unsafe<AST::PointerType const>()
                     ->GetPointee();
-      return new AST::UnaryExpr(
-            AST::UnaryExpr::UOP_Deref,
-            LValueToRValueDecay(std::move(baseExpr)),
-            pointeeType, AST::Expr::VC_LValue);
+      return new AST::UnaryExpr(AST::UnaryExpr::UOP_Deref,
+                                LValueToRValueDecay(std::move(baseExpr)),
+                                pointeeType, AST::Expr::VC_LValue);
     }
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType, {"*", "pointer"}),
@@ -108,12 +212,11 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->GetBtid()
           == AST::BuiltinType::BTI_Bool) {
-        return new AST::UnaryExpr(
-              AST::UnaryExpr::UOP_LogicalNot,
-              LValueToRValueDecay(std::move(baseExpr)),
-              m_ASTContext.GetBuiltinType(
-                AST::BuiltinType::BTI_Bool),
-              AST::Expr::VC_RValue);
+        return new AST::UnaryExpr(AST::UnaryExpr::UOP_LogicalNot,
+                                  LValueToRValueDecay(std::move(baseExpr)),
+                                  m_ASTContext.GetBuiltinType(
+                                    AST::BuiltinType::BTI_Bool),
+                                  AST::Expr::VC_RValue);
       }
       m_Diag.Diag(Diag::DIR_Error,
                   Diag::Format(Diag::DMT_ErrOpRequiresType, {"!", "boolean"}),
@@ -564,10 +667,24 @@ SemaPhase1::LValueToRValueDecay(sona::owner<AST::Expr> &&expr) {
 }
 
 sona::owner<AST::Expr>
-SemaPhase1::TryFindUnaryOperatorOverload(
-    sona::ref_ptr<const AST::Expr> baseExpr, Syntax::UnaryOperator uop) {
+SemaPhase1::TryFindUnaryOperatorOverload(std::shared_ptr<Scope> scope,
+                                         sona::owner<AST::Expr> &&baseExpr,
+                                         Syntax::UnaryOperator uop) {
+  (void)scope;
   (void)baseExpr;
   (void)uop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::TryFindBinaryOperatorOverload(std::shared_ptr<Scope> scope,
+                                          sona::owner<AST::Expr> &&lhs,
+                                          sona::owner<AST::Expr> &&rhs,
+                                          Syntax::BinaryOperator bop) {
+  (void)scope;
+  (void)lhs;
+  (void)rhs;
+  (void)bop;
   return nullptr;
 }
 
