@@ -29,8 +29,6 @@ public:
 
     /// User-defined
     TI_UserDefined,
-
-    /// @todo where should we add "Qualifiers"?
   };
 
   TypeId GetTypeId() const { return m_Id; }

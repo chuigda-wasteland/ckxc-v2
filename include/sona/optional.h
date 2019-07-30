@@ -20,11 +20,23 @@ public:
     construct(reinterpret_cast<T *>(&t), std::move(v));
   }
 
+  optional(optional &&that) : is_value(that.has_value()) {
+    if (is_value) {
+      construct(reinterpret_cast<T *>(&t), std::move(that.value()));
+    }
+  }
+
   template <typename... Args> optional(Args &&... args) : is_value(true) {
     construct<T>(reinterpret_cast<T *>(&t), std::forward<Args>(args)...);
   }
 
   optional(empty_optional) : is_value(false) {}
+
+  ~optional() {
+    if (has_value()) {
+       destroy_at(reinterpret_cast<T*>(&t));
+    }
+  }
 
   bool has_value() const { return is_value; }
   T &value() { return reinterpret_cast<T &>(t); }

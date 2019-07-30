@@ -48,3 +48,7 @@
 *.opendb
 *.json
 *.sqlite
+
+# IDEA garbes
+cmake-build-*/
+.idea/
