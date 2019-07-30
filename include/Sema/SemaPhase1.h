@@ -44,6 +44,10 @@ protected:
               sona::ref_ptr<Syntax::name const> type);
 
 protected:
+  sona::ref_ptr<const AST::BuiltinType>
+  CommonNumericType(sona::ref_ptr<AST::BuiltinType const> ty1,
+                      sona::ref_ptr<AST::BuiltinType const> ty2);
+
   sona::owner<AST::Expr>
   ActOnAlgebraic(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
                  sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,

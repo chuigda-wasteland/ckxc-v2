@@ -83,5 +83,34 @@ SemaPhase1::ResolveTemplatedType(std::shared_ptr<Scope>,
   return sona::ref_ptr<AST::Type const>(nullptr);
 }
 
+sona::ref_ptr<AST::BuiltinType const>
+SemaPhase1::CommonNumericType(sona::ref_ptr<AST::BuiltinType const> ty1,
+                                sona::ref_ptr<AST::BuiltinType const> ty2) {
+  if (ty1->IsSigned() && ty2->IsSigned()) {
+    return std::max(ty1, ty2,
+                    [this] (auto ty1, auto ty2) {
+                      return SIntRank(ty1->GetBtid())
+                             < SIntRank(ty2->GetBtid());
+                    });
+  }
+  else if (ty1->IsUnsigned() && ty2->IsUnsigned()) {
+    return std::max(ty1, ty2,
+                    [this] (auto ty1, auto ty2) {
+                      return UIntRank(ty1->GetBtid())
+                             < UIntRank(ty2->GetBtid());
+                    });
+  }
+  else if (ty1->IsFloating() && ty2->IsFloating()) {
+    return std::max(ty1, ty2,
+                    [this] (auto ty1, auto ty2) {
+                      return FloatRank(ty1->GetBtid())
+                             < FloatRank(ty2->GetBtid());
+                    });
+  }
+  else {
+    return nullptr;
+  }
+}
+
 } // namespace Sema
 } // namespace ckx

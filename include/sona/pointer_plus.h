@@ -85,10 +85,19 @@ public:
   ~owner() { delete ptr; }
 
   owner(owner const &) = delete;
-  owner(owner &&that) : ptr(that.ptr) { that.ptr = nullptr; }
+  owner(owner &&that) {
+    if (&that == this) {
+      return;
+    }
+    ptr = that.ptr;
+    that.ptr = nullptr;
+  }
 
   owner& operator=(owner const&) = delete;
   owner& operator=(owner &&that) {
+    if (&that == this) {
+      return *this;
+    }
     ptr = that.ptr;
     that.ptr = nullptr;
     return *this;

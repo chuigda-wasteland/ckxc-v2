@@ -37,6 +37,7 @@ enum class CastOperator {
 };
 
 std::uint16_t PrecOf(BinaryOperator bop) noexcept;
+const char *RepresentationOf(BinaryOperator bop) noexcept;
 
 } // namespace Syntax
 } // namespace ckx

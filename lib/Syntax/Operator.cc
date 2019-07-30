@@ -39,5 +39,37 @@ std::uint16_t PrecOf(BinaryOperator bop) noexcept {
   return 0;
 }
 
+/// @todo consider tablegen this function
+char const* RepresentationOf(BinaryOperator bop) noexcept {
+  switch (bop) {
+  case BinaryOperator::BOP_Mul: return "*";
+  case BinaryOperator::BOP_Div: return "/";
+  case BinaryOperator::BOP_Mod: return "%";
+  case BinaryOperator::BOP_Add: return "+";
+  case BinaryOperator::BOP_Sub: return "-";
+
+  case BinaryOperator::BOP_BitAnd: return "&";
+  case BinaryOperator::BOP_BitOr:  return "|";
+  case BinaryOperator::BOP_BitXor: return "^";
+
+  case BinaryOperator::BOP_Lt:  return "<";
+  case BinaryOperator::BOP_Gt:  return ">";
+  case BinaryOperator::BOP_LEq: return "<=";
+  case BinaryOperator::BOP_GEq: return ">=";
+  case BinaryOperator::BOP_Eq:  return "==";
+  case BinaryOperator::BOP_NEq: return "!=";
+
+  case BinaryOperator::BOP_LogicAnd: return "&&";
+  case BinaryOperator::BOP_LogicOr:  return "||";
+  case BinaryOperator::BOP_LogicXor: return "^^";
+
+  default:
+    {
+      sona_unreachable();
+      return "<not-implemented>";
+    }
+  }
+}
+
 } // namespace Syntax
 } // namespace ckx

@@ -69,4 +69,4 @@ add_executable(TestASTContext test/Sema/ASTContextTest.cc)
 target_link_libraries (TestASTContext Sema AST Basic sona)
 
 add_executable(TestCast test/Sema/CastTest.cc)
-target_link_libraries (TestCast Sema AST Basic sona)
+target_link_libraries (TestCast Sema Syntax AST Basic sona)

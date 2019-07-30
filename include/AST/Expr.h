@@ -217,12 +217,10 @@ public:
 
     BOP_LogicalAnd,
     BOP_LogicalOr,
-    BOP_LogicalNot,
     BOP_LogicalXor,
 
     BOP_BitwiseAnd,
     BOP_BitwiseOr,
-    BOP_BitwiseNot,
     BOP_BitwiseXor,
 
     BOP_LShift,

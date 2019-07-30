@@ -143,11 +143,53 @@ SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                        sona::owner<AST::Expr> &&lhs,
                        sona::owner<AST::Expr> &&rhs,
                        Syntax::BinaryOperator bop) {
-  (void)concrete;
-  (void)lhs;
-  (void)rhs;
-  (void)bop;
-  return nullptr;
+  AST::QualType lhsTy = lhs.borrow()->GetExprType();
+  AST::QualType rhsTy = rhs.borrow()->GetExprType();
+  if (!lhsTy.GetUnqualTy()->IsBuiltin() || !rhsTy.GetUnqualTy()->IsBuiltin()) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             { Syntax::RepresentationOf(bop), "boolean" }),
+                concrete->GetOpRange());
+    return nullptr;
+  }
+
+  sona::ref_ptr<AST::BuiltinType const> lhsBuiltinType =
+      lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+  sona::ref_ptr<AST::BuiltinType const> rhsBuiltinType =
+      rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+  if (lhsBuiltinType->GetBtid() != AST::BuiltinType::BTI_Bool
+      || rhsBuiltinType->GetBtid() != AST::BuiltinType::BTI_Bool) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             { Syntax::RepresentationOf(bop), "boolean" }),
+                concrete->GetOpRange());
+    return nullptr;
+  }
+
+  lhs = LValueToRValueDecay(std::move(lhs));
+  rhs = LValueToRValueDecay(std::move(rhs));
+
+  /// @todo consider extract function
+  AST::BinaryExpr::BinaryOperator bop1;
+  switch (bop) {
+  case Syntax::BinaryOperator::BOP_LogicAnd:
+    bop1 = AST::BinaryExpr::BOP_LogicalAnd;
+    break;
+  case Syntax::BinaryOperator::BOP_LogicOr:
+    bop1 = AST::BinaryExpr::BOP_LogicalOr;
+    break;
+  case Syntax::BinaryOperator::BOP_LogicXor:
+    bop1 = AST::BinaryExpr::BOP_LogicalXor;
+    break;
+  default:
+    sona_unreachable();
+    return nullptr;
+  }
+
+  return new AST::BinaryExpr(
+              bop1, std::move(lhs), std::move(rhs),
+              m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool),
+              AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>
@@ -155,11 +197,64 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                          sona::owner<AST::Expr> &&lhs,
                          sona::owner<AST::Expr> &&rhs,
                          Syntax::BinaryOperator bop) {
-  (void)concrete;
-  (void)lhs;
-  (void)rhs;
-  (void)bop;
-  return nullptr;
+  AST::QualType lhsTy = lhs.borrow()->GetExprType();
+  AST::QualType rhsTy = rhs.borrow()->GetExprType();
+  if (!lhsTy.GetUnqualTy()->IsBuiltin() || !rhsTy.GetUnqualTy()->IsBuiltin()) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             { Syntax::RepresentationOf(bop), "unsigned" }),
+                concrete->GetOpRange());
+    return nullptr;
+  }
+
+  sona::ref_ptr<AST::BuiltinType const> lhsBuiltinType =
+      lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+  sona::ref_ptr<AST::BuiltinType const> rhsBuiltinType =
+      rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+  if (!lhsBuiltinType->IsUnsigned() || !rhsBuiltinType->IsUnsigned()) {
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrOpRequiresType,
+                             { Syntax::RepresentationOf(bop), "unsigned" }),
+                concrete->GetOpRange());
+    return nullptr;
+  }
+
+  sona::ref_ptr<AST::BuiltinType const> commonType =
+      CommonNumericType(lhsBuiltinType, rhsBuiltinType);
+  sona::ref_ptr<AST::Type const> commonType1 =
+      commonType.cast_unsafe<AST::Type const>();
+  sona_assert(commonType != nullptr);
+  sona::owner<AST::Expr> lhsCasted =
+      TryImplicitCast(concrete.cast_unsafe<Syntax::Expr const>(),
+                      std::move(lhs), AST::QualType(commonType1));
+  sona::owner<AST::Expr> rhsCasted =
+      TryImplicitCast(concrete.cast_unsafe<Syntax::Expr const>(),
+                      std::move(rhs), AST::QualType(commonType1));
+  sona_assert(lhsCasted.borrow() != nullptr);
+  sona_assert(rhsCasted.borrow() != nullptr);
+  lhsCasted = LValueToRValueDecay(std::move(lhsCasted));
+  rhsCasted = LValueToRValueDecay(std::move(rhsCasted));
+
+  /// @todo consider extract function
+  AST::BinaryExpr::BinaryOperator bop1;
+  switch (bop) {
+  case Syntax::BinaryOperator::BOP_BitAnd:
+    bop1 = AST::BinaryExpr::BOP_BitwiseAnd;
+    break;
+  case Syntax::BinaryOperator::BOP_BitOr:
+    bop1 = AST::BinaryExpr::BOP_BitwiseOr;
+    break;
+  case Syntax::BinaryOperator::BOP_BitXor:
+    bop1 = AST::BinaryExpr::BOP_BitwiseXor;
+    break;
+  default:
+    sona_unreachable();
+    return nullptr;
+  }
+
+  return new AST::BinaryExpr(
+              bop1, std::move(lhsCasted), std::move(rhsCasted),
+              AST::QualType(commonType1), AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>
@@ -167,10 +262,86 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                          sona::owner<AST::Expr> &&lhs,
                          sona::owner<AST::Expr> &&rhs,
                          Syntax::BinaryOperator bop) {
-  (void)concrete;
-  (void)lhs;
-  (void)rhs;
-  (void)bop;
+  /// @todo consider extract function
+  AST::BinaryExpr::BinaryOperator bop1;
+  switch (bop) {
+  case Syntax::BinaryOperator::BOP_Lt:
+    bop1 = AST::BinaryExpr::BOP_Lt;
+    break;
+  case Syntax::BinaryOperator::BOP_Gt:
+    bop1 = AST::BinaryExpr::BOP_Gt;
+    break;
+  case Syntax::BinaryOperator::BOP_Eq:
+    bop1 = AST::BinaryExpr::BOP_Eq;
+    break;
+  case Syntax::BinaryOperator::BOP_LEq:
+    bop1 = AST::BinaryExpr::BOP_Leq;
+    break;
+  case Syntax::BinaryOperator::BOP_GEq:
+    bop1 = AST::BinaryExpr::BOP_Geq;
+    break;
+  case Syntax::BinaryOperator::BOP_NEq:
+    bop1 = AST::BinaryExpr::BOP_Neq;
+    break;
+  default:
+    sona_unreachable();
+    return nullptr;
+  }
+
+  AST::QualType lhsTy = lhs.borrow()->GetExprType();
+  AST::QualType rhsTy = rhs.borrow()->GetExprType();
+  if (lhsTy.GetUnqualTy()->IsBuiltin() && rhsTy.GetUnqualTy()->IsBuiltin()) {
+    sona::ref_ptr<AST::BuiltinType const> lhsBuiltinType =
+        lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+    sona::ref_ptr<AST::BuiltinType const> rhsBuiltinType =
+        rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+    if (lhsBuiltinType->IsNumeric() && rhsBuiltinType->IsNumeric()) {
+      sona::ref_ptr<AST::BuiltinType const> commonType =
+          CommonNumericType(lhsBuiltinType, rhsBuiltinType);
+      if (commonType == nullptr) {
+        /// @todo add diagnostics here
+        return nullptr;
+      }
+      sona::ref_ptr<AST::Type const> commonType1 =
+          commonType.cast_unsafe<AST::Type const>();
+      sona::owner<AST::Expr> lhsCasted =
+          TryImplicitCast(concrete.cast_unsafe<Syntax::Expr const>(),
+                          std::move(lhs), AST::QualType(commonType1));
+      sona::owner<AST::Expr> rhsCasted =
+          TryImplicitCast(concrete.cast_unsafe<Syntax::Expr const>(),
+                          std::move(rhs), AST::QualType(commonType1));
+      sona_assert(lhsCasted.borrow() != nullptr);
+      sona_assert(rhsCasted.borrow() != nullptr);
+      lhsCasted = LValueToRValueDecay(std::move(lhsCasted));
+      rhsCasted = LValueToRValueDecay(std::move(rhsCasted));
+
+      return new AST::BinaryExpr(
+                  bop1, std::move(lhsCasted), std::move(rhsCasted),
+                  m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool),
+                  AST::Expr::VC_RValue);
+    }
+  }
+  else if (lhsTy.GetUnqualTy()->IsPointer()
+           && rhsTy.GetUnqualTy()->IsPointer()) {
+    sona::ref_ptr<AST::PointerType const> lhsPtrType =
+        lhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+    sona::ref_ptr<AST::PointerType const> rhsPtrType =
+        rhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+    if (lhsPtrType->GetPointee().GetUnqualTy()
+        != rhsPtrType->GetPointee().GetUnqualTy()) {
+      /// @todo add diagnostics here
+      return nullptr;
+    }
+    lhs = LValueToRValueDecay(std::move(lhs));
+    rhs = LValueToRValueDecay(std::move(rhs));
+
+    return new AST::BinaryExpr(
+                bop1, std::move(lhs), std::move(rhs),
+                m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool),
+                AST::Expr::VC_RValue);
+  }
+
+  /// @todo this function is still incomplete
   return nullptr;
 }
 
