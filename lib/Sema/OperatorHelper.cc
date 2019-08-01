@@ -3,7 +3,6 @@
 namespace ckx {
 namespace Sema {
 
-/// @todo consider tablegen this function
 char const* RepresentationOf(Syntax::BinaryOperator bop) noexcept {
   switch (bop) {
 #define BINARY_OP_DEF(name, rep, text) \
@@ -16,17 +15,16 @@ char const* RepresentationOf(Syntax::BinaryOperator bop) noexcept {
   return "<not-implemented>";
 }
 
+/// @note since we use tablegen to generate operator tags, we can simply
+/// cast them according to their numeric values.
+
 AST::BinaryExpr::BinaryOperator
 OperatorConv(Syntax::BinaryOperator bop) noexcept {
-  /// @note since we use tablegen to generate operator tags, we can simply
-  /// cast them according to their numeric values.
   return static_cast<AST::BinaryExpr::BinaryOperator>(bop);
 }
 
 AST::UnaryExpr::UnaryOperator
 OperatorConv(Syntax::UnaryOperator uop) noexcept {
-  /// @note since we use tablegen to generate operator tags, we can simply
-  /// cast them according to their numeric values.
   return static_cast<AST::UnaryExpr::UnaryOperator>(uop);
 }
 

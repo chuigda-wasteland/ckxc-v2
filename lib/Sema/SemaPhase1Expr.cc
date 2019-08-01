@@ -171,22 +171,7 @@ SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   rhs = LValueToRValueDecay(std::move(rhs));
 
   /// @todo consider extract function
-  AST::BinaryExpr::BinaryOperator bop1;
-  switch (bop) {
-  case Syntax::BinaryOperator::BOP_LogicAnd:
-    bop1 = AST::BinaryExpr::BOP_LogicAnd;
-    break;
-  case Syntax::BinaryOperator::BOP_LogicOr:
-    bop1 = AST::BinaryExpr::BinaryOperator::BOP_LogicOr;
-    break;
-  case Syntax::BinaryOperator::BOP_LogicXor:
-    bop1 = AST::BinaryExpr::BOP_LogicXor;
-    break;
-  default:
-    sona_unreachable();
-    return nullptr;
-  }
-
+  AST::BinaryExpr::BinaryOperator bop1 = OperatorConv(bop);
   return new AST::BinaryExpr(
               bop1, std::move(lhs), std::move(rhs),
               m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool),
@@ -237,19 +222,7 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   rhsCasted = LValueToRValueDecay(std::move(rhsCasted));
 
   /// @todo consider extract function
-  AST::BinaryExpr::BinaryOperator bop1;
-  switch (bop) {
-  case Syntax::BinaryOperator::BOP_BitAnd:
-    bop1 = AST::BinaryExpr::BOP_BitAnd; break;
-  case Syntax::BinaryOperator::BOP_BitOr:
-    bop1 = AST::BinaryExpr::BOP_BitOr;  break;
-  case Syntax::BinaryOperator::BOP_BitXor:
-    bop1 = AST::BinaryExpr::BOP_BitXor; break;
-  default:
-    sona_unreachable();
-    return nullptr;
-  }
-
+  AST::BinaryExpr::BinaryOperator bop1 = OperatorConv(bop);
   return new AST::BinaryExpr(
               bop1, std::move(lhsCasted), std::move(rhsCasted),
               AST::QualType(commonType1), AST::Expr::VC_RValue);
@@ -260,26 +233,7 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                          sona::owner<AST::Expr> &&lhs,
                          sona::owner<AST::Expr> &&rhs,
                          Syntax::BinaryOperator bop) {
-  /// @todo consider extract function
-  AST::BinaryExpr::BinaryOperator bop1;
-  switch (bop) {
-  case Syntax::BinaryOperator::BOP_Lt:
-    bop1 = AST::BinaryExpr::BOP_Lt; break;
-  case Syntax::BinaryOperator::BOP_Gt:
-    bop1 = AST::BinaryExpr::BOP_Gt; break;
-  case Syntax::BinaryOperator::BOP_Eq:
-    bop1 = AST::BinaryExpr::BOP_Eq; break;
-  case Syntax::BinaryOperator::BOP_LEq:
-    bop1 = AST::BinaryExpr::BOP_LEq; break;
-  case Syntax::BinaryOperator::BOP_GEq:
-    bop1 = AST::BinaryExpr::BOP_GEq; break;
-  case Syntax::BinaryOperator::BOP_NEq:
-    bop1 = AST::BinaryExpr::BOP_NEq; break;
-  default:
-    sona_unreachable();
-    return nullptr;
-  }
-
+  AST::BinaryExpr::BinaryOperator bop1 = OperatorConv(bop);
   AST::QualType lhsTy = lhs.borrow()->GetExprType();
   AST::QualType rhsTy = rhs.borrow()->GetExprType();
   if (lhsTy.GetUnqualTy()->IsBuiltin() && rhsTy.GetUnqualTy()->IsBuiltin()) {
