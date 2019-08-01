@@ -1,4 +1,5 @@
 #include "Sema/SemaPhase1.h"
+#include "Sema/OperatorHelper.h"
 #include "AST/Expr.h"
 #include "Syntax/Concrete.h"
 
@@ -148,7 +149,7 @@ SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   if (!lhsTy.GetUnqualTy()->IsBuiltin() || !rhsTy.GetUnqualTy()->IsBuiltin()) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
-                             { Syntax::RepresentationOf(bop), "boolean" }),
+                             { RepresentationOf(bop), "boolean" }),
                 concrete->GetOpRange());
     return nullptr;
   }
@@ -161,7 +162,7 @@ SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       || rhsBuiltinType->GetBtid() != AST::BuiltinType::BTI_Bool) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
-                             { Syntax::RepresentationOf(bop), "boolean" }),
+                             { RepresentationOf(bop), "boolean" }),
                 concrete->GetOpRange());
     return nullptr;
   }
@@ -202,7 +203,7 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   if (!lhsTy.GetUnqualTy()->IsBuiltin() || !rhsTy.GetUnqualTy()->IsBuiltin()) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
-                             { Syntax::RepresentationOf(bop), "unsigned" }),
+                             { RepresentationOf(bop), "unsigned" }),
                 concrete->GetOpRange());
     return nullptr;
   }
@@ -214,7 +215,7 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   if (!lhsBuiltinType->IsUnsigned() || !rhsBuiltinType->IsUnsigned()) {
     m_Diag.Diag(Diag::DIR_Error,
                 Diag::Format(Diag::DMT_ErrOpRequiresType,
-                             { Syntax::RepresentationOf(bop), "unsigned" }),
+                             { RepresentationOf(bop), "unsigned" }),
                 concrete->GetOpRange());
     return nullptr;
   }
@@ -464,7 +465,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
                              {"--", "integral or pointer"}),
                 expr->GetOpRange());
     break;
-  case Syntax::UnaryOperator::UOP_PointerTo:
+  case Syntax::UnaryOperator::UOP_AddrOf:
     if (baseExpr.borrow()->GetValueCat() == AST::Expr::VC_LValue) {
       return new AST::UnaryExpr(AST::UnaryExpr::UOP_AddrOf,
                                 std::move(baseExpr), baseExprTy,

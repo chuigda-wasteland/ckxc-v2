@@ -3,18 +3,15 @@
 
 #include <cstdint>
 #include <Frontend/Token.h>
+#include <AST/Expr.h>
 
 namespace ckx {
 namespace Syntax {
 
 enum class UnaryOperator {
-  UOP_SelfIncr,
-  UOP_SelfDecr,
-  UOP_PointerTo,
-  UOP_Deref,
-  UOP_Positive,
-  UOP_Negative,
-  UOP_BitReverse, UOP_LogicNot
+#define UNARY_OP_DEF(name, rep, text) UOP_##name,
+#include "Syntax/Operators.def"
+  UOP_Invalid
 };
 
 enum class BinaryOperator {
@@ -36,8 +33,8 @@ enum class CastOperator {
   COP_StaticCast, COP_ConstCast, COP_BitCast
 };
 
-std::uint16_t PrecOf(BinaryOperator bop) noexcept;
-const char *RepresentationOf(BinaryOperator bop) noexcept;
+std::uint16_t PrecOf(Syntax::BinaryOperator bop) noexcept;
+
 
 } // namespace Syntax
 } // namespace ckx

@@ -862,10 +862,10 @@ Syntax::UnaryOperator
 TokenToUnary(Frontend::Token::TokenKind token) noexcept {
   using namespace Syntax;
   switch (token) {
-  case Frontend::Token::TK_SYM_PLUS: return UnaryOperator::UOP_Positive;
+  case Frontend::Token::TK_SYM_PLUS:  return UnaryOperator::UOP_Positive;
   case Frontend::Token::TK_SYM_MINUS: return UnaryOperator::UOP_Negative;
   case Frontend::Token::TK_SYM_ASTER: return UnaryOperator::UOP_Deref;
-  case Frontend::Token::TK_SYM_AMP: return UnaryOperator::UOP_PointerTo;
+  case Frontend::Token::TK_SYM_AMP:   return UnaryOperator::UOP_AddrOf;
 
   default:
     sona_unreachable();

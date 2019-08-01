@@ -3,33 +3,33 @@
 namespace ckx {
 namespace Syntax {
 
-std::uint16_t PrecOf(BinaryOperator bop) noexcept {
+std::uint16_t PrecOf(Syntax::BinaryOperator bop) noexcept {
   switch (bop) {
-  case BinaryOperator::BOP_Mul:
-  case BinaryOperator::BOP_Div:
-  case BinaryOperator::BOP_Mod:
+  case Syntax::BinaryOperator::BOP_Mul:
+  case Syntax::BinaryOperator::BOP_Div:
+  case Syntax::BinaryOperator::BOP_Mod:
     return 40000;
 
-  case BinaryOperator::BOP_Add:
-  case BinaryOperator::BOP_Sub:
+  case Syntax::BinaryOperator::BOP_Add:
+  case Syntax::BinaryOperator::BOP_Sub:
     return 35000;
 
-  case BinaryOperator::BOP_BitAnd:
-  case BinaryOperator::BOP_BitOr:
-  case BinaryOperator::BOP_BitXor:
+  case Syntax::BinaryOperator::BOP_BitAnd:
+  case Syntax::BinaryOperator::BOP_BitOr:
+  case Syntax::BinaryOperator::BOP_BitXor:
     return 30000;
 
-  case BinaryOperator::BOP_Lt:
-  case BinaryOperator::BOP_Gt:
-  case BinaryOperator::BOP_LEq:
-  case BinaryOperator::BOP_GEq:
-  case BinaryOperator::BOP_Eq:
-  case BinaryOperator::BOP_NEq:
+  case Syntax::BinaryOperator::BOP_Lt:
+  case Syntax::BinaryOperator::BOP_Gt:
+  case Syntax::BinaryOperator::BOP_LEq:
+  case Syntax::BinaryOperator::BOP_GEq:
+  case Syntax::BinaryOperator::BOP_Eq:
+  case Syntax::BinaryOperator::BOP_NEq:
     return 25000;
 
-  case BinaryOperator::BOP_LogicAnd:
-  case BinaryOperator::BOP_LogicOr:
-  case BinaryOperator::BOP_LogicXor:
+  case Syntax::BinaryOperator::BOP_LogicAnd:
+  case Syntax::BinaryOperator::BOP_LogicOr:
+  case Syntax::BinaryOperator::BOP_LogicXor:
     return 20000;
 
   default:
@@ -37,38 +37,6 @@ std::uint16_t PrecOf(BinaryOperator bop) noexcept {
   }
 
   return 0;
-}
-
-/// @todo consider tablegen this function
-char const* RepresentationOf(BinaryOperator bop) noexcept {
-  switch (bop) {
-  case BinaryOperator::BOP_Mul: return "*";
-  case BinaryOperator::BOP_Div: return "/";
-  case BinaryOperator::BOP_Mod: return "%";
-  case BinaryOperator::BOP_Add: return "+";
-  case BinaryOperator::BOP_Sub: return "-";
-
-  case BinaryOperator::BOP_BitAnd: return "&";
-  case BinaryOperator::BOP_BitOr:  return "|";
-  case BinaryOperator::BOP_BitXor: return "^";
-
-  case BinaryOperator::BOP_Lt:  return "<";
-  case BinaryOperator::BOP_Gt:  return ">";
-  case BinaryOperator::BOP_LEq: return "<=";
-  case BinaryOperator::BOP_GEq: return ">=";
-  case BinaryOperator::BOP_Eq:  return "==";
-  case BinaryOperator::BOP_NEq: return "!=";
-
-  case BinaryOperator::BOP_LogicAnd: return "&&";
-  case BinaryOperator::BOP_LogicOr:  return "||";
-  case BinaryOperator::BOP_LogicXor: return "^^";
-
-  default:
-    {
-      sona_unreachable();
-      return "<not-implemented>";
-    }
-  }
 }
 
 } // namespace Syntax

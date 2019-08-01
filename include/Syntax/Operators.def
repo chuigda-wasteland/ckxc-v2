@@ -1,0 +1,39 @@
+#ifndef UNARY_OP_DEF
+#define UNARY_OP_DEF(name, rep, text)
+#endif
+
+UNARY_OP_DEF(SelfIncr,   "++", "self increment")
+UNARY_OP_DEF(SelfDecr,   "--", "self decrement")
+UNARY_OP_DEF(AddrOf,     "&",  "taking address")
+UNARY_OP_DEF(Deref,      "*",  "dereferencing pointer")
+UNARY_OP_DEF(Positive,   "+",  "<not-implemented>")
+UNARY_OP_DEF(Negative,   "-",  "negative")
+UNARY_OP_DEF(BitReverse, "~",  "bitwise reverse")
+UNARY_OP_DEF(LogicNot,   "!",  "logical not")
+
+#undef UNARY_OP_DEF
+
+
+#ifndef BINARY_OP_DEF
+#define BINARY_OP_DEF(name, rep, text)
+#endif
+
+BINARY_OP_DEF(Add,       "+",   "add")
+BINARY_OP_DEF(Sub,       "-",   "subtract")
+BINARY_OP_DEF(Mul,       "*",   "multiply")
+BINARY_OP_DEF(Div,       "/",   "divide")
+BINARY_OP_DEF(Mod,       "%",   "mod")
+BINARY_OP_DEF(LogicAnd,  "&&",  "logical and")
+BINARY_OP_DEF(LogicOr,   "||",  "logical or")
+BINARY_OP_DEF(LogicXor,  "^^",  "logical xor")
+BINARY_OP_DEF(BitAnd,    "&",   "bitwise and")
+BINARY_OP_DEF(BitOr,     "|",   "bitwise or")
+BINARY_OP_DEF(BitXor,    "^",   "bitwise xor")
+BINARY_OP_DEF(Lt,        "<",   "less than")
+BINARY_OP_DEF(Gt,        ">",   "greater than")
+BINARY_OP_DEF(Eq,        "==",  "equal to")
+BINARY_OP_DEF(LEq,       "<=",  "less than or equal to")
+BINARY_OP_DEF(GEq,       ">=",  "greater than or equal to")
+BINARY_OP_DEF(NEq,       "!=",  "not equal to")
+
+#undef BINARY_OP_DEF
