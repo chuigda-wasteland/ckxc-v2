@@ -133,9 +133,110 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                            sona::owner<AST::Expr> &&rhs,
                            Syntax::BinaryOperator bop) {
   (void)concrete;
-  (void)lhs;
-  (void)rhs;
-  (void)bop;
+
+  lhs = LValueToRValueDecay(std::move(lhs));
+  rhs = LValueToRValueDecay(std::move(rhs));
+
+  AST::QualType lhsTy = lhs.borrow()->GetExprType();
+  AST::QualType rhsTy = rhs.borrow()->GetExprType();
+
+  switch (bop) {
+  /// @todo here may be some duplicate codes, consider extracting methods
+  case Syntax::BinaryOperator::BOP_Add:
+    if (lhsTy.GetUnqualTy()->IsPointer() && rhsTy.GetUnqualTy()->IsBuiltin()
+        && rhsTy.GetUnqualTy()
+                .cast_unsafe<AST::BuiltinType const>()->IsIntegral()) {
+      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Add,
+                                 std::move(lhs), std::move(rhs),
+                                 lhsTy, AST::Expr::VC_RValue);
+    }
+    else if (lhsTy.GetUnqualTy()->IsBuiltin()
+             && rhsTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> lhsBuiltinTy =
+          lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      sona::ref_ptr<AST::BuiltinType const> rhsBuiltinTy =
+          rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      sona::ref_ptr<AST::BuiltinType const> commonType =
+          CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
+      if (commonType == nullptr) {
+        /// @todo add diagnostics info
+        return nullptr;
+      }
+      AST::QualType commonType1 = commonType.cast_unsafe<AST::Type const>();
+      lhs = TryImplicitCast(nullptr, std::move(lhs), commonType1);
+      rhs = TryImplicitCast(nullptr, std::move(rhs), commonType1);
+      sona_assert(lhs.borrow() != nullptr && rhs.borrow() != nullptr);
+      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Add,
+                                 std::move(lhs), std::move(rhs),
+                                 commonType1, AST::Expr::VC_RValue);
+    }
+    else {
+      /// @todo add diagnostics info
+      return nullptr;
+    }
+
+  case Syntax::BinaryOperator::BOP_Sub:
+    if (lhsTy.GetUnqualTy()->IsPointer() && rhsTy.GetUnqualTy()->IsBuiltin()
+        && rhsTy.GetUnqualTy()
+                .cast_unsafe<AST::BuiltinType const>()->IsIntegral()) {
+      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Sub,
+                                 std::move(lhs), std::move(rhs),
+                                 lhsTy, AST::Expr::VC_RValue);
+    }
+    else if (lhsTy.GetUnqualTy()->IsPointer()
+             && rhsTy.GetUnqualTy()->IsPointer()) {
+      sona::ref_ptr<AST::PointerType const> lhsPointerTy =
+          lhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+      sona::ref_ptr<AST::PointerType const> rhsPointerTy =
+          rhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
+      if (lhsPointerTy->GetPointee().GetUnqualTy()
+          != rhsPointerTy->GetPointee().GetUnqualTy()) {
+        /// @todo add diagnostics info
+        return nullptr;
+      }
+      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Sub,
+                                 std::move(lhs), std::move(rhs),
+                                 m_ASTContext.GetBuiltinType(
+                                   AST::BuiltinType::BTI_UInt32),
+                                  /// @todo add size_t, ssize_t,
+                                  /// intptr_t, uintptr_t
+                                 AST::Expr::VC_RValue);
+    }
+    else if (lhsTy.GetUnqualTy()->IsBuiltin()
+             && rhsTy.GetUnqualTy()->IsBuiltin()) {
+      sona::ref_ptr<AST::BuiltinType const> lhsBuiltinTy =
+          lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      sona::ref_ptr<AST::BuiltinType const> rhsBuiltinTy =
+          rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+      sona::ref_ptr<AST::BuiltinType const> commonType =
+          CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
+      if (commonType == nullptr) {
+        /// @todo add diagnostics info
+        return nullptr;
+      }
+      AST::QualType commonType1 = commonType.cast_unsafe<AST::Type const>();
+      lhs = TryImplicitCast(nullptr, std::move(lhs), commonType1);
+      rhs = TryImplicitCast(nullptr, std::move(rhs), commonType1);
+      sona_assert(lhs.borrow() != nullptr && rhs.borrow() != nullptr);
+      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Sub,
+                                 std::move(lhs), std::move(rhs),
+                                 commonType1, AST::Expr::VC_RValue);
+    }
+    else {
+      /// @todo add diagnostics info
+      return nullptr;
+    }
+
+  case Syntax::BinaryOperator::BOP_Mul:
+    break;
+  case Syntax::BinaryOperator::BOP_Div:
+    break;
+  case Syntax::BinaryOperator::BOP_Mod:
+    break;
+  default: ;
+  }
+
+  sona_unreachable();
   return nullptr;
 }
 
@@ -558,7 +659,6 @@ SemaPhase1::TryImplicitCast(sona::ref_ptr<const Syntax::Expr> concrete,
   sona::ref_ptr<AST::Type const> fromTypeUnqual = fromType.GetUnqualTy();
   sona::ref_ptr<AST::Type const> destTypeUnqual = destType.GetUnqualTy();
 
-  /// Convert from lvalue to rvalue, removing all qualifiers
   if (fromTypeUnqual == destTypeUnqual) {
     LValueToRValueDecay(castedExpr.borrow()->GetValueCat(),
                         castedExpr.borrow()->GetExprType(),
