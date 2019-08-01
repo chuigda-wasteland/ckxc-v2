@@ -1,9 +1,8 @@
-#ifndef OPERATOR_H
-#define OPERATOR_H
+#ifndef SYNTAX_OPERATOR_H
+#define SYNTAX_OPERATOR_H
 
 #include <cstdint>
 #include <Frontend/Token.h>
-#include <AST/Expr.h>
 
 namespace ckx {
 namespace Syntax {
@@ -15,11 +14,8 @@ enum class UnaryOperator {
 };
 
 enum class BinaryOperator {
-  BOP_Add, BOP_Sub, BOP_Mul, BOP_Div, BOP_Mod,
-  BOP_LogicAnd, BOP_LogicOr,  BOP_LogicXor,
-  BOP_BitAnd, BOP_BitOr, BOP_BitXor,
-  BOP_Lt, BOP_Gt, BOP_Eq, BOP_LEq, BOP_GEq, BOP_NEq,
-
+#define BINARY_OP_DEF(name, rep, text) BOP_##name,
+#include "Syntax/Operators.def"
   BOP_Invalid
 };
 
@@ -34,7 +30,6 @@ enum class CastOperator {
 };
 
 std::uint16_t PrecOf(Syntax::BinaryOperator bop) noexcept;
-
 
 } // namespace Syntax
 } // namespace ckx

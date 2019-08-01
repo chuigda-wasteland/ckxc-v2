@@ -35,13 +35,5 @@ char const* RepresentationOf(Syntax::BinaryOperator bop) noexcept {
   }
 }
 
-AST::BinaryExpr::BinaryOperator
-OperatorConv(Syntax::BinaryOperator bop) noexcept {
-  switch (bop) {
-  case Syntax::BinaryOperator::BOP_LogicAnd:
-    return AST::BinaryExpr::BOP_LogicalAnd;
-  }
-}
-
 }
 }

@@ -1,10 +1,12 @@
-#ifndef EXPR_H
-#define EXPR_H
+#ifndef SEMA_EXPR_H
+#define SEMA_EXPR_H
 
 #include "DeclBase.h"
 #include "ExprBase.h"
 #include "StmtBase.h"
 #include "TypeBase.h"
+
+#include "Syntax/Operator.h"
 
 #include "sona/either.h"
 #include "sona/optional.h"
@@ -180,14 +182,9 @@ private:
 class UnaryExpr : public Expr {
 public:
   enum UnaryOperator {
-    UOP_Incr,
-    UOP_Decr,
-    UOP_Deref,
-    UOP_AddrOf,
-    UOP_Positive,
-    UOP_Negative,
-    UOP_LogicalNot,
-    UOP_BitwiseNot
+  #define UNARY_OP_DEF(name, rep, text) UOP_##name,
+  #include "Syntax/Operators.def"
+    UOP_Invalid
   };
 
   UnaryExpr(UnaryOperator op, sona::owner<Expr> &&operand,
@@ -209,29 +206,9 @@ private:
 class BinaryExpr : public Expr {
 public:
   enum BinaryOperator {
-    BOP_Add,
-    BOP_Sub,
-    BOP_Mul,
-    BOP_Div,
-    BOP_Mod,
-
-    BOP_LogicalAnd,
-    BOP_LogicalOr,
-    BOP_LogicalXor,
-
-    BOP_BitwiseAnd,
-    BOP_BitwiseOr,
-    BOP_BitwiseXor,
-
-    BOP_LShift,
-    BOP_RShift,
-
-    BOP_Lt,
-    BOP_Gt,
-    BOP_Eq,
-    BOP_Neq,
-    BOP_Leq,
-    BOP_Geq
+  #define BINARY_OP_DEF(name, rep, text) BOP_##name,
+  #include "Syntax/Operators.def"
+    BOP_Invalid
   };
 
   BinaryExpr(BinaryOperator op, sona::owner<Expr> &&leftOperand,

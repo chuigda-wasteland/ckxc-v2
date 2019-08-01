@@ -174,13 +174,13 @@ SemaPhase1::ActOnLogic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   AST::BinaryExpr::BinaryOperator bop1;
   switch (bop) {
   case Syntax::BinaryOperator::BOP_LogicAnd:
-    bop1 = AST::BinaryExpr::BOP_LogicalAnd;
+    bop1 = AST::BinaryExpr::BOP_LogicAnd;
     break;
   case Syntax::BinaryOperator::BOP_LogicOr:
-    bop1 = AST::BinaryExpr::BOP_LogicalOr;
+    bop1 = AST::BinaryExpr::BinaryOperator::BOP_LogicOr;
     break;
   case Syntax::BinaryOperator::BOP_LogicXor:
-    bop1 = AST::BinaryExpr::BOP_LogicalXor;
+    bop1 = AST::BinaryExpr::BOP_LogicXor;
     break;
   default:
     sona_unreachable();
@@ -240,14 +240,11 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   AST::BinaryExpr::BinaryOperator bop1;
   switch (bop) {
   case Syntax::BinaryOperator::BOP_BitAnd:
-    bop1 = AST::BinaryExpr::BOP_BitwiseAnd;
-    break;
+    bop1 = AST::BinaryExpr::BOP_BitAnd; break;
   case Syntax::BinaryOperator::BOP_BitOr:
-    bop1 = AST::BinaryExpr::BOP_BitwiseOr;
-    break;
+    bop1 = AST::BinaryExpr::BOP_BitOr;  break;
   case Syntax::BinaryOperator::BOP_BitXor:
-    bop1 = AST::BinaryExpr::BOP_BitwiseXor;
-    break;
+    bop1 = AST::BinaryExpr::BOP_BitXor; break;
   default:
     sona_unreachable();
     return nullptr;
@@ -267,23 +264,17 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   AST::BinaryExpr::BinaryOperator bop1;
   switch (bop) {
   case Syntax::BinaryOperator::BOP_Lt:
-    bop1 = AST::BinaryExpr::BOP_Lt;
-    break;
+    bop1 = AST::BinaryExpr::BOP_Lt; break;
   case Syntax::BinaryOperator::BOP_Gt:
-    bop1 = AST::BinaryExpr::BOP_Gt;
-    break;
+    bop1 = AST::BinaryExpr::BOP_Gt; break;
   case Syntax::BinaryOperator::BOP_Eq:
-    bop1 = AST::BinaryExpr::BOP_Eq;
-    break;
+    bop1 = AST::BinaryExpr::BOP_Eq; break;
   case Syntax::BinaryOperator::BOP_LEq:
-    bop1 = AST::BinaryExpr::BOP_Leq;
-    break;
+    bop1 = AST::BinaryExpr::BOP_LEq; break;
   case Syntax::BinaryOperator::BOP_GEq:
-    bop1 = AST::BinaryExpr::BOP_Geq;
-    break;
+    bop1 = AST::BinaryExpr::BOP_GEq; break;
   case Syntax::BinaryOperator::BOP_NEq:
-    bop1 = AST::BinaryExpr::BOP_Neq;
-    break;
+    bop1 = AST::BinaryExpr::BOP_NEq; break;
   default:
     sona_unreachable();
     return nullptr;
@@ -384,7 +375,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->GetBtid()
           == AST::BuiltinType::BTI_Bool) {
-        return new AST::UnaryExpr(AST::UnaryExpr::UOP_LogicalNot,
+        return new AST::UnaryExpr(AST::UnaryExpr::UOP_LogicNot,
                                   LValueToRValueDecay(std::move(baseExpr)),
                                   m_ASTContext.GetBuiltinType(
                                     AST::BuiltinType::BTI_Bool),
@@ -430,13 +421,13 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       sona::ref_ptr<AST::BuiltinType const> builtinTy =
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral()) {
-        return new AST::UnaryExpr(AST::UnaryExpr::UOP_Incr,
+        return new AST::UnaryExpr(AST::UnaryExpr::UOP_SelfIncr,
                                   LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
-      return new AST::UnaryExpr(AST::UnaryExpr::UOP_Incr,
+      return new AST::UnaryExpr(AST::UnaryExpr::UOP_SelfIncr,
                                 LValueToRValueDecay(std::move(baseExpr)),
                                 baseExprTy, AST::Expr::VC_RValue);
     }
@@ -450,13 +441,13 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       sona::ref_ptr<AST::BuiltinType const> builtinTy =
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral()) {
-        return new AST::UnaryExpr(AST::UnaryExpr::UOP_Decr,
+        return new AST::UnaryExpr(AST::UnaryExpr::UOP_SelfDecr,
                                   LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::VC_RValue);
       }
     }
     else if (baseExprTy.GetUnqualTy()->IsPointer()) {
-      return new AST::UnaryExpr(AST::UnaryExpr::UOP_Decr,
+      return new AST::UnaryExpr(AST::UnaryExpr::UOP_SelfDecr,
                                 LValueToRValueDecay(std::move(baseExpr)),
                                 baseExprTy, AST::Expr::VC_RValue);
     }
@@ -480,7 +471,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
       sona::ref_ptr<AST::BuiltinType const> builtinTy =
           baseExprTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
       if (builtinTy->IsIntegral() && builtinTy->IsUnsigned()) {
-        return new AST::UnaryExpr(AST::UnaryExpr::UOP_BitwiseNot,
+        return new AST::UnaryExpr(AST::UnaryExpr::UOP_BitReverse,
                                   LValueToRValueDecay(std::move(baseExpr)),
                                   baseExprTy, AST::Expr::VC_RValue);
       }
@@ -490,6 +481,7 @@ SemaPhase1::ActOnUnaryAlgebraicExpr(
                              {"~", "unsigned int"}),
                 expr->GetOpRange());
     break;
+  case Syntax::UnaryOperator::UOP_Invalid: ;
   }
   sona_unreachable();
   return nullptr;
