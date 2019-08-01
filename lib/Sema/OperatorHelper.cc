@@ -6,34 +6,29 @@ namespace Sema {
 /// @todo consider tablegen this function
 char const* RepresentationOf(Syntax::BinaryOperator bop) noexcept {
   switch (bop) {
-  case Syntax::BinaryOperator::BOP_Mul: return "*";
-  case Syntax::BinaryOperator::BOP_Div: return "/";
-  case Syntax::BinaryOperator::BOP_Mod: return "%";
-  case Syntax::BinaryOperator::BOP_Add: return "+";
-  case Syntax::BinaryOperator::BOP_Sub: return "-";
-
-  case Syntax::BinaryOperator::BOP_BitAnd: return "&";
-  case Syntax::BinaryOperator::BOP_BitOr:  return "|";
-  case Syntax::BinaryOperator::BOP_BitXor: return "^";
-
-  case Syntax::BinaryOperator::BOP_Lt:  return "<";
-  case Syntax::BinaryOperator::BOP_Gt:  return ">";
-  case Syntax::BinaryOperator::BOP_LEq: return "<=";
-  case Syntax::BinaryOperator::BOP_GEq: return ">=";
-  case Syntax::BinaryOperator::BOP_Eq:  return "==";
-  case Syntax::BinaryOperator::BOP_NEq: return "!=";
-
-  case Syntax::BinaryOperator::BOP_LogicAnd: return "&&";
-  case Syntax::BinaryOperator::BOP_LogicOr:  return "||";
-  case Syntax::BinaryOperator::BOP_LogicXor: return "^^";
-
-  default:
-    {
-      sona_unreachable();
-      return "<not-implemented>";
-    }
+#define BINARY_OP_DEF(name, rep, text) \
+  case Syntax::BinaryOperator::BOP_##name: return rep;
+#include "Syntax/Operators.def"
+  case Syntax::BinaryOperator::BOP_Invalid: ;
   }
+
+  sona_unreachable();
+  return "<not-implemented>";
 }
 
+AST::BinaryExpr::BinaryOperator
+OperatorConv(Syntax::BinaryOperator bop) noexcept {
+  /// @note since we use tablegen to generate operator tags, we can simply
+  /// cast them according to their numeric values.
+  return static_cast<AST::BinaryExpr::BinaryOperator>(bop);
 }
+
+AST::UnaryExpr::UnaryOperator
+OperatorConv(Syntax::UnaryOperator uop) noexcept {
+  /// @note since we use tablegen to generate operator tags, we can simply
+  /// cast them according to their numeric values.
+  return static_cast<AST::UnaryExpr::UnaryOperator>(uop);
 }
+
+} // namespace Sema
+} // namespace ckx
