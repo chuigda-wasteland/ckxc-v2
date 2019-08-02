@@ -54,6 +54,11 @@ protected:
                  Syntax::BinaryOperator bop);
 
   sona::owner<AST::Expr>
+  ActOnNumeric(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+               sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+               Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
   ActOnLogic(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
              sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
              Syntax::BinaryOperator bop);

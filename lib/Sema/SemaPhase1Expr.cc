@@ -152,23 +152,7 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
     }
     else if (lhsTy.GetUnqualTy()->IsBuiltin()
              && rhsTy.GetUnqualTy()->IsBuiltin()) {
-      sona::ref_ptr<AST::BuiltinType const> lhsBuiltinTy =
-          lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-      sona::ref_ptr<AST::BuiltinType const> rhsBuiltinTy =
-          rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-      sona::ref_ptr<AST::BuiltinType const> commonType =
-          CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
-      if (commonType == nullptr) {
-        /// @todo add diagnostics info
-        return nullptr;
-      }
-      AST::QualType commonType1 = commonType.cast_unsafe<AST::Type const>();
-      lhs = TryImplicitCast(nullptr, std::move(lhs), commonType1);
-      rhs = TryImplicitCast(nullptr, std::move(rhs), commonType1);
-      sona_assert(lhs.borrow() != nullptr && rhs.borrow() != nullptr);
-      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Add,
-                                 std::move(lhs), std::move(rhs),
-                                 commonType1, AST::Expr::VC_RValue);
+      return ActOnNumeric(concrete, std::move(lhs), std::move(rhs), bop);
     }
     else {
       /// @todo add diagnostics info
@@ -204,23 +188,7 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
     }
     else if (lhsTy.GetUnqualTy()->IsBuiltin()
              && rhsTy.GetUnqualTy()->IsBuiltin()) {
-      sona::ref_ptr<AST::BuiltinType const> lhsBuiltinTy =
-          lhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-      sona::ref_ptr<AST::BuiltinType const> rhsBuiltinTy =
-          rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
-      sona::ref_ptr<AST::BuiltinType const> commonType =
-          CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
-      if (commonType == nullptr) {
-        /// @todo add diagnostics info
-        return nullptr;
-      }
-      AST::QualType commonType1 = commonType.cast_unsafe<AST::Type const>();
-      lhs = TryImplicitCast(nullptr, std::move(lhs), commonType1);
-      rhs = TryImplicitCast(nullptr, std::move(rhs), commonType1);
-      sona_assert(lhs.borrow() != nullptr && rhs.borrow() != nullptr);
-      return new AST::BinaryExpr(AST::BinaryExpr::BOP_Sub,
-                                 std::move(lhs), std::move(rhs),
-                                 commonType1, AST::Expr::VC_RValue);
+      return ActOnNumeric(concrete, std::move(lhs), std::move(rhs), bop);
     }
     else {
       /// @todo add diagnostics info
@@ -228,16 +196,49 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
     }
 
   case Syntax::BinaryOperator::BOP_Mul:
-    break;
   case Syntax::BinaryOperator::BOP_Div:
-    break;
   case Syntax::BinaryOperator::BOP_Mod:
+    return ActOnNumeric(concrete, std::move(lhs), std::move(rhs), bop);
     break;
   default: ;
   }
 
   sona_unreachable();
   return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnNumeric(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
+                         sona::owner<AST::Expr> &&lhs,
+                         sona::owner<AST::Expr> &&rhs,
+                         Syntax::BinaryOperator bop) {
+  sona::ref_ptr<AST::BuiltinType const> lhsBuiltinTy =
+      lhs.borrow()->GetExprType().GetUnqualTy()
+         .cast_unsafe<AST::BuiltinType const>();
+  sona::ref_ptr<AST::BuiltinType const> rhsBuiltinTy =
+      rhs.borrow()->GetExprType().GetUnqualTy()
+         .cast_unsafe<AST::BuiltinType const>();
+
+  if (bop == Syntax::BinaryOperator::BOP_Mod
+      && !rhsBuiltinTy->IsIntegral()) {
+    /// @todo add diagnostics
+    return nullptr;
+  }
+
+  sona::ref_ptr<AST::BuiltinType const> commonType =
+      CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
+  AST::QualType commonType1(commonType.cast_unsafe<AST::Type const>());
+  if (commonType == nullptr) {
+    /// @todo add diagnostics
+    return nullptr;
+  }
+  lhs = TryImplicitCast(concrete->GetLeftHandSide(),
+                        std::move(lhs), commonType1);
+  rhs = TryImplicitCast(concrete->GetLeftHandSide(),
+                        std::move(rhs), commonType1);
+  sona_assert(lhs.borrow() != nullptr && rhs.borrow() != nullptr);
+  return new AST::BinaryExpr(OperatorConv(bop), std::move(lhs), std::move(rhs),
+                             commonType1, AST::Expr::VC_RValue);
 }
 
 sona::owner<AST::Expr>

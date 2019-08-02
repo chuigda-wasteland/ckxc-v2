@@ -202,7 +202,8 @@ size_t PointerType::GetHash() const noexcept {
 bool PointerType::EqualTo(Type const &that) const noexcept {
   if (that.GetTypeId() == TypeId::TI_Pointer) {
     PointerType const &t = static_cast<PointerType const &>(that);
-    return GetPointee().GetUnqualTy()->EqualTo(t.GetPointee().GetUnqualTy().get())
+    return GetPointee().GetUnqualTy()->EqualTo(
+             t.GetPointee().GetUnqualTy().get())
            && GetPointee().GetCVR() == t.GetPointee().GetCVR();
   }
   return false;
