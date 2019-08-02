@@ -874,7 +874,7 @@ TokenToUnary(Frontend::Token::TokenKind token) noexcept {
   default: ;
   }
   sona_unreachable();
-  return UnaryOperator::UOP_Positive; // For silencing compiler warnings
+  return UnaryOperator::UOP_Invalid; // For silencing compiler warnings
 }
 
 Syntax::BinaryOperator
@@ -894,6 +894,12 @@ TokenToBinary(Frontend::Token::TokenKind token) noexcept {
   case Frontend::Token::TK_SYM_TIP:     return BinaryOperator::BOP_BitXor;
   case Frontend::Token::TK_SYM_LTLT:    return BinaryOperator::BOP_BitLshift;
   case Frontend::Token::TK_SYM_GTGT:    return BinaryOperator::BOP_BitRshift;
+  case Frontend::Token::TK_SYM_LT:      return BinaryOperator::BOP_Lt;
+  case Frontend::Token::TK_SYM_GT:      return BinaryOperator::BOP_Gt;
+  case Frontend::Token::TK_SYM_EQEQ:    return BinaryOperator::BOP_Eq;
+  case Frontend::Token::TK_SYM_LTEQ:    return BinaryOperator::BOP_LEq;
+  case Frontend::Token::TK_SYM_GTEQ:    return BinaryOperator::BOP_GEq;
+  case Frontend::Token::TK_SYM_EXCEQ:   return BinaryOperator::BOP_NEq;
 
   default: ;
   }
