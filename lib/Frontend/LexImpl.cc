@@ -53,7 +53,8 @@ void LexerImpl::LexAllTokens() {
 
     case '{': case '}': case '(': case ')': case ',': case ';': case ':':
     case '[': case ']': case '=': case '.': case '+': case '-': case '*':
-    case '&':
+    case '&': case '<': case '>': case '!': case '~': case '^': case '/':
+    case '%': case '|':
       LexSymbol();
       break;
 
@@ -416,6 +417,26 @@ void LexerImpl::LexSymbol() {
     }
     break;
 
+  case '|':
+    if (PeekOneChar() == '|') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DPIPE, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_PIPE, CurCharRange());
+    }
+    break;
+
+  case '^':
+    if (PeekOneChar() == '^') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_DTIP, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_TIP, CurCharRange());
+    }
+    break;
+
   case ':':
     if (PeekOneChar() == ':') {
       NextChar();
@@ -428,6 +449,12 @@ void LexerImpl::LexSymbol() {
 
   case '*':
     m_TokenStream.emplace_back(Token::TK_SYM_ASTER, CurCharRange()); break;
+
+  case '/':
+    m_TokenStream.emplace_back(Token::TK_SYM_SLASH, CurCharRange()); break;
+
+  case '%':
+    m_TokenStream.emplace_back(Token::TK_SYM_PERCENT, CurCharRange()); break;
   }
 
   NextChar();

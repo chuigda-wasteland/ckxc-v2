@@ -85,8 +85,12 @@ void test2() {
 }
 
 void test3() {
-  VkTestSectionStart("Operators lexing test 1");
-  string file = R"np1p2p3({ } [ ] ( ) ; : :: . ,)np1p2p3";
+  VkTestSectionStart("Operators lexing test");
+
+  string file = "";
+  size_t operators = 0;
+#define TOKEN_SYM(name, rep) { file += string(rep) + string(" "); operators++; }
+#include "Frontend/Tokens.def"
   vector<string> lines = { file };
 
   Diag::DiagnosticEngine diag("c.c", lines);
@@ -99,60 +103,21 @@ void test3() {
   VkAssertFalse(diag.HasPendingDiags());
 
   Frontend::Token::TokenKind tks[] = {
-    Frontend::Token::TK_SYM_LBRACE,
-    Frontend::Token::TK_SYM_RBRACE,
-    Frontend::Token::TK_SYM_LBRACKET,
-    Frontend::Token::TK_SYM_RBRACKET,
-    Frontend::Token::TK_SYM_LPAREN,
-    Frontend::Token::TK_SYM_RPAREN,
-    Frontend::Token::TK_SYM_SEMI,
-    Frontend::Token::TK_SYM_COLON,
-    Frontend::Token::TK_SYM_DCOLON,
-    Frontend::Token::TK_SYM_DOT,
-    Frontend::Token::TK_SYM_COMMA
+#define TOKEN_SYM(name, rep) Frontend::Token::TK_SYM_##name,
+#include "Frontend/Tokens.def"
   };
 
-  VkAssertEquals(12uL, tokens.size());
-  for (int i = 0; i < 11; i++) {
+  VkAssertEquals(operators, tokens.size() - 1);
+  for (size_t i = 0; i < operators; i++) {
     VkAssertEquals(tks[i], tokens[i].GetTokenKind());
   }
 }
 
 void test4() {
-  VkTestSectionStart("Operators lexing test 2");
-  string file = R"htmlisshit(= + - ++ -- * & &&)htmlisshit";
-  vector<string> lines = { file };
-
-  Diag::DiagnosticEngine diag("c.c", lines);
-  Frontend::Lexer lexer(move(file), diag);
-
-  diag.EmitDiags();
-
-  vector<Frontend::Token> tokens = lexer.GetAndReset();
-
-  VkAssertFalse(diag.HasPendingDiags());
-
-  Frontend::Token::TokenKind tks[] = {
-    Frontend::Token::TK_SYM_EQ,
-    Frontend::Token::TK_SYM_PLUS,
-    Frontend::Token::TK_SYM_MINUS,
-    Frontend::Token::TK_SYM_DPLUS,
-    Frontend::Token::TK_SYM_DMINUS,
-    Frontend::Token::TK_SYM_ASTER,
-    Frontend::Token::TK_SYM_AMP,
-    Frontend::Token::TK_SYM_DAMP,
-  };
-
-  VkAssertEquals(9uL, tokens.size());
-  for (int i = 0; i < 8; i++) {
-    VkAssertEquals(tks[i], tokens[i].GetTokenKind());
-  }
-}
-
-void test5() {
   VkTestSectionStart("Keywords lexing test");
   string file = "";
-#define TOKEN_KWD(name, rep) file += string(rep) + string(" ");
+  size_t keywords = 0;
+#define TOKEN_KWD(name, rep) { file += string(rep) + string(" "); keywords++; }
 #include "Frontend/Tokens.def"
   vector<string> lines = { file };
 
@@ -170,8 +135,8 @@ void test5() {
 #include "Frontend/Tokens.def"
   };
 
-  VkAssertEquals(32uL, tokens.size());
-  for (int i = 0; i < 31; i++) {
+  VkAssertEquals(keywords, tokens.size() - 1);
+  for (size_t i = 0; i < keywords; i++) {
     VkAssertEquals(tks[i], tokens[i].GetTokenKind());
   }
 }
@@ -184,7 +149,6 @@ int main() {
   test2();
   test3();
   test4();
-  test5();
 
   VkTestFinish();
 }

@@ -881,9 +881,19 @@ Syntax::BinaryOperator
 TokenToBinary(Frontend::Token::TokenKind token) noexcept {
   using namespace Syntax;
   switch (token) {
-  case Frontend::Token::TK_SYM_PLUS:  return BinaryOperator::BOP_Add;
-  case Frontend::Token::TK_SYM_MINUS: return BinaryOperator::BOP_Sub;
-  case Frontend::Token::TK_SYM_ASTER: return BinaryOperator::BOP_Mul;
+  case Frontend::Token::TK_SYM_PLUS:    return BinaryOperator::BOP_Add;
+  case Frontend::Token::TK_SYM_MINUS:   return BinaryOperator::BOP_Sub;
+  case Frontend::Token::TK_SYM_ASTER:   return BinaryOperator::BOP_Mul;
+  case Frontend::Token::TK_SYM_SLASH:   return BinaryOperator::BOP_Div;
+  case Frontend::Token::TK_SYM_PERCENT: return BinaryOperator::BOP_Mod;
+  case Frontend::Token::TK_SYM_DAMP:    return BinaryOperator::BOP_LogicAnd;
+  case Frontend::Token::TK_SYM_DPIPE:   return BinaryOperator::BOP_LogicOr;
+  case Frontend::Token::TK_SYM_DTIP:    return BinaryOperator::BOP_LogicXor;
+  case Frontend::Token::TK_SYM_AMP:     return BinaryOperator::BOP_BitAnd;
+  case Frontend::Token::TK_SYM_PIPE:    return BinaryOperator::BOP_BitOr;
+  case Frontend::Token::TK_SYM_TIP:     return BinaryOperator::BOP_BitXor;
+  case Frontend::Token::TK_SYM_LTLT:    return BinaryOperator::BOP_BitLshift;
+  case Frontend::Token::TK_SYM_GTGT:    return BinaryOperator::BOP_BitRshift;
 
   default: ;
   }
