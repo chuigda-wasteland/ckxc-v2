@@ -69,6 +69,11 @@ protected:
                Syntax::BinaryOperator bop);
 
   sona::owner<AST::Expr>
+  ActOnBitwiseShift(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
+                    sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
+                    Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
   ActOnCompare(sona::ref_ptr<Syntax::BinaryExpr const> concrete,
                sona::owner<AST::Expr> &&lhs, sona::owner<AST::Expr> &&rhs,
                Syntax::BinaryOperator bop);

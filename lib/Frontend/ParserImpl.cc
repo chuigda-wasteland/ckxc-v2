@@ -862,15 +862,19 @@ Syntax::UnaryOperator
 TokenToUnary(Frontend::Token::TokenKind token) noexcept {
   using namespace Syntax;
   switch (token) {
-  case Frontend::Token::TK_SYM_PLUS:  return UnaryOperator::UOP_Positive;
-  case Frontend::Token::TK_SYM_MINUS: return UnaryOperator::UOP_Negative;
-  case Frontend::Token::TK_SYM_ASTER: return UnaryOperator::UOP_Deref;
-  case Frontend::Token::TK_SYM_AMP:   return UnaryOperator::UOP_AddrOf;
+  case Frontend::Token::TK_SYM_PLUS:    return UnaryOperator::UOP_Positive;
+  case Frontend::Token::TK_SYM_MINUS:   return UnaryOperator::UOP_Negative;
+  case Frontend::Token::TK_SYM_ASTER:   return UnaryOperator::UOP_Deref;
+  case Frontend::Token::TK_SYM_AMP:     return UnaryOperator::UOP_AddrOf;
+  case Frontend::Token::TK_SYM_DPLUS:   return UnaryOperator::UOP_SelfIncr;
+  case Frontend::Token::TK_SYM_DMINUS:  return UnaryOperator::UOP_SelfDecr;
+  case Frontend::Token::TK_SYM_EXCLAIM: return UnaryOperator::UOP_LogicNot;
+  case Frontend::Token::TK_SYM_WAVE:    return UnaryOperator::UOP_BitReverse;
 
-  default:
-    sona_unreachable();
-    return UnaryOperator::UOP_Positive; // For silencing compiler warnings
+  default: ;
   }
+  sona_unreachable();
+  return UnaryOperator::UOP_Positive; // For silencing compiler warnings
 }
 
 Syntax::BinaryOperator
@@ -881,10 +885,10 @@ TokenToBinary(Frontend::Token::TokenKind token) noexcept {
   case Frontend::Token::TK_SYM_MINUS: return BinaryOperator::BOP_Sub;
   case Frontend::Token::TK_SYM_ASTER: return BinaryOperator::BOP_Mul;
 
-  default:
-    sona_unreachable();
-    return BinaryOperator::BOP_Invalid;
+  default: ;
   }
+  sona_unreachable();
+  return BinaryOperator::BOP_Invalid;
 }
 
 Syntax::CastOperator

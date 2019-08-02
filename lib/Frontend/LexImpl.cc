@@ -321,10 +321,38 @@ void LexerImpl::LexSymbol() {
     m_TokenStream.emplace_back(Token::TK_SYM_RPAREN, CurCharRange()); break;
 
   case '<':
-    m_TokenStream.emplace_back(Token::TK_SYM_LT, CurCharRange()); break;
+    switch (PeekOneChar()) {
+    case '<':
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_LTLT, CurCharRange());
+      break;
+
+    case '=':
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_LTEQ, CurCharRange());
+      break;
+
+    default:
+      m_TokenStream.emplace_back(Token::TK_SYM_LT, CurCharRange());
+    }
+    break;
 
   case '>':
-    m_TokenStream.emplace_back(Token::TK_SYM_GT, CurCharRange()); break;
+    switch (PeekOneChar()) {
+    case '>':
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_GTGT, CurCharRange());
+      break;
+
+    case '=':
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_GTEQ, CurCharRange());
+      break;
+
+    default:
+      m_TokenStream.emplace_back(Token::TK_SYM_GT, CurCharRange());
+    }
+    break;
 
   case ',':
     m_TokenStream.emplace_back(Token::TK_SYM_COMMA, CurCharRange()); break;
@@ -332,8 +360,28 @@ void LexerImpl::LexSymbol() {
   case ';':
     m_TokenStream.emplace_back(Token::TK_SYM_SEMI, CurCharRange()); break;
 
+  case '~':
+    m_TokenStream.emplace_back(Token::TK_SYM_WAVE, CurCharRange()); break;
+
   case '=':
-    m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange()); break;
+    if (PeekOneChar() == '=') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_EQEQ, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_EQ, CurCharRange());
+    }
+    break;
+
+  case '!':
+    if (PeekOneChar() == '=') {
+      NextChar();
+      m_TokenStream.emplace_back(Token::TK_SYM_EXCEQ, CurCharRange());
+    }
+    else {
+      m_TokenStream.emplace_back(Token::TK_SYM_EXCLAIM, CurCharRange());
+    }
+    break;
 
   case '.':
     m_TokenStream.emplace_back(Token::TK_SYM_DOT, CurCharRange()); break;
