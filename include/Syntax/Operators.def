@@ -57,6 +57,6 @@ ASSIGN_OP_DEF(BitOrAssign,  "|=", "bitor and assign to")
 ASSIGN_OP_DEF(BitXorAssign, "^=", "bitxor and assign to")
 
 ASSIGN_OP_DEF(BitLshiftAssign, "<<=", "bit lshift and assign to")
-ASSIGN_OP_DEF(BitLshiftAssign, ">>=", "bit rshift and assign to")
+ASSIGN_OP_DEF(BitRshiftAssign, ">>=", "bit rshift and assign to")
 
 #undef ASSIGN_OP_DEF

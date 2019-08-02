@@ -142,21 +142,9 @@ private:
 class AssignExpr : public Expr {
 public:
   enum class AssignmentOperator {
-    AOP_Assign,
-
-    AOP_AddAssign,
-    AOP_SubAssign,
-    AOP_MulAssign,
-    AOP_DivAssign,
-    AOP_ModAssign,
-
-    AOP_BitwiseAndAssign,
-    AOP_BitwiseOrAssign,
-    AOP_BitwiseNotAssign,
-    AOP_BitwiseXorAssign,
-
-    AOP_BitwiseLShiftAssign,
-    AOP_BitwiseRShiftAssign
+#define ASSIGN_OP_DEF(name, rep, text) AOP_##name,
+#include "Syntax/Operators.def"
+  AOP_Invalid
   };
 
   AssignExpr(AssignmentOperator op, sona::owner<Expr> &&assigned,

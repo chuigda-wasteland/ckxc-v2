@@ -29,6 +29,7 @@ protected:
   sona::owner<Syntax::Type> ParseType();
 
   sona::owner<Syntax::Expr> ParseExpr();
+  sona::owner<Syntax::Expr> ParseAssignExpr();
   sona::owner<Syntax::Expr> ParseLiteralExpr();
   sona::owner<Syntax::Expr> ParseIdRefExpr();
 
@@ -83,6 +84,7 @@ private:
 
 Syntax::UnaryOperator TokenToUnary(Frontend::Token::TokenKind token) noexcept;
 Syntax::BinaryOperator TokenToBinary(Frontend::Token::TokenKind token) noexcept;
+Syntax::AssignOperator TokenToAssign(Frontend::Token::TokenKind token) noexcept;
 Syntax::CastOperator TokenToCastOp(Frontend::Token::TokenKind token) noexcept;
 
 } // namespace Frontend

@@ -461,9 +461,28 @@ sona::owner<Syntax::Type> ParserImpl::ParseType() {
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseExpr() {
-  /// @todo this needs a bit fix to work. BianryOperator now does not contain
-  /// assignment operator.
-  return ParseBinaryExpr(Syntax::PrecOf(Syntax::BinaryOperator::BOP_Eq));
+  return ParseAssignExpr();
+}
+
+sona::owner<Syntax::Expr> ParserImpl::ParseAssignExpr() {
+  sona::owner<Syntax::Expr> lhs =
+      ParseBinaryExpr(Syntax::PrecOf(Syntax::BinaryOperator::BOP_Eq));
+  if (lhs.borrow() == nullptr) {
+    return nullptr;
+  }
+  Syntax::AssignOperator op = TokenToAssign(CurrentToken().GetTokenKind());
+
+  if (op != Syntax::AssignOperator::AOP_Invalid) {
+    SourceRange opRange = CurrentToken().GetSourceRange();
+    ConsumeToken();
+
+    sona::owner<Syntax::Expr> rhs =
+        ParseBinaryExpr(Syntax::PrecOf(Syntax::BinaryOperator::BOP_Eq));
+    return new Syntax::AssignExpr(op, std::move(lhs), std::move(rhs), opRange);
+  }
+  else {
+    return lhs;
+  }
 }
 
 sona::owner<Syntax::Expr> ParserImpl::ParseLiteralExpr() {
@@ -870,11 +889,8 @@ TokenToUnary(Frontend::Token::TokenKind token) noexcept {
   case Frontend::Token::TK_SYM_DMINUS:  return UnaryOperator::UOP_SelfDecr;
   case Frontend::Token::TK_SYM_EXCLAIM: return UnaryOperator::UOP_LogicNot;
   case Frontend::Token::TK_SYM_WAVE:    return UnaryOperator::UOP_BitReverse;
-
-  default: ;
+  default:                              return UnaryOperator::UOP_Invalid;
   }
-  sona_unreachable();
-  return UnaryOperator::UOP_Invalid; // For silencing compiler warnings
 }
 
 Syntax::BinaryOperator
@@ -900,11 +916,19 @@ TokenToBinary(Frontend::Token::TokenKind token) noexcept {
   case Frontend::Token::TK_SYM_LTEQ:    return BinaryOperator::BOP_LEq;
   case Frontend::Token::TK_SYM_GTEQ:    return BinaryOperator::BOP_GEq;
   case Frontend::Token::TK_SYM_EXCEQ:   return BinaryOperator::BOP_NEq;
-
-  default: ;
+  default:                              return BinaryOperator::BOP_Invalid;
   }
-  sona_unreachable();
-  return BinaryOperator::BOP_Invalid;
+}
+
+Syntax::AssignOperator
+TokenToAssign(Frontend::Token::TokenKind token) noexcept {
+  using namespace Syntax;
+  switch (token) {
+  case Frontend::Token::TK_SYM_EQ:  return AssignOperator::AOP_Assign;
+    /// @todo
+
+  default: return AssignOperator::AOP_Invalid;
+  }
 }
 
 Syntax::CastOperator

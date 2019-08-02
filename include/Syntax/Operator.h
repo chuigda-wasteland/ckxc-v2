@@ -19,6 +19,12 @@ enum class BinaryOperator {
   BOP_Invalid
 };
 
+enum class AssignOperator {
+#define ASSIGN_OP_DEF(name, rep, text) AOP_##name,
+#include "Syntax/Operators.def"
+  AOP_Invalid
+};
+
 /// @todo I'm not sure whether this will be used in further days
 enum class MixFixOperator {
   MOP_Conditional

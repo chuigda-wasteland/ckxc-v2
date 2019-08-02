@@ -84,6 +84,7 @@ CST_ABSTRACT(Node)
     CST_EXPR(SizeOfExpr)
     CST_EXPR(AlignOfExpr)
     CST_EXPR(BinaryExpr)
+    CST_EXPR(AssignExpr)
     CST_EXPR(MixFixExpr)
 
 #undef CST_MISC

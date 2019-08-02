@@ -65,7 +65,8 @@ void SemaPhase1::PostTranslateIncompleteUsing(
   iusing->GetHalfway()->FillAliasee(aliasee);
 }
 
-AST::QualType SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
+AST::QualType
+SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
                         sona::ref_ptr<const Syntax::Type> type) {
   switch (type->GetNodeKind()) {
 #define CST_TYPE(name) \

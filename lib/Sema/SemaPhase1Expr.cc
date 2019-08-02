@@ -74,6 +74,27 @@ SemaPhase1::ActOnNullLiteralExpr(
 }
 
 sona::owner<AST::Expr>
+SemaPhase1::ActOnAssignExpr(std::shared_ptr<Scope> scope,
+                            sona::ref_ptr<Syntax::AssignExpr const> expr) {
+  sona::owner<AST::Expr> lhs = ActOnExpr(scope, expr->GetLeftHandSide());
+  sona::owner<AST::Expr> rhs = ActOnExpr(scope, expr->GetRightHandSide());
+  if (lhs.borrow() == nullptr || rhs.borrow() == nullptr) {
+    return nullptr;
+  }
+
+  sona::owner<AST::Expr> maybeOverload =
+      TryFindAssignOperatorOverload(scope, std::move(lhs), std::move(rhs),
+                                    expr->GetOperator());
+  if (maybeOverload.borrow() != nullptr) {
+    return maybeOverload;
+  }
+
+  /// @todo
+  sona_unreachable();
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
 SemaPhase1::ActOnBinaryExpr(std::shared_ptr<Scope> scope,
                             sona::ref_ptr<Syntax::BinaryExpr const> expr) {
   sona::owner<AST::Expr> lhs = ActOnExpr(scope, expr->GetLeftHandSide());
@@ -943,6 +964,18 @@ SemaPhase1::TryFindBinaryOperatorOverload(std::shared_ptr<Scope> scope,
   (void)lhs;
   (void)rhs;
   (void)bop;
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::TryFindAssignOperatorOverload(std::shared_ptr<Scope> scope,
+                                          sona::owner<AST::Expr> &&lhs,
+                                          sona::owner<AST::Expr> &&rhs,
+                                          Syntax::AssignOperator aop) {
+  (void)scope;
+  (void)lhs;
+  (void)rhs;
+  (void)aop;
   return nullptr;
 }
 

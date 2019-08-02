@@ -128,24 +128,30 @@ protected:
                           std::vector<AST::CastStep> &outputVec);
 
 protected:
-  /// @note this function does not always "move away" or "consume" the input
-  /// `baseExpr`, it only consumes its input when the cast is valid, and
-  /// its return value is not nullptr. This'll get refactored by sometime, but
-  /// let us keep it until we can make changes.
+  /// @note this functions does not always "move away" or "consume" the input
+  /// `baseExpr`, they only consumes its input when there are valid
+  /// overloads. This'll get refactored by sometime, but let us keep it as-is
+  /// until we can make changes.
   sona::owner<AST::Expr>
   TryFindUnaryOperatorOverload(std::shared_ptr<Scope> scope,
                                sona::owner<AST::Expr> &&baseExpr,
                                Syntax::UnaryOperator uop);
 
-  /// @note this function does not always "move away" or "consume" the input
-  /// `lhs` and `rhs`, it only consumes its input when the cast is valid, and
-  /// its return value is not nullptr. This'll get refactored by sometime, but
-  /// let us keep it until we can make changes.
+  /// @note these functions does not always "move away" or "consume" the input
+  /// `lhs` and `rhs`, they only consumes its input when there are valid
+  /// overloads. This'll get refactored by sometime, but let us keep it as-is
+  /// until we can make changes.
   sona::owner<AST::Expr>
   TryFindBinaryOperatorOverload(std::shared_ptr<Scope> scope,
                                 sona::owner<AST::Expr> &&lhs,
                                 sona::owner<AST::Expr> &&rhs,
                                 Syntax::BinaryOperator bop);
+
+  sona::owner<AST::Expr>
+  TryFindAssignOperatorOverload(std::shared_ptr<Scope> scope,
+                                sona::owner<AST::Expr> &&lhs,
+                                sona::owner<AST::Expr> &&rhs,
+                                Syntax::AssignOperator aop);
 
   sona::owner<AST::Expr>
   CreateOrAddImplicitCast(sona::owner<AST::Expr> &&expr,
