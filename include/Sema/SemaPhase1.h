@@ -41,7 +41,7 @@ protected:
 #define CST_EXPR(name) \
   sona::owner<AST::Expr> \
   ActOn##name(std::shared_ptr<Scope> scope, \
-              sona::ref_ptr<Syntax::name const> type);
+              sona::ref_ptr<Syntax::name const> expr);
 
 protected:
   sona::ref_ptr<const AST::BuiltinType>

@@ -82,9 +82,14 @@ SemaPhase1::ResolveType(std::shared_ptr<Scope> scope,
 sona::owner<AST::Expr>
 SemaPhase1::ActOnExpr(std::shared_ptr<Scope> scope,
                       sona::ref_ptr<const Syntax::Expr> expr) {
-  (void)scope;
-  (void)expr;
-  sona_unreachable1("not implemented");
+  switch (expr->GetNodeKind()) {
+#define CST_EXPR(name) \
+  case Syntax::Node::CNK_##name: \
+    return ActOn##name(scope, expr.cast_unsafe<Syntax::name const>());
+#include "Syntax/Nodes.def"
+  default:
+    sona_unreachable();
+  }
   return nullptr;
 }
 

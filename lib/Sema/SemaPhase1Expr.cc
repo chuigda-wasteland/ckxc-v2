@@ -7,6 +7,12 @@ namespace ckx {
 namespace Sema {
 
 sona::owner<AST::Expr>
+SemaPhase1::ActOnIdRefExpr(std::shared_ptr<Scope> scope,
+                           sona::ref_ptr<Syntax::IdRefExpr const> expr) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
 SemaPhase1::ActOnIntLiteralExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::IntLiteralExpr const> literalExpr) {
@@ -177,6 +183,46 @@ SemaPhase1::ActOnBinaryExpr(std::shared_ptr<Scope> scope,
   }
 
   sona_unreachable();
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnArraySubscriptExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<const Syntax::ArraySubscriptExpr>) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnMixFixExpr(std::shared_ptr<Scope>,
+                            sona::ref_ptr<const Syntax::MixFixExpr>) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnFuncCallExpr(std::shared_ptr<Scope>,
+                              sona::ref_ptr<Syntax::FuncCallExpr const>) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnMemberAccessExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::MemberAccessExpr const>) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnSizeOfExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::SizeOfExpr const>) {
+  return nullptr;
+}
+
+sona::owner<AST::Expr>
+SemaPhase1::ActOnAlignOfExpr(
+    std::shared_ptr<Scope>,
+    sona::ref_ptr<Syntax::AlignOfExpr const>) {
   return nullptr;
 }
 
