@@ -38,6 +38,9 @@ public:
 
     // Intermediate expressions created by Sema
     EI_ImplicitCast,
+
+    // Used for unit tests
+    EI_Test
   };
 
   enum ValueCat { VC_LValue, VC_RValue, VC_XValue };

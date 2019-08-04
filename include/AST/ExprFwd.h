@@ -10,7 +10,7 @@ class AssignExpr;
 class UnaryExpr;
 class BinaryExpr;
 class CondExpr;
-class IdExpr;
+class IdRefExpr;
 class IntLiteralExpr;
 class UIntLiteralExpr;
 class FloatLiteralExpr;
@@ -25,6 +25,8 @@ class ParenExpr;
 class ImplicitCast;
 class ExplicitCastExpr;
 class CastStep;
+
+class TestExpr;
 
 } // namespace AST
 } // namespace ckx

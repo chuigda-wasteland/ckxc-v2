@@ -237,15 +237,24 @@ private:
   sona::owner<Expr> m_CondExpr, m_ThenExpr, m_ElseExpr;
 };
 
-class IdExpr : public Expr {
+class IdRefExpr : public Expr {
 public:
-  IdExpr(sona::strhdl_t const& idString, QualType type, ValueCat valueCat)
-    : Expr(ExprId::EI_ID, type, valueCat), m_IdString(idString) {}
+  IdRefExpr(sona::ref_ptr<AST::VarDecl const> varDecl,
+            QualType type, ValueCat valueCat)
+    : Expr(ExprId::EI_ID, type, valueCat), m_VarDecl(varDecl) {}
 
-  sona::strhdl_t const &GetIdString() const noexcept { return m_IdString; }
+  sona::ref_ptr<AST::VarDecl const> GetVarDecl() const noexcept {
+    return m_VarDecl;
+  }
 
 private:
-  sona::strhdl_t m_IdString;
+  sona::ref_ptr<AST::VarDecl const> m_VarDecl;
+};
+
+class TestExpr : public Expr {
+public:
+  TestExpr(QualType type, ValueCat valueCat)
+    : Expr(ExprId::EI_Test, type, valueCat) {}
 };
 
 class IntLiteralExpr : public Expr {

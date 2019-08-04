@@ -9,7 +9,14 @@ namespace Sema {
 sona::owner<AST::Expr>
 SemaPhase1::ActOnIdRefExpr(std::shared_ptr<Scope> scope,
                            sona::ref_ptr<Syntax::IdRefExpr const> expr) {
-  return nullptr;
+  /// @todo replace this
+  sona::ref_ptr<AST::VarDecl const> varDecl =
+      scope->LookupVarDecl(expr->GetId().GetIdentifier());
+  if (varDecl == nullptr) {
+    /// @todo add diagnostics
+    return nullptr;
+  }
+  return new AST::IdRefExpr(varDecl, varDecl->GetType(), AST::Expr::VC_LValue);
 }
 
 sona::owner<AST::Expr>

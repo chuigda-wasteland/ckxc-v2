@@ -60,7 +60,7 @@ void test1() {
   destType.AddVolatile();
 
   sona::owner<AST::Expr> castedExpr =
-      new AST::IdExpr("<undefined>", fromType, AST::Expr::VC_LValue);
+      new AST::TestExpr(fromType, AST::Expr::VC_LValue);
 
   sona::owner<AST::Expr> theCast =
       semaTest.TryImplicitCast(nullptr, std::move(castedExpr), destType, true);
@@ -135,7 +135,7 @@ void test3() {
   destType.AddConst();
 
   sona::owner<AST::Expr> castedExpr =
-      new AST::IdExpr("<undefined>", fromType, AST::Expr::VC_LValue);
+      new AST::TestExpr(fromType, AST::Expr::VC_LValue);
   sona::owner<AST::Expr> theCast =
       semaTest.TryImplicitCast(nullptr, std::move(castedExpr), destType, true);
   VkAssertFalse(diag.HasPendingDiags());
