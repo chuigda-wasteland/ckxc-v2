@@ -96,36 +96,34 @@ protected:
                   AST::QualType destType, bool shouldDiag = false);
 
   bool
-  TryNumericPromotion(AST::Expr::ValueCat castedExprValueCat,
-                      AST::QualType fromType, AST::QualType destType,
+  TryNumericPromotion(AST::QualType destType,
                       sona::ref_ptr<AST::BuiltinType const> fromBtin,
                       sona::ref_ptr<AST::BuiltinType const> destBtin,
                       std::vector<AST::CastStep> &outputVec);
+
+  sona::owner<AST::Expr>
+  TryNumericPromotion(sona::owner<AST::Expr> &&fromExpr, AST::QualType destType,
+                      sona::ref_ptr<AST::BuiltinType const> fromBtin,
+                      sona::ref_ptr<AST::BuiltinType const> destBtin,
+                      bool shouldDiag);
+
+  sona::owner<AST::Expr>
+  TryPointerQualAdjust(sona::owner<AST::Expr> &&fromExpr, AST::QualType destType,
+                       sona::ref_ptr<AST::PointerType const> fromPtr,
+                       sona::ref_ptr<AST::PointerType const> destPtr,
+                       bool shouldDiag);
 
   void DoNumericCast(AST::QualType fromType, AST::QualType destType,
                      sona::ref_ptr<AST::BuiltinType const> fromBtin,
                      sona::ref_ptr<AST::BuiltinType const> destBtin,
                      std::vector<AST::CastStep> &outputVec);
 
-  bool
-  TryPointerQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType formType,
-                       AST::QualType destType, bool isConstCast,
-                       std::vector<AST::CastStep> &outputVec);
+  void DoPointerQualAdjust(AST::QualType destType,
+                           std::vector<AST::CastStep> &outputVec);
                        
-  bool
-  TryRefQualAdjust(AST::Expr::ValueCat fromValueCat, AST::QualType fromType,
-                   AST::QualType destType, bool isConstCast,
-                   std::vector<AST::CastStep> &outputVec);
+  void DoRefQualAdjust(AST::QualType destType, std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
-
-  void LValueToRValueDecay(AST::Expr::ValueCat fromValueCat,
-                           AST::QualType fromType,
-                           std::vector<AST::CastStep> &outputVec);
-
-  void AdjustTopLevelQual(AST::QualType fromType,
-                          AST::QualType destType,
-                          std::vector<AST::CastStep> &outputVec);
 
 protected:
   /// @note this functions does not always "move away" or "consume" the input
