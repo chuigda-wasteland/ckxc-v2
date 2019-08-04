@@ -108,7 +108,8 @@ protected:
                       bool shouldDiag);
 
   sona::owner<AST::Expr>
-  TryPointerQualAdjust(sona::owner<AST::Expr> &&fromExpr, AST::QualType destType,
+  TryPointerQualAdjust(sona::owner<AST::Expr> &&fromExpr,
+                       AST::QualType destType,
                        sona::ref_ptr<AST::PointerType const> fromPtr,
                        sona::ref_ptr<AST::PointerType const> destPtr,
                        bool shouldDiag);

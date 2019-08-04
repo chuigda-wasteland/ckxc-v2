@@ -89,8 +89,33 @@ SemaPhase1::ActOnAssignExpr(std::shared_ptr<Scope> scope,
     return maybeOverload;
   }
 
-  sona_unreachable();
-  return nullptr;
+  if (lhs.borrow()->GetValueCat() != AST::Expr::VC_LValue) {
+    /// @todo add diagnostics here
+    return nullptr;
+  }
+  if (lhs.borrow()->GetExprType().IsConst()) {
+    /// @todo add diagnostics here
+    return nullptr;
+  }
+
+  switch (expr->GetOperator()) {
+  case Syntax::AssignOperator::AOP_Assign:
+    rhs = TryImplicitCast(nullptr, std::move(rhs),
+                          lhs.borrow()->GetExprType().DeQual());
+    if (rhs.borrow() == nullptr) {
+      /// @todo add diagnostics here
+      return nullptr;
+    }
+    return new AST::AssignExpr(AST::AssignExpr::AssignmentOperator::AOP_Assign,
+                               std::move(lhs), std::move(rhs),
+                               m_ASTContext.GetBuiltinType(
+                                 AST::BuiltinType::BTI_Void),
+                               AST::Expr::ValueCat::VC_RValue);
+
+  default:
+    sona_unreachable1("not implemented");
+    return nullptr;
+  }
 }
 
 sona::owner<AST::Expr>
@@ -161,9 +186,6 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                            sona::owner<AST::Expr> &&rhs,
                            Syntax::BinaryOperator bop) {
   (void)concrete;
-
-  lhs = LValueToRValueDecay(std::move(lhs));
-  rhs = LValueToRValueDecay(std::move(rhs));
 
   AST::QualType lhsTy = lhs.borrow()->GetExprType();
   AST::QualType rhsTy = rhs.borrow()->GetExprType();
@@ -345,8 +367,6 @@ SemaPhase1::ActOnBitwise(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                       std::move(rhs), AST::QualType(commonType1));
   sona_assert(lhsCasted.borrow() != nullptr);
   sona_assert(rhsCasted.borrow() != nullptr);
-  lhsCasted = LValueToRValueDecay(std::move(lhsCasted));
-  rhsCasted = LValueToRValueDecay(std::move(rhsCasted));
 
   /// @todo consider extract function
   AST::BinaryExpr::BinaryOperator bop1 = OperatorConv(bop);
@@ -361,9 +381,6 @@ SemaPhase1::ActOnBitwiseShift(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                               sona::owner<AST::Expr> &&rhs,
                               Syntax::BinaryOperator bop) {
   (void)concrete;
-
-  lhs = LValueToRValueDecay(std::move(lhs));
-  rhs = LValueToRValueDecay(std::move(rhs));
 
   AST::BinaryExpr::BinaryOperator bop1 = OperatorConv(bop);
   AST::QualType lhsTy = lhs.borrow()->GetExprType();
@@ -436,9 +453,6 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       /// @todo add diagnostics here
       return nullptr;
     }
-    lhs = LValueToRValueDecay(std::move(lhs));
-    rhs = LValueToRValueDecay(std::move(rhs));
-
     return new AST::BinaryExpr(
                 bop1, std::move(lhs), std::move(rhs),
                 m_ASTContext.GetBuiltinType(AST::BuiltinType::BTI_Bool),
