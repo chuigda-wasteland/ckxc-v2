@@ -1,5 +1,5 @@
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef AST_TYPE_H
+#define AST_TYPE_H
 
 #include "DeclBase.h"
 #include "TypeBase.h"
@@ -15,7 +15,7 @@
 namespace ckx {
 namespace AST {
 
-class BuiltinType final : public Type {
+class alignas(8) BuiltinType final : public Type {
 public:
   enum BuiltinTypeId {
     #define BUILTIN_TYPE(name, rep, size, isint, \
@@ -60,7 +60,7 @@ private:
 };
 
 /// @todo It may be hard to implement tuple with current type system.
-class TupleType final : public Type {
+class alignas(8) TupleType final : public Type {
 public:
   using TupleElements_t = std::vector<QualType>;
 
@@ -83,7 +83,7 @@ private:
   TupleElements_t m_ElemTypes;
 };
 
-class ArrayType final : public Type {
+class alignas(8) ArrayType final : public Type {
 public:
   ArrayType(QualType base, std::size_t size)
       : Type(TypeId::TI_Array), m_Base(base), m_Size(size) {}
@@ -102,7 +102,7 @@ private:
   std::size_t m_Size;
 };
 
-class PointerType final : public Type {
+class alignas(8) PointerType final : public Type {
 public:
   PointerType(QualType pointee)
       : Type(TypeId::TI_Pointer), m_Pointee(pointee) {}
@@ -140,7 +140,7 @@ private:
   QualType m_ReferencedType;
 };
 
-class LValueRefType final : public RefType {
+class alignas(8) LValueRefType final : public RefType {
 public:
   LValueRefType(QualType referenced)
       : RefType(RefTypeId::RTI_LValueRef, referenced) {}
@@ -152,7 +152,7 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class RValueRefType final : public RefType {
+class alignas(8) RValueRefType final : public RefType {
 public:
   RValueRefType(QualType referenced)
       : RefType(RefTypeId::RTI_RValueRef, referenced) {}
@@ -164,7 +164,7 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class FunctionType final : public Type {
+class alignas(8) FunctionType final : public Type {
 public:
   FunctionType(std::vector<QualType> &&paramTypes,
                QualType returnType)
@@ -213,7 +213,7 @@ private:
   sona::ref_ptr<AST::TypeDecl> m_TypeDecl;
 };
 
-class ClassType final : public UserDefinedType {
+class alignas(8) ClassType final : public UserDefinedType {
 public:
   ClassType(sona::ref_ptr<ClassDecl> decl);
   sona::ref_ptr<ClassDecl const> GetClassDecl() const noexcept;
@@ -222,7 +222,7 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class EnumType final : public UserDefinedType {
+class alignas(8) EnumType final : public UserDefinedType {
 public:
   EnumType(sona::ref_ptr<EnumDecl> decl);
   sona::ref_ptr<EnumDecl const> GetEnumDecl() const noexcept;
@@ -231,7 +231,7 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class ADTType final : public UserDefinedType {
+class alignas(8) ADTType final : public UserDefinedType {
 public:
   ADTType(sona::ref_ptr<ADTDecl> decl);
   sona::ref_ptr<ADTDecl const> GetADTDecl() const noexcept;
@@ -240,7 +240,7 @@ public:
   Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const override;
 };
 
-class UsingType final : public UserDefinedType {
+class alignas(8) UsingType final : public UserDefinedType {
 public:
   UsingType(sona::ref_ptr<AST::UsingDecl> usingDecl);
   sona::ref_ptr<AST::UsingDecl const> GetUsingDecl() const noexcept;
@@ -255,4 +255,4 @@ GetDeclOfUserDefinedType(sona::ref_ptr<AST::Type const> ty) noexcept;
 } // namespace AST
 } // namespace ckx
 
-#endif // TYPE_H
+#endif // AST_TYPE_H

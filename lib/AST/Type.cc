@@ -336,60 +336,12 @@ GetDeclOfUserDefinedType(sona::ref_ptr<Type const> ty) noexcept {
   }
 }
 
-sona::owner<Backend::ActionResult>
-BuiltinType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitBuiltinType(this);
+#define AST_TYPE(name) \
+sona::owner<Backend::ActionResult> \
+name::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const { \
+  return visitor->Visit##name(this); \
 }
-
-sona::owner<Backend::ActionResult>
-TupleType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitTupleType(this);
-}
-
-sona::owner<Backend::ActionResult>
-ArrayType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitArrayType(this);
-}
-
-sona::owner<Backend::ActionResult>
-PointerType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitPointerType(this);
-}
-
-sona::owner<Backend::ActionResult>
-LValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitLValueRefType(this);
-}
-
-sona::owner<Backend::ActionResult>
-RValueRefType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitRValueRefType(this);
-}
-
-sona::owner<Backend::ActionResult>
-FunctionType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitFunctionType(this);
-}
-
-sona::owner<Backend::ActionResult>
-ClassType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitClassType(this);
-}
-
-sona::owner<Backend::ActionResult>
-EnumType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitEnumType(this);
-}
-
-sona::owner<Backend::ActionResult>
-ADTType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitADTType(this);
-}
-
-sona::owner<Backend::ActionResult>
-UsingType::Accept(sona::ref_ptr<Backend::TypeVisitor> visitor) const {
-  return visitor->VisitUsingType(this);
-}
+#include "AST/Nodes.def"
 
 } // namespace AST
 } // namespace ckx

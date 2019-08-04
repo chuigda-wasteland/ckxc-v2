@@ -1,5 +1,5 @@
-#ifndef EXPRBASE_H
-#define EXPRBASE_H
+#ifndef AST_EXPRBASE_H
+#define AST_EXPRBASE_H
 
 #include "ExprFwd.h"
 #include "TypeBase.h"
@@ -66,4 +66,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPRBASE_H
+#endif // AST_EXPRBASE_H

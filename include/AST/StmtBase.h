@@ -1,5 +1,5 @@
-#ifndef STMTBASE_H
-#define STMTBASE_H
+#ifndef AST_STMTBASE_H
+#define AST_STMTBASE_H
 
 #include "StmtFwd.h"
 
@@ -40,4 +40,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // STMTBASE_H
+#endif // AST_STMTBASE_H

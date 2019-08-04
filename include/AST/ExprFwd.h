@@ -1,34 +1,17 @@
-#ifndef EXPRFWD_H
-#define EXPRFWD_H
+#ifndef AST_EXPRFWD_H
+#define AST_EXPRFWD_H
 
 namespace ckx {
 namespace AST {
 
-/// @todo replace hand-written codes with tablegen
-class Expr;
-class AssignExpr;
-class UnaryExpr;
-class BinaryExpr;
-class CondExpr;
-class IdRefExpr;
-class IntLiteralExpr;
-class UIntLiteralExpr;
-class FloatLiteralExpr;
-class CharLiteralExpr;
-class StringLiteralExpr;
-class BoolLiteralExpr;
-class NullptrLiteralExpr;
-// class TupleLiteralExpr;
-// class ArrayLiteralExpr;
-class ParenExpr;
 
-class ImplicitCast;
-class ExplicitCastExpr;
+#define AST_EXPR_A(name) class name;
+#define AST_EXPR(name) class name;
+#include "AST/Nodes.def"
+
 class CastStep;
-
-class TestExpr;
 
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPRFWD_H
+#endif // AST_EXPRFWD_H

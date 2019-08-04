@@ -96,5 +96,5 @@ int main(int argc, const char* argv[]) {
   }
 
   Backend::ASTPrinter printer;
-  printer.VisitTransUnit(aTransUnit.borrow());
+  printer.VisitTransUnitDecl(aTransUnit.borrow());
 }

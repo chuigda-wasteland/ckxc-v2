@@ -1,35 +1,16 @@
-#ifndef DECLFWD_H
-#define DECLFWD_H
+#ifndef AST_DECLFWD_H
+#define AST_DECLFWD_H
 
 namespace ckx {
 namespace AST {
 
-class Decl;
 class DeclContext;
 
-// class EmptyDecl;
-/// @todo implement them once we can
-// class ImportDecl;
-// class ModuleDecl;
-class TransUnitDecl; // : public DeclContext
-class NamedDecl;
-class LabelDecl;
-class TypeDecl;
-class ClassDecl; // : public DeclContext
-class EnumDecl;  // : public DeclContext
-class ADTDecl;
-class ValueCtorDecl;
-class UsingDecl;
-// class ValuedDecl;
-class FuncDecl; // : public DeclContext
-class VarDecl;
-// class FieldDecl;
-// class ParamDecl;
-class EnumeratorDecl;
-
-/// @todo and_then fix DeclBase.h
+#define AST_DECL_A(name) class name;
+#define AST_DECL(name) class name;
+#include "AST/Nodes.def"
 
 } // namespace AST
 } // namespace ckx
 
-#endif // DECLFWD_H
+#endif // AST_DECLFWD_H

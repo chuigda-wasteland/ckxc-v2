@@ -16,7 +16,7 @@ public:
   ASTPrinter(std::size_t indentSize = 2) : m_IndentSize(indentSize) {}
 
   sona::owner<ActionResult>
-  VisitTransUnit(
+  VisitTransUnitDecl(
       sona::ref_ptr<AST::TransUnitDecl const> transUnitDecl) override;
 
   sona::owner<ActionResult>
@@ -33,11 +33,11 @@ public:
       sona::ref_ptr<AST::EnumeratorDecl const> enumeratorDecl) override;
 
   sona::owner<ActionResult>
-  VisitValueCtor(
+  VisitValueCtorDecl(
       sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) override;
 
   sona::owner<ActionResult>
-  VisitADT(sona::ref_ptr<AST::ADTDecl const> adtDecl) override;
+  VisitADTDecl(sona::ref_ptr<AST::ADTDecl const> adtDecl) override;
 
   sona::owner<ActionResult>
   VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) override;

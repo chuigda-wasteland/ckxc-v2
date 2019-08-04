@@ -1,5 +1,5 @@
-#ifndef DECLBASE_H
-#define DECLBASE_H
+#ifndef AST_DECLBASE_H
+#define AST_DECLBASE_H
 
 #include "AST/DeclFwd.h"
 #include "Backend/ASTVisitor.h"
@@ -89,4 +89,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // DECLBASE_H
+#endif // AST_DECLBASE_H

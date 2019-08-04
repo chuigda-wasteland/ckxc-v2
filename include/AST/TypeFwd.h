@@ -1,23 +1,12 @@
-#ifndef TYPEFWD_H
-#define TYPEFWD_H
+#ifndef AST_TYPEFWD_H
+#define AST_TYPEFWD_H
 
 namespace ckx {
 namespace AST {
 
-class Type;
-class BuiltinType;
-class TupleType;
-class ArrayType;
-class PointerType;
-class RefType;
-class LValueRefType;
-class RValueRefType;
-class FunctionType;
-class UserDefinedType;
-class EnumType;
-class ClassType;
-class ADTType;
-class UsingType;
+#define AST_TYPE_A(name) class name;
+#define AST_TYPE(name) class name;
+#include "AST/Nodes.def"
 
 } // namespace AST
 } // namespace ckx

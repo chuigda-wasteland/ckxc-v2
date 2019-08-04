@@ -1,5 +1,5 @@
-#ifndef STMT_H
-#define STMT_H
+#ifndef AST_STMT_H
+#define AST_STMT_H
 
 #include "DeclBase.h"
 #include "ExprBase.h"
@@ -158,4 +158,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // STMT_H
+#endif // AST_STMT_H

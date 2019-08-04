@@ -37,7 +37,7 @@ QualType ASTContext::CreateArrayType(QualType base, size_t size) {
 
 QualType ASTContext::CreatePointerType(QualType pointee) {
   auto iter = m_PointerTypes.emplace(pointee).first;
-  return QualType(sona::ref_ptr<Type const>(*iter));
+  return QualType(*iter);
 }
 
 QualType ASTContext::CreateLValueRefType(QualType referenced) {

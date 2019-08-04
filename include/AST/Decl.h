@@ -1,5 +1,5 @@
-#ifndef DECL_H
-#define DECL_H
+#ifndef AST_DECL_H
+#define AST_DECL_H
 
 #include "AST/ASTContext.h"
 #include "AST/DeclBase.h"
@@ -261,4 +261,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // DECL_H
+#endif // AST_DECL_H

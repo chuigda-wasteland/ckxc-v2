@@ -1,0 +1,100 @@
+#ifndef AST_TYPE_A
+#define AST_TYPE_A(NODENAME)
+#endif
+
+#ifndef AST_DECL_A
+#define AST_DECL_A(NODENAME)
+#endif
+
+#ifndef AST_STMT_A
+#define AST_STMT_A(NODENAME)
+#endif
+
+#ifndef AST_EXPR_A
+#define AST_EXPR_A(NODENAME)
+#endif
+
+#ifndef AST_TYPE
+#define AST_TYPE(NODENAME)
+#endif
+
+#ifndef AST_DECL
+#define AST_DECL(NODENAME)
+#endif
+
+#ifndef AST_STMT
+#define AST_STMT(NODENAME)
+#endif
+
+#ifndef AST_EXPR
+#define AST_EXPR(NODENAME)
+#endif
+
+AST_TYPE_A(Type)
+  AST_TYPE(BuiltinType)
+  AST_TYPE(TupleType)
+  AST_TYPE(ArrayType)
+  AST_TYPE(PointerType)
+  AST_TYPE_A(RefType)
+    AST_TYPE(LValueRefType)
+    AST_TYPE(RValueRefType)
+  AST_TYPE(FunctionType)
+  AST_TYPE_A(UserDefinedType)
+    AST_TYPE(EnumType)
+    AST_TYPE(ClassType)
+    AST_TYPE(ADTType)
+    AST_TYPE(UsingType)
+
+AST_DECL_A(Decl)
+  AST_DECL(TransUnitDecl)
+  AST_DECL_A(NamedDecl)
+    AST_DECL(LabelDecl)
+    AST_DECL_A(TypeDecl)
+      AST_DECL(ClassDecl)
+      AST_DECL(EnumDecl)
+      AST_DECL(ADTDecl)
+      AST_DECL(UsingDecl)
+    AST_DECL(FuncDecl)
+    AST_DECL(VarDecl)
+  AST_DECL(EnumeratorDecl)
+  AST_DECL(ValueCtorDecl)
+
+AST_STMT_A(Stmt)
+  AST_STMT(EmptyStmt)
+  AST_STMT(DeclStmt)
+  AST_STMT(ExprStmt)
+  AST_STMT(CompoundStmt)
+  AST_STMT(IfStmt)
+  AST_STMT(ForStmt)
+  AST_STMT(WhileStmt)
+  AST_STMT(DoWhileStmt)
+  AST_STMT(BreakStmt)
+  AST_STMT(ContinueStmt)
+  AST_STMT(ReturnStmt)
+
+AST_EXPR_A(Expr)
+  AST_EXPR(AssignExpr)
+  AST_EXPR(UnaryExpr)
+  AST_EXPR(BinaryExpr)
+  AST_EXPR(CondExpr)
+  AST_EXPR(IdRefExpr)
+  AST_EXPR(IntLiteralExpr)
+  AST_EXPR(UIntLiteralExpr)
+  AST_EXPR(FloatLiteralExpr)
+  AST_EXPR(CharLiteralExpr)
+  AST_EXPR(StringLiteralExpr)
+  AST_EXPR(BoolLiteralExpr)
+  AST_EXPR(NullptrLiteralExpr)
+  AST_EXPR(ParenExpr)
+  AST_EXPR(ImplicitCast)
+  AST_EXPR(ExplicitCastExpr)
+  AST_EXPR(TestExpr)
+  
+#undef AST_TYPE
+#undef AST_DECL
+#undef AST_STMT
+#undef AST_EXPR
+#undef AST_TYPE_A
+#undef AST_DECL_A
+#undef AST_STMT_A
+#undef AST_EXPR_A

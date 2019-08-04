@@ -6,7 +6,7 @@ namespace ckx {
 namespace Backend {
 
 sona::owner<ActionResult>
-ASTPrinter::VisitTransUnit(
+ASTPrinter::VisitTransUnitDecl(
     sona::ref_ptr<AST::TransUnitDecl const> transUnitDecl) {
   Indent();
   std::cerr << "Translation unit declaraion @" << (void*)this << std::endl;
@@ -63,7 +63,7 @@ ASTPrinter::VisitEnumeratorDecl(
 }
 
 sona::owner<ActionResult>
-ASTPrinter::VisitValueCtor(
+ASTPrinter::VisitValueCtorDecl(
     sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) {
   Indent();
   std::cerr << "ADT constructor declaration "
@@ -75,7 +75,7 @@ ASTPrinter::VisitValueCtor(
 }
 
 sona::owner<ActionResult>
-ASTPrinter::VisitADT(
+ASTPrinter::VisitADTDecl(
     sona::ref_ptr<AST::ADTDecl const> adtDecl) {
   Indent();
   std::cerr << "ADT declaraion " << adtDecl->GetName().get()

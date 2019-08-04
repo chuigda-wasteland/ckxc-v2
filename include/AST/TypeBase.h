@@ -1,5 +1,5 @@
-#ifndef TYPEBASE_H
-#define TYPEBASE_H
+#ifndef AST_TYPEBASE_H
+#define AST_TYPEBASE_H
 
 #include "Basic/SourceRange.h"
 #include "AST/TypeFwd.h"

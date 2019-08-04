@@ -1,5 +1,5 @@
-#ifndef SEMA_EXPR_H
-#define SEMA_EXPR_H
+#ifndef AST_EXPR_H
+#define AST_EXPR_H
 
 #include "DeclBase.h"
 #include "ExprBase.h"
@@ -348,4 +348,4 @@ private:
 } // namespace AST
 } // namespace ckx
 
-#endif // EXPR_H
+#endif // AST_EXPR_H
