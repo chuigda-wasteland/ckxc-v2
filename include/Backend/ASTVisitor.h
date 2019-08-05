@@ -7,14 +7,33 @@
 #include "AST/TypeFwd.h"
 
 #include "sona/pointer_plus.h"
+#include "sona/optional.h"
 #include "sona/util.h"
 
 namespace ckx {
 namespace Backend {
 
+template <typename T> class ActionResultImpl;
+
 class ActionResult {
 public:
   virtual ~ActionResult() = 0;
+
+  template <typename T> T const& GetValue() const noexcept {
+    ActionResultImpl<T> const* impl =
+        static_cast<ActionResultImpl<T> const*>(this);
+    return impl->GetValue();
+  }
+
+  template <typename T> sona::optional<T> GetValueChecked() const noexcept {
+    ActionResultImpl<T> *impl = dynamic_cast<ActionResultImpl<T>*>(this);
+    if (impl == nullptr) {
+      return sona::empty_optional();
+    }
+    else {
+      return impl->GetValue();
+    }
+  }
 };
 
 template <typename T>

@@ -13,9 +13,14 @@ Parser::ParseTransUnit(sona::ref_ptr<std::vector<Token> const> tokenStream) {
   return m_ParserImpl.borrow()->ParseTransUnit(tokenStream);
 }
 
-sona::owner<Syntax::Stmt>
-Parser::ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream) {
-  return m_ParserImpl.borrow()->ParseLine(tokenStream);
+sona::owner<Syntax::Expr>
+Parser::ParseExpr(sona::ref_ptr<const std::vector<Token> > tokenStream) {
+  return m_ParserImpl.borrow()->ParseReplExpr(tokenStream);
+}
+
+sona::owner<Syntax::VarDecl>
+Parser::ParseVarDecl(sona::ref_ptr<const std::vector<Token> > tokenStream) {
+  return m_ParserImpl.borrow()->ParseReplVarDecl(tokenStream);
 }
 
 Parser::~Parser() {}

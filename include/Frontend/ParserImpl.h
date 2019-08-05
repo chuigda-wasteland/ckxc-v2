@@ -17,6 +17,12 @@ public:
   sona::owner<Syntax::Stmt>
   ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
+  sona::owner<Syntax::Expr>
+  ParseReplExpr(sona::ref_ptr<std::vector<Token> const> tokenStream);
+
+  sona::owner<Syntax::VarDecl>
+  ParseReplVarDecl(sona::ref_ptr<std::vector<Token> const> tokenStream);
+
 protected:
   /// @note Opening access to subclasses for test
   sona::owner<Syntax::Decl> ParseDeclOrFndef();

@@ -13,8 +13,6 @@ using namespace ckx;
 using namespace std;
 
 int main(int argc, const char* argv[]) {
-  new int[12];
-
   if (argc != 2) {
     cerr << "usage ckx-ast filename" << endl;
     return -1;

@@ -47,6 +47,9 @@ target_link_libraries (ckx-syntax Sema AST Frontend Syntax Basic sona)
 add_executable (ckx-ast driver/ASTDump.cc)
 target_link_libraries (ckx-ast Frontend Backend Sema AST Syntax Basic sona)
 
+add_executable (ckx-repl driver/Repl.cc)
+target_link_libraries (ckx-repl Frontend Backend Sema AST Syntax Basic sona)
+
 add_executable (TestLex test/Frontend/LexTest.cc)
 target_link_libraries (TestLex Frontend Syntax Basic sona)
 

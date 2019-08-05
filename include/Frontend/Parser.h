@@ -16,8 +16,11 @@ public:
   sona::owner<Syntax::TransUnit>
   ParseTransUnit(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
-  sona::owner<Syntax::Stmt>
-  ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream);
+  sona::owner<Syntax::Expr>
+  ParseExpr(sona::ref_ptr<std::vector<Token> const> tokenStream);
+
+  sona::owner<Syntax::VarDecl>
+  ParseVarDecl(sona::ref_ptr<std::vector<Token> const> tokenStream);
 
   ~Parser();
 

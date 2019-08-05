@@ -30,10 +30,17 @@ ParserImpl::ParseTransUnit(
   return ret;
 }
 
-sona::owner<Syntax::Stmt>
-ParserImpl::ParseLine(sona::ref_ptr<std::vector<Token> const> tokenStream) {
+sona::owner<Syntax::Expr>
+ParserImpl::ParseReplExpr(sona::ref_ptr<const std::vector<Token>> tokenStream) {
   SetParsingTokenStream(tokenStream);
-  return nullptr;
+  return ParseAssignExpr();
+}
+
+sona::owner<Syntax::VarDecl>
+ParserImpl::ParseReplVarDecl(
+    sona::ref_ptr<const std::vector<Token>> tokenStream) {
+  SetParsingTokenStream(tokenStream);
+  return ParseVarDecl().cast_unsafe<Syntax::VarDecl>();
 }
 
 sona::owner<Syntax::Decl> ParserImpl::ParseDeclOrFndef() {
@@ -702,6 +709,7 @@ ParserImpl::ParseBinaryExpr(std::uint16_t prevPrec) {
 
     sona::owner<Syntax::Expr> e1 = ParseBinaryExpr(Syntax::PrecOf(op) + 1);
     e0 = new Syntax::BinaryExpr(op, std::move(e0), std::move(e1), opRange);
+    op = TokenToBinary(CurrentToken().GetTokenKind());
   }
 
   return e0;
