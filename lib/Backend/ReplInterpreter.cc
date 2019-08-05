@@ -86,8 +86,183 @@ ReplInterpreter::VisitUnaryExpr(sona::ref_ptr<AST::UnaryExpr const> expr) {
 
 sona::owner<ActionResult>
 ReplInterpreter::VisitBinaryExpr(sona::ref_ptr<AST::BinaryExpr const> expr) {
-  (void)expr;
-  return CreateResult(VoidType());
+  sona::ref_ptr<AST::Expr const> lhs = expr->GetLeftOperand();
+  sona::ref_ptr<AST::Expr const> rhs = expr->GetRightOperand();
+  sona::ref_ptr<AST::BuiltinType const> lhsType =
+    lhs->GetExprType().GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+  sona::ref_ptr<AST::BuiltinType const> rhsType =
+    rhs->GetExprType().GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
+    
+  sona_assert(lhsType == rhsType);
+  
+  ReplValue lhsValue = lhs->Accept(this).borrow()
+                          ->template GetValue<ReplValue>();
+  ReplValue rhsValue = rhs->Accept(this).borrow()
+                          ->template GetValue<ReplValue>();
+  
+  switch (expr->GetOperator()) {
+  case AST::BinaryExpr::BOP_Add:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      + rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      + rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      + rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+    
+  case AST::BinaryExpr::BOP_Sub:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      - rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      - rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      - rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+
+  case AST::BinaryExpr::BOP_Mul:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      * rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      * rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      * rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+  
+  case AST::BinaryExpr::BOP_Div:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      / rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      / rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      / rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+  
+  case AST::BinaryExpr::BOP_Mod:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      % rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      % rhsValue.GetUIntValue()));
+    }
+    sona_unreachable();
+    break;
+  
+  case AST::BinaryExpr::BOP_LogicAnd:
+    return CreateResult(ReplValue(lhsValue.GetBoolValue()
+                                  && rhsValue.GetBoolValue()));
+  
+  case AST::BinaryExpr::BOP_LogicOr:
+    return CreateResult(ReplValue(lhsValue.GetBoolValue()
+                                  || rhsValue.GetBoolValue()));
+  
+  case AST::BinaryExpr::BOP_LogicXor:
+    return CreateResult(ReplValue(lhsValue.GetBoolValue()
+                                  * rhsValue.GetBoolValue() == 0));
+  
+  case AST::BinaryExpr::BOP_BitAnd:
+    return CreateResult(ReplValue(lhsValue.GetUIntValue()
+                                  & rhsValue.GetUIntValue()));
+  
+  case AST::BinaryExpr::BOP_BitOr:
+    return CreateResult(ReplValue(lhsValue.GetUIntValue()
+                                  | rhsValue.GetUIntValue()));
+  
+  case AST::BinaryExpr::BOP_BitXor:
+    return CreateResult(ReplValue(lhsValue.GetUIntValue()
+                                  ^ rhsValue.GetUIntValue()));
+  
+  case AST::BinaryExpr::BOP_BitLshift:
+    return CreateResult(ReplValue(lhsValue.GetUIntValue()
+                                  << rhsValue.GetUIntValue()));
+  
+  case AST::BinaryExpr::BOP_BitRshift:
+    return CreateResult(ReplValue(lhsValue.GetUIntValue()
+                                  >> rhsValue.GetUIntValue()));
+  
+  case AST::BinaryExpr::BOP_Lt:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      < rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      < rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      < rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+    
+  case AST::BinaryExpr::BOP_Gt:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      > rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      > rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      > rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+    
+  case AST::BinaryExpr::BOP_Eq:
+    if (lhsType->IsSigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetIntValue() 
+                                      == rhsValue.GetIntValue()));
+    }
+    else if (lhsType->IsUnsigned()) {
+      return CreateResult<>(ReplValue(lhsValue.GetUIntValue() 
+                                      == rhsValue.GetUIntValue()));
+    }
+    else if (lhsType->IsFloating()) {
+      return CreateResult<>(ReplValue(lhsValue.GetFloatValue()
+                                      == rhsValue.GetFloatValue()));
+    }
+    sona_unreachable();
+    break;
+  
+  case AST::BinaryExpr::BOP_LEq:
+  case AST::BinaryExpr::BOP_GEq:
+  case AST::BinaryExpr::BOP_NEq:
+  default:
+    sona_unreachable1("not implemented");
+  }
 }
 
 sona::owner<ActionResult>

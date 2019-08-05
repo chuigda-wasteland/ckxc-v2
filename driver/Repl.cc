@@ -41,6 +41,7 @@ int main() {
     vector<string> lines;
     string line;
 
+    cerr << "[ckxc-v2-repl Prelude] λ ";
     getline(cin, line);
     lines.push_back(line);
 
@@ -64,7 +65,6 @@ int main() {
       owner<AST::VarDecl> decl1 =
           sp0.ActOnVarDecl(decl.borrow()).first.cast_unsafe<AST::VarDecl>();
       replInterp.DefineVar(decl1.borrow());
-      sona_unreachable1("should be reachable!");
     }
     else {
       owner<Syntax::Expr> expr = parser.ParseExpr(tokens);
@@ -72,7 +72,7 @@ int main() {
                                              expr.borrow());
       Backend::ReplValue value = expr1.borrow()->Accept(replInterp).borrow()
                                                ->GetValue<Backend::ReplValue>();
-      sona_unreachable1("should be reachable!");
+      cerr << "  Result: " << value.GetIntValue() << endl;
     }
   }
 }
