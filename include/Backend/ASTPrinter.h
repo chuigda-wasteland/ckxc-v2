@@ -15,74 +15,15 @@ class ASTPrinter final : public DeclVisitor, public TypeVisitor {
 public:
   ASTPrinter(std::size_t indentSize = 2) : m_IndentSize(indentSize) {}
 
-  sona::owner<ActionResult>
-  VisitTransUnitDecl(
-      sona::ref_ptr<AST::TransUnitDecl const> transUnitDecl) override;
+#define AST_DECL(name) \
+  sona::owner<ActionResult> \
+  Visit##name(sona::ref_ptr<AST::name const> expr) override;
+#include "AST/Nodes.def"
 
-  sona::owner<ActionResult>
-  VisitLabelDecl(sona::ref_ptr<AST::LabelDecl const> labelDecl) override;
-
-  sona::owner<ActionResult>
-  VisitClassDecl(sona::ref_ptr<AST::ClassDecl const> classDecl) override;
-
-  sona::owner<ActionResult>
-  VisitEnumDecl(sona::ref_ptr<AST::EnumDecl const> enumDecl) override;
-
-  sona::owner<ActionResult>
-  VisitEnumeratorDecl(
-      sona::ref_ptr<AST::EnumeratorDecl const> enumeratorDecl) override;
-
-  sona::owner<ActionResult>
-  VisitValueCtorDecl(
-      sona::ref_ptr<AST::ValueCtorDecl const> valueCtorDecl) override;
-
-  sona::owner<ActionResult>
-  VisitADTDecl(sona::ref_ptr<AST::ADTDecl const> adtDecl) override;
-
-  sona::owner<ActionResult>
-  VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) override;
-
-  sona::owner<ActionResult>
-  VisitFuncDecl(sona::ref_ptr<AST::FuncDecl const> funcDecl) override;
-
-  sona::owner<ActionResult>
-  VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) override;
-
-  sona::owner<ActionResult>
-  VisitBuiltinType(sona::ref_ptr<AST::BuiltinType const> builtinType) override;
-
-  sona::owner<ActionResult>
-  VisitTupleType(sona::ref_ptr<AST::TupleType const> tupleType) override;
-
-  sona::owner<ActionResult>
-  VisitArrayType(sona::ref_ptr<AST::ArrayType const> arrayType) override;
-
-  sona::owner<ActionResult>
-  VisitPointerType(sona::ref_ptr<AST::PointerType const> ptrType) override;
-
-  sona::owner<ActionResult>
-  VisitLValueRefType(
-      sona::ref_ptr<AST::LValueRefType const> lvRefType) override;
-
-  sona::owner<ActionResult>
-  VisitRValueRefType(
-      sona::ref_ptr<AST::RValueRefType const> rvRefType) override;
-
-  sona::owner<ActionResult>
-  VisitFunctionType(sona::ref_ptr<AST::FunctionType const> funcType) override;
-
-  sona::owner<ActionResult>
-  VisitClassType(sona::ref_ptr<AST::ClassType const> classType) override;
-
-  sona::owner<ActionResult>
-  VisitEnumType(sona::ref_ptr<AST::EnumType const> enumType) override;
-
-  sona::owner<ActionResult>
-  VisitADTType(
-      sona::ref_ptr<AST::ADTType const> adtType) override;
-
-  sona::owner<ActionResult>
-  VisitUsingType(sona::ref_ptr<AST::UsingType const> usingType) override;
+#define AST_TYPE(name) \
+  sona::owner<ActionResult> \
+  Visit##name(sona::ref_ptr<AST::name const> decl) override;
+#include "AST/Nodes.def"
 
 private:
   void EnterScope() noexcept {

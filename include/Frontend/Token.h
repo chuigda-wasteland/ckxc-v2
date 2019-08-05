@@ -25,33 +25,33 @@ public:
     m_StrValue(sona::empty_optional()) {}
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        std::int64_t IntValue)
+        std::int64_t intValue)
     : Token(tokenKind, sourceRange) {
-    m_Value.IntValue = IntValue;
+    m_Value.IntValue = intValue;
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        std::uint64_t UIntValue)
+        std::uint64_t uIntValue)
     : Token(tokenKind, sourceRange) {
-    m_Value.UIntValue = UIntValue;
+    m_Value.UIntValue = uIntValue;
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        double FloatValue)
+        double floatValue)
     : Token(tokenKind, sourceRange) {
-    m_Value.FloatValue = FloatValue;
+    m_Value.FloatValue = floatValue;
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        char CharValue)
+        char charValue)
     : Token(tokenKind, sourceRange) {
-    m_Value.CharValue = CharValue;
+    m_Value.CharValue = charValue;
   }
 
   Token(TokenKind tokenKind, SourceRange const& sourceRange,
-        sona::strhdl_t const& StrValue)
+        sona::strhdl_t const& strValue)
     : m_TokenKind(tokenKind), m_SourceRange(sourceRange),
-      m_StrValue(StrValue) {}
+      m_StrValue(strValue) {}
 
   TokenKind const& GetTokenKind() const noexcept {
     return m_TokenKind;

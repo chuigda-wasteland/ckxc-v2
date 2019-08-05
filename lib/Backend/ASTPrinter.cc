@@ -15,7 +15,7 @@ ASTPrinter::VisitTransUnitDecl(
     decl->Accept(this);
   }
   ExitScope();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -23,7 +23,7 @@ ASTPrinter::VisitLabelDecl(sona::ref_ptr<AST::LabelDecl const> labelDecl) {
   Indent();
   std::cerr << "Label declaraion " << labelDecl->GetLabelString().get()
             << " @" << (void*)this << std::endl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -36,7 +36,7 @@ ASTPrinter::VisitClassDecl(sona::ref_ptr<AST::ClassDecl const> classDecl) {
     decl->Accept(this);
   }
   ExitScope();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -49,7 +49,7 @@ ASTPrinter::VisitEnumDecl(sona::ref_ptr<AST::EnumDecl const> enumDecl) {
     enumerator->Accept(this);
   }
   ExitScope();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -59,7 +59,7 @@ ASTPrinter::VisitEnumeratorDecl(
   std::cerr << "Enumerator declaration "
             << enumeratorDecl->GetEnumeratorName().get()
             << " @" << (void*)this << std::endl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -71,7 +71,7 @@ ASTPrinter::VisitValueCtorDecl(
             << " of type ";
   valueCtorDecl->GetType().GetUnqualTy()->Accept(this);
   std::cerr << " @" << (void*)this << std::endl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -85,7 +85,7 @@ ASTPrinter::VisitADTDecl(
     decl->Accept(this);
   }
   ExitScope();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -95,13 +95,13 @@ ASTPrinter::VisitUsingDecl(sona::ref_ptr<AST::UsingDecl const> usingDecl) {
             << " aliasing to ";
   usingDecl->GetTypeForDecl()->Accept(this);
   std::cerr << " @ " << (void*)this << std::endl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitFuncDecl(sona::ref_ptr<AST::FuncDecl const> funcDecl) {
   (void)funcDecl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -111,14 +111,14 @@ ASTPrinter::VisitVarDecl(sona::ref_ptr<AST::VarDecl const> varDecl) {
             << " of type ";
   varDecl->GetType().GetUnqualTy()->Accept(this);
   std::cerr << " @ " << (void*)this << std::endl;
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
 ASTPrinter::VisitBuiltinType(
     sona::ref_ptr<const AST::BuiltinType> builtinType) {
   std::cerr << builtinType->GetTypeName();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -130,7 +130,7 @@ ASTPrinter::VisitTupleType(
     std::cerr << ", ";
   }
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -139,7 +139,7 @@ ASTPrinter::VisitArrayType(
   std::cerr << "ArrayOf(";
   arrayType->GetBase().GetUnqualTy()->Accept(this);
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -148,7 +148,7 @@ ASTPrinter::VisitPointerType(
   std::cerr << "PointerTo(";
   ptrType->GetPointee().GetUnqualTy()->Accept(this);
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -157,7 +157,7 @@ ASTPrinter::VisitLValueRefType(
   std::cerr << "LValueRefTo(";
   lvRefType->GetReferencedType().GetUnqualTy()->Accept(this);
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -166,7 +166,7 @@ ASTPrinter::VisitRValueRefType(
   std::cerr << "RValueRefTo(";
   rvRefType->GetReferencedType().GetUnqualTy()->Accept(this);
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -178,7 +178,7 @@ ASTPrinter::VisitFunctionType(
   }
   std::cerr << ")->";
   funcType->GetReturnType().GetUnqualTy()->Accept(this);
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -186,7 +186,7 @@ ASTPrinter::VisitClassType(
     sona::ref_ptr<const AST::ClassType> classType) {
   std::cerr << "class " << classType->GetClassDecl()->GetName().get()
             << " @" << classType->GetTypeDecl().operator->();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -194,7 +194,7 @@ ASTPrinter::VisitEnumType(
     sona::ref_ptr<const AST::EnumType> enumType) {
   std::cerr << "enum " << enumType->GetEnumDecl()->GetName().get()
             << " @" << enumType->GetTypeDecl().operator->();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -202,7 +202,7 @@ ASTPrinter::VisitADTType(
     sona::ref_ptr<const AST::ADTType> adtType) {
   std::cerr << "ADT " << adtType->GetADTDecl()->GetName().get()
             << " @" << adtType->GetTypeDecl().operator->();
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -210,7 +210,7 @@ ASTPrinter::VisitUsingType(sona::ref_ptr<const AST::UsingType> usingType) {
   std::cerr << "Alias " << usingType->GetTypeName().get() << " to (";
   usingType->GetUsingDecl()->GetAliasee().GetUnqualTy()->Accept(this);
   std::cerr << ")";
-  return CreateDeclResult(VoidType());
+  return CreateResult(VoidType());
 }
 
 void ASTPrinter::Indent() const {

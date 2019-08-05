@@ -46,7 +46,7 @@ public:
   void* GetValue() const noexcept { return nullptr; }
 };
 
-template <typename T> sona::owner<ActionResult> CreateDeclResult(T&& t) {
+template <typename T> sona::owner<ActionResult> CreateResult(T&& t) {
   return new ActionResultImpl<T>(std::forward<T>(t));
 }
 
