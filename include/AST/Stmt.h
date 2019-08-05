@@ -14,6 +14,9 @@ namespace AST {
 class EmptyStmt : public Stmt {
 public:
   EmptyStmt() : Stmt(StmtId::SI_Empty) {}
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
 };
 
 class DeclStmt : public Stmt {
@@ -23,15 +26,22 @@ public:
 
   sona::ref_ptr<Decl const> GetDecl() const noexcept { return m_Decl.borrow(); }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
   sona::owner<Decl> m_Decl;
 };
 
 class ExprStmt : public Stmt {
 public:
-  ExprStmt(sona::owner<Expr> &&expr) : Stmt(StmtId::SI_Expr), m_Expr(std::move(expr)) {}
+  ExprStmt(sona::owner<Expr> &&expr)
+    : Stmt(StmtId::SI_Expr), m_Expr(std::move(expr)) {}
 
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
 
 private:
   sona::owner<Expr> m_Expr;
@@ -40,13 +50,16 @@ private:
 class CompoundStmt : public Stmt {
 public:
   CompoundStmt(std::vector<sona::owner<Stmt>> &&stmts)
-        : Stmt(StmtId::SI_Compound),
-          m_Stmts(std::move(stmts)) {}
+    : Stmt(StmtId::SI_Compound),
+      m_Stmts(std::move(stmts)) {}
 
-    auto GetStmts() const {
-      return sona::linq::from_container(m_Stmts).
-          transform([](sona::owner<Stmt> const& it) { return it.borrow(); });
-    }
+  auto GetStmts() const {
+    return sona::linq::from_container(m_Stmts).
+        transform([](sona::owner<Stmt> const& it) { return it.borrow(); });
+  }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
 
 private:
     std::vector<sona::owner<Stmt>> m_Stmts;
@@ -59,6 +72,7 @@ public:
   IfStmt(sona::owner<Expr> thenExpr)
     : Stmt(StmtId::SI_If), m_ThenExpr(std::move(thenExpr)),
       m_ElseExpr(sona::empty_optional()) {}
+
   IfStmt(sona::owner<Expr> thenExpr, sona::owner<Expr> elseExpr)
     : Stmt(StmtId::SI_If), m_ThenExpr(std::move(thenExpr)),
       m_ElseExpr(std::move(elseExpr)) {}
@@ -73,6 +87,9 @@ public:
     sona_assert(HasElse());
     return m_ElseExpr.value().borrow();
   }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
 
 private:
   sona::owner<Expr> m_ThenExpr;
@@ -119,6 +136,9 @@ public:
 
   sona::ref_ptr<Stmt const> GetStmt() const noexcept { return m_Stmt.borrow(); }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
   sona::optional<sona::owner<Expr>> m_InitExpr, m_CondExpr, m_IncrExpr;
   sona::owner<Stmt> m_Stmt;
@@ -128,6 +148,9 @@ private:
 
 class WhileStmt : public Stmt {
 public:
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
   sona::owner<Expr> m_CondExpr;
   sona::owner<Stmt> m_Stmt;
@@ -135,22 +158,34 @@ private:
 
 class DoWhileStmt : public Stmt {
 public:
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
   sona::owner<Stmt> m_CondExpr;
   sona::owner<Stmt> m_Stmt;
 };
 
 class BreakStmt : public Stmt {
+public:
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
 };
 
 class ContinueStmt : public Stmt {
 public:
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
+
 private:
 };
 
 class ReturnStmt : public Stmt {
 public:
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const override;
 private:
   sona::optional<sona::owner<Expr>> m_ReturnedExpr;
 };

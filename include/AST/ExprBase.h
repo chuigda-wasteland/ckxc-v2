@@ -3,6 +3,7 @@
 
 #include "ExprFwd.h"
 #include "TypeBase.h"
+#include "Backend/ASTVisitor.h"
 
 #include "sona/stringref.h"
 
@@ -52,6 +53,9 @@ public:
   QualType GetExprType() const noexcept { return m_ExprType; }
 
   ValueCat GetValueCat() const noexcept { return m_ValueCat; }
+
+  virtual sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const = 0;
 
 protected:
   Expr(ExprId id, QualType exprType, ValueCat valueCat)

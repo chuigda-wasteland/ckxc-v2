@@ -87,6 +87,9 @@ public:
     return new ImplicitCast(std::move(m_CastedExpr), std::move(m_CastSteps));
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   sona::owner<Expr> m_CastedExpr;
   std::vector<CastStep> m_CastSteps;
@@ -133,6 +136,9 @@ public:
     return m_MaybeCastSteps.value();
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   ExplicitCastOperator m_CastOp;
   sona::owner<Expr> m_CastedExpr;
@@ -162,6 +168,9 @@ public:
     return m_Assignee.borrow();
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   AssignmentOperator m_Operator;
   sona::owner<Expr> m_Assigned, m_Assignee;
@@ -185,6 +194,9 @@ public:
   sona::ref_ptr<Expr const> GetOperand() const noexcept {
     return m_Operand.borrow();
   }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 
 private:
   UnaryOperator m_Operator;
@@ -216,6 +228,9 @@ public:
     return m_RightOperand.borrow();
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   BinaryOperator m_Operator;
   sona::owner<Expr> m_LeftOperand, m_RightOperand;
@@ -233,6 +248,9 @@ public:
                 == m_ElseExpr.borrow()->GetExprType());
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   sona::owner<Expr> m_CondExpr, m_ThenExpr, m_ElseExpr;
 };
@@ -247,6 +265,9 @@ public:
     return m_VarDecl;
   }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   sona::ref_ptr<AST::VarDecl const> m_VarDecl;
 };
@@ -255,6 +276,9 @@ class TestExpr : public Expr {
 public:
   TestExpr(QualType type, ValueCat valueCat)
     : Expr(ExprId::EI_Test, type, valueCat) {}
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 };
 
 class IntLiteralExpr : public Expr {
@@ -263,6 +287,9 @@ public:
     : Expr(ExprId::EI_IntLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   std::int64_t GetValue() const noexcept { return m_Value; }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 
 private:
   std::int64_t m_Value;
@@ -276,6 +303,9 @@ public:
 
   std::uint64_t GetValue() const noexcept { return m_Value; }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   std::uint64_t m_Value;
 };
@@ -288,6 +318,9 @@ public:
 
   double GetValue() const noexcept { return m_Value; }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   double m_Value;
 };
@@ -298,6 +331,9 @@ public:
     : Expr(ExprId::EI_CharLiteral, type, ValueCat::VC_RValue), m_Value(value) {}
 
   char GetValue() const noexcept { return m_Value; }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 
 private:
   /// @todo use char32_t or other wider types to represent one char
@@ -311,6 +347,9 @@ public:
 
   sona::strhdl_t GetValue() const noexcept { return m_Value; }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   sona::strhdl_t m_Value;
 };
@@ -322,6 +361,9 @@ public:
 
   bool GetValue() const noexcept { return m_Value; }
 
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
+
 private:
   bool m_Value;
 };
@@ -330,6 +372,9 @@ class NullptrLiteralExpr : public Expr {
 public:
   NullptrLiteralExpr(QualType type)
     : Expr(ExprId::EI_NullptrLiteral, type, ValueCat::VC_RValue) {}
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 };
 
 class ParenExpr : public Expr {
@@ -340,6 +385,9 @@ public:
       m_Expr(std::move(expr)) {}
 
   sona::ref_ptr<Expr const> GetExpr() const noexcept { return m_Expr.borrow(); }
+
+  sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::ExprVisitor> visitor) const override;
 
 private:
   sona::owner<Expr> m_Expr;

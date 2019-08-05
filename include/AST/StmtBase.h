@@ -2,6 +2,7 @@
 #define AST_STMTBASE_H
 
 #include "StmtFwd.h"
+#include "Backend/ASTVisitor.h"
 
 #include "sona/stringref.h"
 
@@ -29,6 +30,9 @@ public:
   StmtId GetStmtId() const { return m_StmtId; }
 
   virtual ~Stmt() noexcept = default;
+
+  virtual sona::owner<Backend::ActionResult>
+  Accept(sona::ref_ptr<Backend::StmtVisitor> visitor) const = 0;
 
 protected:
   Stmt(StmtId id) : m_StmtId(id) {}

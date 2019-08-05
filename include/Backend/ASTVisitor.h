@@ -53,7 +53,7 @@ template <typename T> sona::owner<ActionResult> CreateDeclResult(T&& t) {
 class DeclVisitor {
 public:
 #define AST_DECL(name) \
-  virtual sona::owner<ActionResult> \
+  virtual sona::owner<Backend::ActionResult> \
   Visit##name(sona::ref_ptr<AST::name const> decl) = 0;
 #include "AST/Nodes.def"
 };
@@ -61,8 +61,24 @@ public:
 class TypeVisitor {
 public:
 #define AST_TYPE(name) \
-  virtual sona::owner<ActionResult> \
+  virtual sona::owner<Backend::ActionResult> \
   Visit##name(sona::ref_ptr<AST::name const> type) = 0;
+#include "AST/Nodes.def"
+};
+
+class ExprVisitor {
+public:
+#define AST_EXPR(name) \
+  virtual sona::owner<Backend::ActionResult> \
+  Visit##name(sona::ref_ptr<AST::name const> expr) = 0;
+#include "AST/Nodes.def"
+};
+
+class StmtVisitor {
+public:
+#define AST_STMT(name) \
+  virtual sona::owner<Backend::ActionResult> \
+  Visit##name(sona::ref_ptr<AST::name const> stmt) = 0;
 #include "AST/Nodes.def"
 };
 
