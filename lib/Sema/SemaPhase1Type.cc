@@ -89,22 +89,22 @@ SemaPhase1::CommonNumericType(sona::ref_ptr<AST::BuiltinType const> ty1,
   if (ty1->IsSigned() && ty2->IsSigned()) {
     return std::max(ty1, ty2,
                     [this] (auto ty1, auto ty2) {
-                      return SIntRank(ty1->GetBtid())
-                             < SIntRank(ty2->GetBtid());
+                      return this->SIntRank(ty1->GetBtid())
+                             < this->SIntRank(ty2->GetBtid());
                     });
   }
   else if (ty1->IsUnsigned() && ty2->IsUnsigned()) {
     return std::max(ty1, ty2,
                     [this] (auto ty1, auto ty2) {
-                      return UIntRank(ty1->GetBtid())
-                             < UIntRank(ty2->GetBtid());
+                      return this->UIntRank(ty1->GetBtid())
+                             < this->UIntRank(ty2->GetBtid());
                     });
   }
   else if (ty1->IsFloating() && ty2->IsFloating()) {
     return std::max(ty1, ty2,
                     [this] (auto ty1, auto ty2) {
-                      return FloatRank(ty1->GetBtid())
-                             < FloatRank(ty2->GetBtid());
+                      return this->FloatRank(ty1->GetBtid())
+                             < this->FloatRank(ty2->GetBtid());
                     });
   }
   else {

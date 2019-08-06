@@ -122,7 +122,8 @@ protected:
   void DoPointerQualAdjust(AST::QualType destType,
                            std::vector<AST::CastStep> &outputVec);
                        
-  void DoRefQualAdjust(AST::QualType destType, std::vector<AST::CastStep> &outputVec);
+  void DoRefQualAdjust(AST::QualType destType,
+                       std::vector<AST::CastStep> &outputVec);
 
   sona::owner<AST::Expr> LValueToRValueDecay(sona::owner<AST::Expr> &&expr);
 

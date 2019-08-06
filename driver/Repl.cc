@@ -8,8 +8,8 @@
 #include <fstream>
 #include <iostream>
 
-#include <cuchar>
 #include <clocale>
+#include <uchar.h>
 #include <unistd.h>
 
 using namespace sona;
@@ -63,7 +63,7 @@ void HiddenPresent() {
     }
   }
 
-  cerr << "自检完毕，正在输出bug信息..." << endl << endl;
+  cerr << "自检完毕，正在输出异常信息..." << endl << endl;
   msleep(1250);
 
   for (char ch : graph) {
@@ -196,8 +196,12 @@ int main() {
       else if (ty->IsUnsigned()) {
         cerr << "  Result: " << value.GetUIntValue() << endl << endl;
       }
-      else /* if (ty->IsFloating()) */ {
+      else if (ty->IsFloating()) {
         cerr << "  Result: " << value.GetFloatValue() << endl << endl;
+      }
+      else /* if (ty->IsBool()) */ {
+        cerr << "  Result: " << boolalpha
+             << value.GetBoolValue() << endl << endl;
       }
     }
   }
