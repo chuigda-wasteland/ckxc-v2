@@ -104,7 +104,7 @@ int8_t BuiltinType::UIntRank(BuiltinType::BuiltinTypeId btid) noexcept {
 }
 
 int8_t BuiltinType::FloatRank(BuiltinType::BuiltinTypeId btid) noexcept  {
-  sona_assert (IsIntegral(btid) && IsFloating(btid));
+  sona_assert (IsFloating(btid));
   switch (btid) {
   #define BUILTIN_TYPE(name, size, isint, \
                        issigned, signedver, unsignedver, token) \

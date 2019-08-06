@@ -113,6 +113,14 @@ static void PrintSourceCode(const std::vector<std::string>& codeLines,
   using std::setw;
   using std::setfill;
 
+  /// the range was not implemented
+  if (range.GetStartCol() == 0 && range.GetEndCol() == 0
+      && range.GetStartLine() == 0) {
+    cerr << "  <not-available> | Sorry, source info not implemented yet."
+         << endl << endl;
+    return;
+  }
+
   sona_assert(codeLines.size() >= range.GetStartLine() - 1);
   cerr << " " << setw(5) << setfill('0') << range.GetStartLine()
        << " | " << codeLines[range.GetStartLine() - 1] << endl;

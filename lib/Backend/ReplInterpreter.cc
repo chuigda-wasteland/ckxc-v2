@@ -178,36 +178,36 @@ ReplInterpreter::VisitBinaryExpr(sona::ref_ptr<AST::BinaryExpr const> expr) {
     break;
   
   case AST::BinaryExpr::BOP_LogicAnd:
-    return CreateResult(ReplValue(lhsValue.GetBoolValue()
-                                  && rhsValue.GetBoolValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetBoolValue()
+                                    && rhsValue.GetBoolValue()));
   
   case AST::BinaryExpr::BOP_LogicOr:
-    return CreateResult(ReplValue(lhsValue.GetBoolValue()
-                                  || rhsValue.GetBoolValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetBoolValue()
+                                    || rhsValue.GetBoolValue()));
   
   case AST::BinaryExpr::BOP_LogicXor:
-    return CreateResult(ReplValue(lhsValue.GetBoolValue()
-                                  * rhsValue.GetBoolValue() == 0));
+    return CreateResult<>(ReplValue(lhsValue.GetBoolValue()
+                                    * rhsValue.GetBoolValue() == 0));
   
   case AST::BinaryExpr::BOP_BitAnd:
-    return CreateResult(ReplValue(lhsValue.GetUIntValue()
-                                  & rhsValue.GetUIntValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetUIntValue()
+                                    & rhsValue.GetUIntValue()));
   
   case AST::BinaryExpr::BOP_BitOr:
-    return CreateResult(ReplValue(lhsValue.GetUIntValue()
-                                  | rhsValue.GetUIntValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetUIntValue()
+                                    | rhsValue.GetUIntValue()));
   
   case AST::BinaryExpr::BOP_BitXor:
-    return CreateResult(ReplValue(lhsValue.GetUIntValue()
-                                  ^ rhsValue.GetUIntValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetUIntValue()
+                                    ^ rhsValue.GetUIntValue()));
   
   case AST::BinaryExpr::BOP_BitLshift:
-    return CreateResult(ReplValue(lhsValue.GetUIntValue()
-                                  << rhsValue.GetUIntValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetUIntValue()
+                                    << rhsValue.GetUIntValue()));
   
   case AST::BinaryExpr::BOP_BitRshift:
-    return CreateResult(ReplValue(lhsValue.GetUIntValue()
-                                  >> rhsValue.GetUIntValue()));
+    return CreateResult<>(ReplValue(lhsValue.GetUIntValue()
+                                    >> rhsValue.GetUIntValue()));
   
   case AST::BinaryExpr::BOP_Lt:
     if (lhsType->IsSigned()) {
@@ -263,6 +263,7 @@ ReplInterpreter::VisitBinaryExpr(sona::ref_ptr<AST::BinaryExpr const> expr) {
   default:
     sona_unreachable1("not implemented");
   }
+  return CreateResult<>(VoidType());
 }
 
 sona::owner<ActionResult>
@@ -329,8 +330,15 @@ ReplInterpreter::VisitParenExpr(sona::ref_ptr<AST::ParenExpr const> expr) {
 sona::owner<ActionResult>
 ReplInterpreter::VisitImplicitCast(
     sona::ref_ptr<AST::ImplicitCast const> expr) {
-  (void)expr;
-  return CreateResult(VoidType());
+  ReplValue castedValue =
+      expr->GetCastedExpr()->Accept(this).borrow()->GetValue<ReplValue>();
+  for (const auto& castStep : expr->GetCastSteps()) {
+    if (castStep.GetCSK() == AST::CastStep::ICSK_LValue2RValue) {
+      castedValue = castedValue.GetPtrValue().get();
+    }
+    /// otherwise no cast required
+  }
+  return CreateResult<>(std::move(castedValue));
 }
 
 sona::owner<ActionResult>

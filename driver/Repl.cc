@@ -41,8 +41,13 @@ int main() {
     vector<string> lines;
     string line;
 
-    cerr << "[ckxc-v2-repl Prelude] λ ";
+    cerr << "[ckxc-v2-repl *Basic] λ ";
     getline(cin, line);
+    if (line == "" || line == "quit" || line == "exit") {
+      cerr << endl << "  Moriturus te saluto." << endl;
+      return 0;
+    }
+
     lines.push_back(line);
 
     Diag::DiagnosticEngine diag("<repl-input>", lines);
@@ -62,14 +67,27 @@ int main() {
 
     if (tokens.front().GetTokenKind() == Frontend::Token::TK_KW_def) {
       owner<Syntax::VarDecl> decl = parser.ParseVarDecl(tokens);
-      owner<AST::VarDecl> decl1 =
-          sp0.ActOnVarDecl(decl.borrow()).first.cast_unsafe<AST::VarDecl>();
-      replInterp.DefineVar(decl1.borrow());
+      // owner<AST::VarDecl> decl1 =
+      //    sp0.ActOnVarDecl(decl.borrow()).first.cast_unsafe<AST::VarDecl>();
+      // replInterp.DefineVar(decl1.borrow());
+      if (diag.HasPendingDiags()) {
+        diag.EmitDiags();
+        continue;
+      }
+      cerr << "  Sorry, variable decalrations are not supported yet." << endl;
     }
     else {
       owner<Syntax::Expr> expr = parser.ParseExpr(tokens);
+      if (diag.HasPendingDiags()) {
+        diag.EmitDiags();
+        continue;
+      }
       owner<AST::Expr> expr1 = sp1.ActOnExpr(sp1.GetCurrentScope(),
                                              expr.borrow());
+      if (diag.HasPendingDiags()) {
+        diag.EmitDiags();
+        continue;
+      }
       Backend::ReplValue value = expr1.borrow()->Accept(replInterp).borrow()
                                                ->GetValue<Backend::ReplValue>();
       cerr << "  Result: " << value.GetIntValue() << endl;

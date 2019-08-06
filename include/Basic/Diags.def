@@ -37,6 +37,13 @@ DIAG_TEMPLATE(ErrAmbiguousScope, "multiple {} found in {}")
 DIAG_TEMPLATE(ErrAmbiguous, "multiple {} found")
 DIAG_TEMPLATE(ErrCircularDepend, "circular dependency while resolving {}")
 DIAG_TEMPLATE(ErrDuplicateQual, "duplicate qualifier {}")
+DIAG_TEMPLATE(ErrVarUndeclared, "variable {} undeclared before used")
+DIAG_TEMPLATE(ErrAssignToNonLValue,
+              "left hand side of assignment must be lvalue")
+DIAG_TEMPLATE(ErrAssignToConst,
+              "left hand side of assignment must not be const")
+DIAG_TEMPLATE(ErrAssignIncompType,
+              "the lhs and rhs of assignment have incompatible types")
 
 /// Type checking
 DIAG_TEMPLATE(ErrOpRequiresType, "operator '{}' requires {} type")
@@ -50,6 +57,8 @@ DIAG_TEMPLATE(ErrCannotConstCast, "cannot const cast from {} to {}")
 DIAG_TEMPLATE(ErrStaticCastDiscardConst, \
               "static_cast casting const qualifier away")
 DIAG_TEMPLATE(WarnRedundantStatcCast, "redundant static cast")
+DIAG_TEMPLATE(ErrCannotApplyBinaryOp,
+              "cannot apply operator {} to lhs of type {} and rhs of type {}")
 
 
 #undef DIAG_TEMPLATE

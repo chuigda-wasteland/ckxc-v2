@@ -9,11 +9,13 @@ namespace Sema {
 sona::owner<AST::Expr>
 SemaPhase1::ActOnIdRefExpr(std::shared_ptr<Scope> scope,
                            sona::ref_ptr<Syntax::IdRefExpr const> expr) {
-  /// @todo replace this
   sona::ref_ptr<AST::VarDecl const> varDecl =
       scope->LookupVarDecl(expr->GetId().GetIdentifier());
   if (varDecl == nullptr) {
-    /// @todo add diagnostics
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrVarUndeclared,
+                             { expr->GetId().GetIdentifier() }),
+                expr->GetId().GetIdSourceRange());
     return nullptr;
   }
   return new AST::IdRefExpr(varDecl, varDecl->GetType(), AST::Expr::VC_LValue);
@@ -103,20 +105,26 @@ SemaPhase1::ActOnAssignExpr(std::shared_ptr<Scope> scope,
   }
 
   if (lhs.borrow()->GetValueCat() != AST::Expr::VC_LValue) {
-    /// @todo add diagnostics here
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrAssignToNonLValue, {}),
+                expr->GetOpRange());
     return nullptr;
   }
   if (lhs.borrow()->GetExprType().IsConst()) {
-    /// @todo add diagnostics here
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrAssignToConst, {}),
+                expr->GetOpRange());
     return nullptr;
   }
 
   switch (expr->GetOperator()) {
   case Syntax::AssignOperator::AOP_Assign:
     rhs = TryImplicitCast(nullptr, std::move(rhs),
-                          lhs.borrow()->GetExprType().DeQual());
+                          lhs.borrow()->GetExprType().DeQual(), true);
     if (rhs.borrow() == nullptr) {
-      /// @todo add diagnostics here
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrAssignIncompType, {}),
+                  expr->GetOpRange());
       return nullptr;
     }
     return new AST::AssignExpr(AST::AssignExpr::AssignmentOperator::AOP_Assign,
@@ -197,18 +205,21 @@ sona::owner<AST::Expr>
 SemaPhase1::ActOnArraySubscriptExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<const Syntax::ArraySubscriptExpr>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
 sona::owner<AST::Expr>
 SemaPhase1::ActOnMixFixExpr(std::shared_ptr<Scope>,
                             sona::ref_ptr<const Syntax::MixFixExpr>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
 sona::owner<AST::Expr>
 SemaPhase1::ActOnFuncCallExpr(std::shared_ptr<Scope>,
                               sona::ref_ptr<Syntax::FuncCallExpr const>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
@@ -216,6 +227,7 @@ sona::owner<AST::Expr>
 SemaPhase1::ActOnMemberAccessExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::MemberAccessExpr const>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
@@ -223,6 +235,7 @@ sona::owner<AST::Expr>
 SemaPhase1::ActOnSizeOfExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::SizeOfExpr const>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
@@ -230,6 +243,7 @@ sona::owner<AST::Expr>
 SemaPhase1::ActOnAlignOfExpr(
     std::shared_ptr<Scope>,
     sona::ref_ptr<Syntax::AlignOfExpr const>) {
+  sona_unreachable1("not implemented");
   return nullptr;
 }
 
@@ -244,7 +258,6 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   AST::QualType rhsTy = rhs.borrow()->GetExprType();
 
   switch (bop) {
-  /// @todo here may be some duplicate codes, consider extracting methods
   case Syntax::BinaryOperator::BOP_Add:
     if (lhsTy.GetUnqualTy()->IsPointer() && rhsTy.GetUnqualTy()->IsBuiltin()
         && rhsTy.GetUnqualTy()
@@ -258,7 +271,11 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       return ActOnNumeric(concrete, std::move(lhs), std::move(rhs), bop);
     }
     else {
-      /// @todo add diagnostics info
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                               {RepresentationOf(bop),
+                                "<not-implemented>", "<not-implemented>"}),
+                  SourceRange(0, 0, 0));
       return nullptr;
     }
 
@@ -278,7 +295,14 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
           rhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
       if (lhsPointerTy->GetPointee().GetUnqualTy()
           != rhsPointerTy->GetPointee().GetUnqualTy()) {
-        /// @todo add diagnostics info
+        m_Diag.Diag(Diag::DIR_Error,
+                    Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                                 {RepresentationOf(bop),
+                                  "<not-implemented>", "<not-implemented>"}),
+                    SourceRange(0, 0, 0));
+        m_Diag.Diag(Diag::DIR_Note,
+                    "pointer arithmetic requires same base type",
+                    SourceRange(0, 0, 0));
         return nullptr;
       }
       return new AST::BinaryExpr(AST::BinaryExpr::BOP_Sub,
@@ -294,7 +318,11 @@ SemaPhase1::ActOnAlgebraic(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       return ActOnNumeric(concrete, std::move(lhs), std::move(rhs), bop);
     }
     else {
-      /// @todo add diagnostics info
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                               {RepresentationOf(bop),
+                                "<not-implemented>", "<not-implemented>"}),
+                  SourceRange(0, 0, 0));
       return nullptr;
     }
 
@@ -324,7 +352,11 @@ SemaPhase1::ActOnNumeric(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
 
   if (bop == Syntax::BinaryOperator::BOP_Mod
       && !rhsBuiltinTy->IsIntegral()) {
-    /// @todo add diagnostics
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                             {RepresentationOf(bop),
+                              "<not-implemented>", "<not-implemented>"}),
+                SourceRange(0, 0, 0));
     return nullptr;
   }
 
@@ -332,7 +364,11 @@ SemaPhase1::ActOnNumeric(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       CommonNumericType(lhsBuiltinTy, rhsBuiltinTy);
   AST::QualType commonType1(commonType.cast_unsafe<AST::Type const>());
   if (commonType == nullptr) {
-    /// @todo add diagnostics
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                             {RepresentationOf(bop),
+                              "<not-implemented>", "<not-implemented>"}),
+                SourceRange(0, 0, 0));
     return nullptr;
   }
   lhs = TryImplicitCast(concrete->GetLeftHandSide(),
@@ -439,7 +475,13 @@ SemaPhase1::ActOnBitwiseShift(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   AST::QualType lhsTy = lhs.borrow()->GetExprType();
   AST::QualType rhsTy = rhs.borrow()->GetExprType();
   if (!lhsTy.GetUnqualTy()->IsBuiltin() || !rhsTy.GetUnqualTy()->IsBuiltin()) {
-    /// @todo add diags info
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                             {RepresentationOf(bop),
+                              "<not-implemented>", "<not-implemented>"}),
+                SourceRange(0, 0, 0));
+    m_Diag.Diag(Diag::DIR_Note, "bitwise shifting requires unsigned types",
+                SourceRange(0, 0, 0));
     return nullptr;
   }
 
@@ -448,7 +490,13 @@ SemaPhase1::ActOnBitwiseShift(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
   sona::ref_ptr<AST::BuiltinType const> rhsBuiltinType =
       rhsTy.GetUnqualTy().cast_unsafe<AST::BuiltinType const>();
   if (!lhsBuiltinType->IsUnsigned() || !rhsBuiltinType->IsUnsigned()) {
-    /// @todo add diags info
+    m_Diag.Diag(Diag::DIR_Error,
+                Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                             {RepresentationOf(bop),
+                              "<not-implemented>", "<not-implemented>"}),
+                SourceRange(0, 0, 0));
+    m_Diag.Diag(Diag::DIR_Note, "bitwise shifting requires unsigned types",
+                SourceRange(0, 0, 0));
     return nullptr;
   }
 
@@ -473,7 +521,11 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
       sona::ref_ptr<AST::BuiltinType const> commonType =
           CommonNumericType(lhsBuiltinType, rhsBuiltinType);
       if (commonType == nullptr) {
-        /// @todo add diagnostics here
+        m_Diag.Diag(Diag::DIR_Error,
+                    Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                                 {RepresentationOf(bop),
+                                  "<not-implemented>", "<not-implemented>"}),
+                    SourceRange(0, 0, 0));
         return nullptr;
       }
       sona::ref_ptr<AST::Type const> commonType1 =
@@ -503,7 +555,14 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
         rhsTy.GetUnqualTy().cast_unsafe<AST::PointerType const>();
     if (lhsPtrType->GetPointee().GetUnqualTy()
         != rhsPtrType->GetPointee().GetUnqualTy()) {
-      /// @todo add diagnostics here
+      m_Diag.Diag(Diag::DIR_Error,
+                  Diag::Format(Diag::DMT_ErrCannotApplyBinaryOp,
+                               {RepresentationOf(bop),
+                                "<not-implemented>", "<not-implemented>"}),
+                  SourceRange(0, 0, 0));
+      m_Diag.Diag(Diag::DIR_Note,
+                  "pointer arithmetic requires same base type",
+                  SourceRange(0, 0, 0));
       return nullptr;
     }
     return new AST::BinaryExpr(
@@ -512,7 +571,6 @@ SemaPhase1::ActOnCompare(sona::ref_ptr<const Syntax::BinaryExpr> concrete,
                 AST::Expr::VC_RValue);
   }
 
-  /// @todo add diagnostics here
   return nullptr;
 }
 
