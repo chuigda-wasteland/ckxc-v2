@@ -85,7 +85,7 @@ SemaPhase1::ResolveTemplatedType(std::shared_ptr<Scope>,
 
 sona::ref_ptr<AST::BuiltinType const>
 SemaPhase1::CommonNumericType(sona::ref_ptr<AST::BuiltinType const> ty1,
-                                sona::ref_ptr<AST::BuiltinType const> ty2) {
+                              sona::ref_ptr<AST::BuiltinType const> ty2) {
   if (ty1->IsSigned() && ty2->IsSigned()) {
     return std::max(ty1, ty2,
                     [this] (auto ty1, auto ty2) {
