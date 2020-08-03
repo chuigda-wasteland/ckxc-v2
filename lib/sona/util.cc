@@ -1,5 +1,6 @@
 #include "sona/util.h"
 #include <cstdio>
+#include <cstdlib>
 
 #ifndef SONA_NO_DEBUG
 namespace sona {

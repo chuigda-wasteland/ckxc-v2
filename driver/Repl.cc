@@ -5,6 +5,7 @@
 #include "Backend/ReplInterpreter.h"
 
 #include "sona/strutil.h"
+#include "sona/egconf.h"
 #include <fstream>
 #include <iostream>
 

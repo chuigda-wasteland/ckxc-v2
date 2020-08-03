@@ -91,6 +91,7 @@
     using std::int64_t;
   } // namespace egstd
   
+  #include <type_traits>
 #else
   #define EG_CXX11_CONSTEXPR const
   #define EG_CXX11_NOEXCEPT throw()
@@ -130,7 +131,6 @@ void printSpace(FILE *fp, int n) {
     fputc(' ', fp);
   }
 }
-
 } // egconf_impl
 
 namespace egconf {
@@ -159,12 +159,121 @@ public:
     assert(getType() == FloatValue);
     return v.fvalue;
   }
-  
+
   std::string const& getAsStrUnsafe() const EG_CXX11_NOEXCEPT {
     assert(getType() == StringValue); 
     return svalue;
   }
-  
+
+  egstd::int64_t getAsIntOr(egstd::int64_t alter) const EG_CXX11_NOEXCEPT {
+    if (getType() == IntValue) {
+      return v.ivalue;
+    } else {
+      return alter;
+    }
+  }
+
+  double getAsFloatOr(double alter) const EG_CXX11_NOEXCEPT {
+    if (getType() == FloatValue) {
+      return v.fvalue;
+    } else {
+      return alter;
+    }
+  }
+
+  std::string getAsStrOr(std::string &&alter) const EG_CXX11_NOEXCEPT {
+    if (getType() == StringValue) {
+      return svalue;
+    } else {
+      return std::string(std::move(alter));
+    }
+  }
+
+  std::string getAsStrOr(const char *alter) const EG_CXX11_NOEXCEPT {
+    if (getType() == StringValue) {
+      return svalue;
+    } else {
+      return std::string(alter);
+    }
+  }
+
+#if __cplusplus >= 201103L
+  template <typename F>
+  auto getAsIntOtherwise(F f) ->
+    typename std::enable_if<std::is_same<typename std::result_of<F()>::type,
+                                         egstd::int64_t>::value,
+                            egstd::int64_t>::type {
+    if (getType() == IntValue) {
+      return v.ivalue;
+    } else {
+      return f();
+    }
+  }
+
+  template <typename F>
+  auto getAsIntOtherwise(F f) ->
+    typename std::enable_if<!std::is_same<typename std::result_of<F()>::type,
+                                          egstd::int64_t>::value,
+                            egstd::int64_t>::type {
+    if (getType() == IntValue) {
+      return v.ivalue;
+    } else {
+      f();
+      return 0;
+    }
+  }
+
+  template <typename F>
+  auto getAsFloatOtherwise(F f) ->
+    typename std::enable_if<std::is_same<typename std::result_of<F()>::type,
+                                         double>::value,
+                            egstd::int64_t>::type {
+    if (getType() == FloatValue) {
+      return v.fvalue;
+    } else {
+      return f();
+    }
+  }
+
+  template <typename F>
+  auto getAsFloatOtherwise(F f) ->
+    typename std::enable_if<!std::is_same<typename std::result_of<F()>::type,
+                                          double>::value,
+                            egstd::int64_t>::type {
+    if (getType() == FloatValue) {
+      return v.fvalue;
+    } else {
+      f();
+      return 0;
+    }
+  }
+
+  template <typename F>
+  auto getAsStrOtherwise(F f) ->
+    typename std::enable_if<std::is_same<typename std::result_of<F()>::type,
+                                         std::string>::value,
+                            egstd::int64_t>::type {
+    if (getType() == FloatValue) {
+      return svalue;
+    } else {
+      return f();
+    }
+  }
+
+  template <typename F>
+  auto getAsStrOtherwise(F f) ->
+    typename std::enable_if<!std::is_same<typename std::result_of<F()>::type,
+                                          std::string>::value,
+                            egstd::int64_t>::type {
+    if (getType() == FloatValue) {
+      return svalue;
+    } else {
+      f();
+      return "";
+    }
+  }
+#endif
+
   void dump() const EG_CXX11_NOEXCEPT {
     switch (getType()) {
     case IntValue: 
