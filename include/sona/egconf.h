@@ -441,6 +441,10 @@ public:
   ParseResult parseConfigLine(std::string const& str) {
     std::size_t idx = 0;
     skipWhitespace(str, idx);
+    if (str[idx] == '\0' || str[idx] == '\r' || str[idx] == '\n') {
+      return Success;
+    }
+
     std::string path = parsePath(str, idx);
     skipWhitespace(str, idx);
     if (str[idx] != '=') {
